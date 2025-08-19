@@ -1,9 +1,9 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Esurvei from './components/Esurvei.vue'
 </script>
 
 <template>
-  <router-view />
+  <Esurvei />
 </template>
 
 <style scoped>
