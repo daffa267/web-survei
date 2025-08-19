@@ -1,10 +1,11 @@
 <script setup>
-import Esurvei from './components/Esurvei.vue'
+
 </script>
 
 <template>
-  <Esurvei />
+  <router-view />
 </template>
 
-<style scoped>
+<style>
+
 </style>

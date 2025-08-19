@@ -1,0 +1,304 @@
+<script setup>
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  // --- Efek Scroll pada Header ---
+  const handleScroll = () => {
+    const header = document.querySelector("header");
+    if (header && window.scrollY > 10) {
+      header.classList.add("scrolled");
+    } else if (header) {
+      header.classList.remove("scrolled");
+    }
+  };
+  window.addEventListener("scroll", handleScroll);
+
+  // --- Logika untuk Navigasi Interaktif ---
+  let isClickScrolling = false;
+  let scrollTimeout = null;
+  const navItems = document.querySelectorAll(".nav-item");
+  const indicator = document.getElementById("nav-indicator");
+  const sections = document.querySelectorAll("section[id]");
+
+  const updateNavIndicator = (activeItem) => {
+    if (!activeItem || !indicator) return;
+
+    navItems.forEach((item) => {
+      item.classList.remove("text-[#01c4c6]");
+      item.classList.add("text-white");
+    });
+    activeItem.classList.remove("text-white");
+    activeItem.classList.add("text-[#01c4c6]");
+
+    indicator.style.width = `${activeItem.offsetWidth}px`;
+    indicator.style.transform = `translateX(${activeItem.offsetLeft}px) translateY(calc(-50%))`;
+  };
+
+  navItems.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      const navName = this.getAttribute("data-nav");
+      if (!navName) return;
+
+      isClickScrolling = true;
+      clearTimeout(scrollTimeout);
+      updateNavIndicator(this);
+
+      // Navigasi ini diarahkan ke halaman utama (index), sesuaikan jika perlu
+      window.location.href = `/${navName === 'beranda' ? '' : '#' + navName}`;
+
+      scrollTimeout = setTimeout(() => {
+        isClickScrolling = false;
+      }, 800);
+    });
+  });
+  
+  // Panggil handleScroll sekali saat mount untuk set state awal
+  handleScroll();
+});
+
+// --- Fungsi untuk Toggle Menu Mobile ---
+const toggleMobileMenu = () => {
+  const menu = document.getElementById("mobileMenu");
+  if (menu) {
+    menu.classList.toggle("hidden");
+  }
+};
+</script>
+
+<template>
+  <div class="content-wrapper">
+    <header class="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-3 fixed top-0 left-0 z-50">
+      <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
+        <div class="flex flex-row items-center gap-3 sm:gap-4">
+          <img src="/images/img_logo_pemkot_1.png" class="w-[48px] h-[62px]" alt="Logo Pemkot" />
+          <div class="flex flex-col">
+            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
+            <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemkot Tanjungpinang</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
+        <div class="text-center mb-12 relative">
+          <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
+            Kategori OPD
+          </h1>
+        </div>
+
+        <div class="w-full max-w-[1800px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 lg:gap-y-8 lg:gap-x-48 mb-16 px-4 sm:px-4 lg:px-6 justify-items-center">
+            <div class="relative w-[261px] h-[261px] overflow-visible rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[50.1%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-4"></div>
+                <h3 class="text-white font-semibold text-sm mb-4">Persyaratan</h3>
+                <img src="/images/img_wired_flat_56_d.png" class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[49.9%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-2"></div>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">Sistem, Mekanisme,<br />dan Prosedur</h3>
+                <img src="/images/img_operation_1.png" class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[106px] lg:h-[106px] mb-4 card-image" alt="System" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[59px] left-1/2 transform -translate-x-[49.96%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-4"></div>
+                <h3 class="text-white font-semibold text-sm mb-4">Waktu Penyelesaian</h3>
+                <img src="/images/img_wired_flat_45_c.png" class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image" alt="Time" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[50.1%] h-auto z-10" style="width: 102.2% !important; max-width: 103% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-4"></div>
+                <h3 class="text-white font-semibold text-sm mb-4">Biaya/Tarif</h3>
+                <img src="/images/img_money_bag_1.png" class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px] mb-6 card-image" alt="Cost" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+            
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[50.1%] h-auto z-10" style="width: 102.262% !important; max-width: 103% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-0"></div>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">Produk Spesifikasi<br />dan Jenis Pelayanan</h3>
+                <img src="/images/img_received_1.png" class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image" alt="Product" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[50%] h-auto z-10" style="width: 102.34% !important; max-width: 103% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-4"></div>
+                <h3 class="text-white font-semibold text-sm mb-4">Kompetensi Pelaksana</h3>
+                <img src="/images/img_personal_growth.png" class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image" alt="Competence" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[50%] h-auto z-10" style="width: 102.5% !important; max-width: 105% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-4"></div>
+                <h3 class="text-white font-semibold text-sm mb-4">Perilaku Pelaksana</h3>
+                <img src="/images/img_consumer_behavior.png" class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image" alt="Behavior" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+
+            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[50.1%] h-auto z-10" style="width: 102.2% !important; max-width: 105% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+                <div class="mt-0"></div>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">Penanganan Pengaduan,<br />Saran, dan Masukan</h3>
+                <img src="/images/img_recommendation_1.png" class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image" alt="Complaint" />
+                <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">Lihat Detail</button>
+              </div>
+            </div>
+        </div>
+    </main>
+  </div>
+
+  <footer class="w-full relative">
+    <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10" alt="Footer Background" />
+    <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-12 sm:pt-24 lg:pt-28">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
+        <div class="lg:col-span-1 lg:ml-[-10px]">
+          <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
+          <div class="text-white/90 text-sm leading-relaxed">
+            <p class="mb-2">Sekretariat Daerah Kabupaten Sidoarjo</p>
+            <p class="mb-4">Bagian Organisasi</p>
+            <p class="mb-4">
+              Jl. Gubernur Suryo No.1, Gajah Timur, Magersari, Kec. Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61212
+            </p>
+            <p class="mb-2">(031) 8921945</p>
+            <p>organisasi@sidoarjokab.go.id</p>
+          </div>
+        </div>
+        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="md:ml-12">
+            <h3 class="text-white font-semibold text-2xl mb-4">E-Survei</h3>
+            <div class="text-white/90 text-sm leading-relaxed space-y-2">
+              <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
+              <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang E-SKM</a></p>
+              <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
+            <form action="#" method="POST" class="space-y-3">
+              <div class="flex flex-col sm:flex-row gap-3">
+                <input type="text" name="nama" placeholder="Nama" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                <input type="text" name="email_hp" placeholder="Email/No. HP" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+              </div>
+              <div>
+                <input type="text" name="subjek" placeholder="Subjek" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+              </div>
+              <div>
+                <textarea name="pesan" rows="4" placeholder="Pesan..." class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white"></textarea>
+              </div>
+              <div>
+                <button type="submit" class="w-full bg-white/90 text-[#007576] font-bold py-2 px-4 rounded-md hover:bg-white transition-colors">
+                  Kirim
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="mt-0 pt-6 border-t border-white/20 text-center">
+        <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
+          Copyright Kerja Praktek UMRAH 2025
+        </p>
+      </div>
+    </div>
+  </footer>
+</template>
+
+<style>
+/* Style ini sengaja tidak dibuat 'scoped' agar dapat menargetkan 'body' 
+  dan elemen lain persis seperti di file HTML asli.
+*/
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Archivo", sans-serif;
+  background-color: #f2fffc;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+.custom-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.card-image {
+  filter: drop-shadow(0 3.4px 2px rgba(0, 0, 0, 0.359));
+}
+header {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  backdrop-filter: blur(0px);
+  transition: all 0.3s ease-in-out;
+}
+header.scrolled {
+  background: linear-gradient(
+    90deg,
+    #f2fffc 25%,
+    rgba(57, 211, 211, 0.748) 100%
+  ) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+}
+.custom-gradient-text {
+  background: linear-gradient(to right, #007c7e, #00b9b9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.content-wrapper {
+  flex: 1 0 auto;
+}
+footer {
+  flex-shrink: 0;
+}
+#nav-indicator {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.button-detail {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.button-detail:hover {
+  background-color: #00c8c9;
+  color: white;
+}
+</style>

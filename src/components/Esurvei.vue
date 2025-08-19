@@ -165,10 +165,10 @@ const toggleMobileMenu = () => {
           <a href="#unsur" class="px-4 py-2 relative z-10 text-white font-semibold text-sm hover:text-[#01c4c6] transition-colors nav-item" data-nav="unsur">
             Unsur Survei
           </a>
-          <a href="kategori-1.html" class="flex items-center justify-center gap-2 px-4 h-10 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors">
+          <router-link to="/kategori-opd" class="flex items-center justify-center gap-2 px-4 h-10 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors">
             <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
             Mulai Survei
-          </a>
+          </router-link>
         </nav>
 
         <button class="lg:hidden p-2 text-white" @click="toggleMobileMenu">
@@ -189,10 +189,10 @@ const toggleMobileMenu = () => {
           <a href="#unsur" class="text-white font-semibold text-sm py-2">
             Unsur Survei
           </a>
-          <a href="kategori-1.html" class="flex items-center gap-2 px-4 py-2 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl w-fit">
+          <router-link to="/kategori-opd" class="flex items-center gap-2 px-4 py-2 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl w-fit">
             <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
             Mulai Survei
-          </a>
+          </router-link>
         </div>
       </div>
     </header>
@@ -213,7 +213,7 @@ const toggleMobileMenu = () => {
             <p class="text-[16px] text-[#04b0b1] leading-relaxed mb-8 text-justify">
               SURVEI KEPUASAN MASYARAKAT (SKM) adalah data dan informasi tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran secara kuantitatif dan kualitatif atas pendapat masyarakat dalam memperoleh pelayanan dari aparatur penyelenggara pelayanan publik.
             </p>
-            <a href="kategori-1.html" class="group flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#04b0b1] text-[#04b0b1] font-semibold text-sm rounded-2xl hover:bg-[#04b0b1] hover:text-white transition-all duration-300 w-fit">
+            <a href="/kategori-opd" class="group flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#04b0b1] text-[#04b0b1] font-semibold text-sm rounded-2xl hover:bg-[#04b0b1] hover:text-white transition-all duration-300 w-fit">
               Mulai Survey
               <img src="/images/img_heroicons_outline_login_cyan_600.svg" class="w-5 h-5 group-hover:invert group-hover:brightness-0 group-hover:transition-all group-hover:duration-300" alt="Arrow" />
             </a>
@@ -256,7 +256,7 @@ const toggleMobileMenu = () => {
               Berdasarkan Permenpan No. 14 Tahun 2017, Survei Kepuasan Masyarakat adalah pengukuran secara komprehensif kegiatan tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran atas pendapat masyarakat. Melalui survei ini diharapkan mendorong partisipasi masyarakat sebagai pengguna layanan dalam menilai kinerja penyelenggara pelayanan serta mendorong penyelenggara pelayanan publik untuk meningkatkan kualitas pelayanan dan melakukan pengembangan melalui inovasi-inovasi pelayanan publik.
             </p>
             <div class="flex justify-end relative z-10">
-              <a href="kategori-1.html" class="flex items-center gap-2 px-6 py-3 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors relative z-20">
+              <a href="/kategori-opd" class="flex items-center gap-2 px-6 py-3 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors relative z-20">
                 <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
                 Mulai Survey
               </a>
