@@ -522,7 +522,7 @@ const toggleMobileMenu = () => {
 
   <footer class="w-full relative">
     <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10" alt="Footer Background" />
-    <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-12 sm:pt-24 lg:pt-28">
+    <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-6 sm:pt-24 lg:pt-28">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
         <div class="lg:col-span-1 lg:ml-[-10px]">
           <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
@@ -567,7 +567,7 @@ const toggleMobileMenu = () => {
           </div>
         </div>
       </div>
-      <div class="mt-0 pt-6 border-t border-white/20 text-center">
+      <div class="mt-0 pt-8 text-center">
         <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
           Copyright Kerja Praktek UMRAH 2025
         </p>
@@ -577,9 +577,10 @@ const toggleMobileMenu = () => {
 </template>
 
 <style>
-/* Style ini sengaja tidak dibuat 'scoped' agar dapat menargetkan 'body' 
-  dan elemen lain persis seperti di file HTML asli.
-*/
+::placeholder {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
 html, body {
   width: 100%;
   overflow-x: hidden;

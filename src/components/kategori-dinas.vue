@@ -83,7 +83,7 @@ const toggleMobileMenu = () => {
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-28">
         <div class="text-center mb-12 relative">
           <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
-            Kategori OPD
+            Kategori Dinas
           </h1>
         </div>
 
@@ -92,10 +92,10 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">DINAS</h3>
+                <div class="mt-0"></div>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPEMUDAAN, OLAHRAGA DAN PARIWISATA</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
@@ -103,10 +103,10 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-2"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">BADAN</h3>
+                <div class="mt-0"></div>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
@@ -115,9 +115,9 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[59px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
                 <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">KECAMATAN</h3>
+                <h3 class="text-white font-semibold text-sm mb-4">DINAS KESEHATAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
@@ -125,10 +125,10 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.23% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">PUSKESMAS</h3>
+                <div class="mt-0"></div>
+                <h3 class="text-white font-semibold text-sm mb-4">DINAS KOMUNIKASI DAN INFORMATIKA</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
             
@@ -137,9 +137,9 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
                 <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS</h3>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPEMUDAAN , OLAHRAGA DAN PARIWISATA</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
@@ -147,10 +147,10 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.34% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">BADAN</h3>
+                <div class="mt-0"></div>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
@@ -159,9 +159,9 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.5% !important; max-width: 105% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
                 <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">KECAMATAN</h3>
+                <h3 class="text-white font-semibold text-sm mb-4">DINAS KESEHATAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
@@ -170,9 +170,9 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.3% !important; max-width: 105% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
                 <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">PUSKESMAS</h3>
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KOMUNIKASI DAN INFORMATIKA</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
         </div>
