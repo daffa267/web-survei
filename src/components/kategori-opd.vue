@@ -68,15 +68,15 @@ const toggleMobileMenu = () => {
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-3 fixed top-0 left-0 z-50">
+    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <div class="flex flex-row items-center gap-3 sm:gap-4">
-          <img src="/images/img_logo_pemkot_1.png" class="w-[48px] h-[62px]" alt="Logo Pemkot" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
+          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
           <div class="flex flex-col">
             <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemkot Tanjungpinang</span>
           </div>
-        </div>
+        </router-link>
       </div>
     </header>
 
@@ -92,7 +92,7 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
+                <div class="mt-2"></div>
                 <h3 class="text-white font-semibold text-sm mb-4">DINAS</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
@@ -114,7 +114,7 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[59px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
+                <div class="mt-2"></div>
                 <h3 class="text-white font-semibold text-sm mb-4">KECAMATAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
@@ -125,7 +125,7 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.23% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
+                <div class="mt-2"></div>
                 <h3 class="text-white font-semibold text-sm mb-4">PUSKESMAS</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
@@ -147,7 +147,7 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.34% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
+                <div class="mt-2"></div>
                 <h3 class="text-white font-semibold text-sm mb-4">BADAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>
@@ -158,7 +158,7 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.5% !important; max-width: 105% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
+                <div class="mt-2"></div>
                 <h3 class="text-white font-semibold text-sm mb-4">KECAMATAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Survei</router-link>

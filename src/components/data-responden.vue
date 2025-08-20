@@ -18,15 +18,15 @@ onMounted(() => {
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-3 fixed top-0 left-0 z-50">
+    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <div class="flex flex-row items-center gap-3 sm:gap-4">
-          <img src="/images/img_logo_pemkot_1.png" class="w-[48px] h-[62px]" alt="Logo Pemkot" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
+          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
           <div class="flex flex-col">
             <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemkot Tanjungpinang</span>
           </div>
-        </div>
+        </router-link>
       </div>
     </header>
 
@@ -70,11 +70,11 @@ onMounted(() => {
         </div>
       </div>
 
-      <section class="w-full bg-gradient-to-tr from-white via-white via-25% to-[#49F7F7] px-12 sm:px-20 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4">
+      <section class="form-card-gradient w-full px-12 sm:px-20 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4">
         <h3 class="text-2xl font-bold text-[#009293] mb-6 text-center">
           Data Responden
         </h3>
-        <form action="#" method="POST" class="space-y-6 flex-grow flex flex-col">
+        <form @submit.prevent="" class="space-y-6 flex-grow flex flex-col">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="nama" class="block text-sm font-semibold text-[#009293]">Nama Lengkap</label>
@@ -150,12 +150,12 @@ onMounted(() => {
           </div>
 
           <div class="flex justify-between items-center pt-8 mt-auto">
-            <button type="button" class="px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+            <router-link to="/kategori-dinas" class="px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
               &larr; Sebelumnya
-            </button>
-            <button type="submit" class="px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
+            </router-link>
+            <router-link to="/survei" class="px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
               Selanjutnya &rarr;
-            </button>
+            </router-link>
           </div>
         </form>
       </section>
@@ -228,10 +228,14 @@ header.scrolled {
 }
 .step-line {
   flex-grow: 1;
-  height: 3px;
+  height: 3.2px;
   background-color: #aaeeed;
   margin: 0 1rem;
   position: relative;
-  top: -24px; /* Disesuaikan agar sejajar dengan tengah ikon */
+  top: -14px; /* Disesuaikan agar sejajar dengan tengah ikon */
+}
+
+.form-card-gradient {
+  background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
 }
 </style>

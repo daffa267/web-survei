@@ -68,15 +68,15 @@ const toggleMobileMenu = () => {
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-3 fixed top-0 left-0 z-50">
+    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <div class="flex flex-row items-center gap-3 sm:gap-4">
-          <img src="/images/img_logo_pemkot_1.png" class="w-[48px] h-[62px]" alt="Logo Pemkot" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
+          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
           <div class="flex flex-col">
             <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemkot Tanjungpinang</span>
           </div>
-        </div>
+        </router-link>
       </div>
     </header>
 
