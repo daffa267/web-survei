@@ -1,8 +1,16 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
+import AOS from 'aos';
+import 'aos/dist/aos.css'; // Impor file CSS untuk AOS
 
-// Efek scroll pada header (sama seperti sebelumnya)
 onMounted(() => {
+  // Inisialisasi AOS dengan durasi animasi 800ms
+  AOS.init({
+    duration: 800,
+    once: true, // Animasi hanya berjalan sekali
+  });
+
+  // Efek scroll pada header (sama seperti sebelumnya)
   const handleScroll = () => {
     const header = document.querySelector("header");
     if (header && window.scrollY > 10) {
@@ -14,47 +22,6 @@ onMounted(() => {
   window.addEventListener("scroll", handleScroll);
   handleScroll();
 });
-
-// Data untuk pertanyaan survei, dibuat reaktif dengan ref()
-const surveyQuestions = ref([
-  {
-    id: 1,
-    text: "Apakah persyaratan layanan yang diminta sudah jelas dan mudah dipahami?",
-    rating: 5,
-    label: "Sangat Baik"
-  },
-  {
-    id: 2,
-    text: "Apakah jumlah dokumen/syarat yang diminta tidak berlebihan?",
-    rating: 4,
-    label: "Baik"
-  },
-  {
-    id: 3,
-    text: "Apakah informasi mengenai persyaratan layanan mudah diakses?",
-    rating: 4,
-    label: "Baik"
-  },
-  {
-    id: 4,
-    text: "Apakah petugas membantu menjelaskan persyaratan jika ada yang kurang jelas?",
-    rating: 2,
-    label: "Buruk"
-  },
-  {
-    id: 5,
-    text: "Apakah persyaratan layanan mudah untuk dipenuhi oleh masyarakat?",
-    rating: 1,
-    label: "Sangat Buruk"
-  }
-]);
-
-// Fungsi untuk menentukan warna label berdasarkan rating
-const getLabelClass = (rating) => {
-  if (rating >= 4) return 'bg-green-100 text-green-800';
-  if (rating === 3) return 'bg-yellow-100 text-yellow-800';
-  return 'bg-red-100 text-red-800';
-};
 </script>
 
 <template>
@@ -89,21 +56,21 @@ const getLabelClass = (rating) => {
           <p class="mt-2 text-base font-semibold">Responden</p>
         </div>
         <div class="step-line completed"></div>
-        <div class="flex flex-col items-center text-center step-item active">
+        <div class="flex flex-col items-center text-center step-item completed">
           <div class="step-icon">
             <i class="fa-solid fa-building"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Survey</p>
         </div>
-        <div class="step-line"></div>
-        <div class="flex flex-col items-center text-center step-item">
+        <div class="step-line completed"></div>
+        <div class="flex flex-col items-center text-center step-item completed">
           <div class="step-icon">
             <i class="fa-solid fa-comments"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
         </div>
-        <div class="step-line"></div>
-        <div class="flex flex-col items-center text-center step-item">
+        <div class="step-line completed"></div>
+        <div class="flex flex-col items-center text-center step-item active">
           <div class="step-icon">
             <i class="fa-solid fa-check"></i>
           </div>
@@ -111,37 +78,26 @@ const getLabelClass = (rating) => {
         </div>
       </div>
 
-      <section class="form-card-gradient w-full px-8 sm:px-12 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="text-2xl font-bold text-[#009293]">
-                "Persyaratan"
-            </h3>
-            <i class="fa-solid fa-info-circle text-2xl text-gray-400 cursor-pointer" title="Informasi"></i>
-        </div>
+      <section class="w-full flex justify-center items-center mt-4 min-h-[350px]">
+        <div
+          data-aos="zoom-in"
+          class="relative w-full max-w-md bg-[#00c8c9] text-white p-8 rounded-2xl shadow-lg text-center flex flex-col items-center"
+        >
+          <router-link to="/" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
+            <i class="fa-solid fa-house text-[#00c8c9]"></i>
+          </router-link>
+          
+          <h3 class="text-2xl font-bold mb-4">
+            Survei Berhasil Terkirim!
+          </h3>
+          
+          <div class="my-4">
+            <img src="/images/img_recommendation_1.png" alt="Recommendation" class="h-32 w-auto">
+          </div>
 
-        <div class="space-y-8 flex-grow flex flex-col">
-            <div v-for="item in surveyQuestions" :key="item.id" class="flex flex-col">
-                <p class="text-base text-[#016465] mb-3">{{ item.id }}. {{ item.text }}</p>
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center space-x-2">
-                        <i v-for="n in 5" :key="n" 
-                           :class="['fa-solid fa-star text-2xl cursor-pointer', n <= item.rating ? 'text-yellow-400' : 'text-gray-300']">
-                        </i>
-                    </div>
-                    <span :class="['px-3 py-1 text-sm font-semibold rounded-full', getLabelClass(item.rating)]">
-                        {{ item.label }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center pt-8 mt-auto">
-                <router-link to="/data-responden" class="px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
-                &larr; Sebelumnya
-                </router-link>
-                <router-link to="/kritik-saran" class="px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
-                Selanjutnya &rarr;
-                </router-link>
-            </div>
+          <p class="mt-4 text-base">
+            Terimakasih karena telah mengisi survei kami, semoga kami lebih baik lagi kedepannya.
+          </p>
         </div>
       </section>
     </main>
@@ -153,7 +109,6 @@ const getLabelClass = (rating) => {
 </template>
 
 <style>
-/* Global & Reusable Styles (SAMA PERSIS) */
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
@@ -174,7 +129,7 @@ footer {
   color: transparent;
 }
 
-/* Header Styles (SAMA PERSIS) */
+/* Header Styles */
 header {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
   backdrop-filter: blur(0px);
@@ -186,7 +141,7 @@ header.scrolled {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
-/* Stepper Styles (DITAMBAH GAYA BARU UNTUK 'completed') */
+/* Stepper Styles */
 .step-item {
   color: #aaeeed;
 }
@@ -217,21 +172,20 @@ header.scrolled {
   background-color: #aaeeed;
   margin: 0 1rem;
   position: relative;
-  top: -14px; /* Disesuaikan agar sejajar dengan tengah ikon */
+  top: -14px;
 }
 
-/* Gaya baru untuk step yang sudah selesai */
+/* Gaya untuk step yang sudah selesai */
 .step-item.completed {
-    color: #a0a0a0; /* Teks menjadi abu-abu */
+    color: #a0a0a0;
 }
 .step-item.completed .step-icon {
     background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
     color: white;
 }
 .step-line.completed {
-    background-color: #26ebd2; /* Garis menjadi warna aktif */
+    background-color: #26ebd2;
 }
-
 
 .form-card-gradient {
   background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
