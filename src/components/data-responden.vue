@@ -50,14 +50,14 @@ onMounted(() => {
         <div class="step-line"></div>
         <div class="flex flex-col items-center text-center step-item">
           <div class="step-icon">
-            <i class="fa-solid fa-file-alt"></i>
+            <i class="fa-solid fa-clipboard-list"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Survey</p>
         </div>
         <div class="step-line"></div>
         <div class="flex flex-col items-center text-center step-item">
           <div class="step-icon">
-            <i class="fa-solid fa-comments"></i>
+            <i class="fa-solid fa-comment-dots"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
         </div>
@@ -78,17 +78,17 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="nama" class="block text-sm font-semibold text-[#009293]">Nama Lengkap</label>
-              <input type="text" id="nama" placeholder="Masukkan nama lengkap anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic placeholder:text-[#82CACA]" />
+              <input type="text" id="nama" placeholder="Masukkan nama lengkap anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
             </div>
             <div>
               <label for="umur" class="block text-sm font-semibold text-[#009293]">Umur</label>
-              <input type="number" id="umur" placeholder="Masukkan umur anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic placeholder:text-[#82CACA]" />
+              <input type="number" id="umur" placeholder="Masukkan umur anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
             </div>
           </div>
 
           <div>
             <label for="email" class="block text-sm font-semibold text-[#009293]">Email/No.HP</label>
-            <input type="text" id="email" placeholder="Masukkan email atau nomor HP anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic placeholder:text-[#82CACA]" />
+            <input type="text" id="email" placeholder="Masukkan email atau nomor HP anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
           </div>
 
           <div>
@@ -167,15 +167,12 @@ onMounted(() => {
   </footer>
 </template>
 
-<style>
-/* Global & Reusable Styles */
-body {
-  font-family: "Archivo", sans-serif;
-  background-color: #f2fffc;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+<style scoped>
+:deep(input::placeholder) {
+  color: #82CACA !important;
+  opacity: 1 !important;     
 }
+
 .content-wrapper {
   flex: 1 0 auto;
 }
@@ -237,5 +234,16 @@ header.scrolled {
 
 .form-card-gradient {
   background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
+}
+</style>
+
+<style>
+/* Global & Reusable Styles */
+body {
+  font-family: "Archivo", sans-serif;
+  background-color: #f2fffc;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 </style>

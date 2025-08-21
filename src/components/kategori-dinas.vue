@@ -1,5 +1,17 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+
+// Data dinamis untuk setiap kategori dinas
+const dinas = ref([
+  { name: 'DINAS KEPEMUDAAN, OLAHRAGA DAN PARIWISATA', rating: '98.10' },
+  { name: 'DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL', rating: '95.50' },
+  { name: 'DINAS KESEHATAN', rating: '92.75' },
+  { name: 'DINAS KOMUNIKASI DAN INFORMATIKA', rating: '99.20' },
+  { name: 'DINAS KEPEMUDAAN , OLAHRAGA DAN PARIWISATA', rating: '98.10' },
+  { name: 'DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL', rating: '95.50' },
+  { name: 'DINAS KESEHATAN', rating: '92.75' },
+  { name: 'DINAS KOMUNIKASI DAN INFORMATIKA', rating: '99.20' }
+]);
 
 onMounted(() => {
   // --- Efek Scroll pada Header ---
@@ -44,7 +56,6 @@ onMounted(() => {
       clearTimeout(scrollTimeout);
       updateNavIndicator(this);
 
-      // Navigasi ini diarahkan ke halaman utama (index), sesuaikan jika perlu
       window.location.href = `/${navName === 'beranda' ? '' : '#' + navName}`;
 
       scrollTimeout = setTimeout(() => {
@@ -53,7 +64,6 @@ onMounted(() => {
     });
   });
   
-  // Panggil handleScroll sekali saat mount untuk set state awal
   handleScroll();
 });
 
@@ -88,93 +98,22 @@ const toggleMobileMenu = () => {
         </div>
 
         <div class="w-full max-w-[1800px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 lg:gap-y-8 lg:gap-x-32 mb-16 px-4 sm:px-4 lg:px-6 justify-items-center">
-            <div class="relative w-[261px] h-[261px] overflow-visible rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPEMUDAAN, OLAHRAGA DAN PARIWISATA</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[59px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">DINAS KESEHATAN</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.23% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">DINAS KOMUNIKASI DAN INFORMATIKA</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
             
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
+            <div v-for="(item, index) in dinas" :key="index" class="relative w-[261px] h-[261px] overflow-visible rounded-xl custom-shadow">
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 103% !important" alt="Card Decoration" />
+              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.5%; max-width: 103%;" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPEMUDAAN , OLAHRAGA DAN PARIWISATA</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
+                
+                <h3 class="text-white font-semibold text-sm mb-4 leading-tight min-h-[40px] flex items-center justify-center">{{ item.name }}</h3>
+                
+                <div class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px] mb-6 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
+                  <span class="text-white font-bold text-xl sm:text-2xl tracking-tight">{{ item.rating }}</span>
+                </div>
+                
                 <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
               </div>
             </div>
 
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.34% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.5% !important; max-width: 105% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-4"></div>
-                <h3 class="text-white font-semibold text-sm mb-4">DINAS KESEHATAN</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.3% !important; max-width: 105% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-                <div class="mt-0"></div>
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight">DINAS KOMUNIKASI DAN INFORMATIKA</h3>
-                <img src="/images/logo tanjungpinang.png" class="h-[80px] w-auto sm:h-[90px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
-              </div>
-            </div>
         </div>
     </main>
   </div>

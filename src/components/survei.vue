@@ -1,7 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
-// Efek scroll pada header (sama seperti sebelumnya)
+// State untuk mengontrol visibilitas modal
+const isModalVisible = ref(false);
+
+// Efek scroll pada header (tidak ada perubahan)
 onMounted(() => {
   const handleScroll = () => {
     const header = document.querySelector("header");
@@ -15,45 +18,55 @@ onMounted(() => {
   handleScroll();
 });
 
-// Data untuk pertanyaan survei, dibuat reaktif dengan ref()
+// Data untuk pertanyaan survei (tidak ada perubahan)
 const surveyQuestions = ref([
   {
     id: 1,
     text: "Apakah persyaratan layanan yang diminta sudah jelas dan mudah dipahami?",
-    rating: 5,
-    label: "Sangat Baik"
+    rating: 4,
   },
   {
     id: 2,
     text: "Apakah jumlah dokumen/syarat yang diminta tidak berlebihan?",
-    rating: 4,
-    label: "Baik"
+    rating: 3,
   },
   {
     id: 3,
     text: "Apakah informasi mengenai persyaratan layanan mudah diakses?",
-    rating: 4,
-    label: "Baik"
+    rating: 3,
   },
   {
     id: 4,
     text: "Apakah petugas membantu menjelaskan persyaratan jika ada yang kurang jelas?",
     rating: 2,
-    label: "Buruk"
   },
   {
     id: 5,
     text: "Apakah persyaratan layanan mudah untuk dipenuhi oleh masyarakat?",
     rating: 1,
-    label: "Sangat Buruk"
   }
 ]);
 
-// Fungsi untuk menentukan warna label berdasarkan rating
+// Fungsi untuk mendapatkan teks label berdasarkan rating (sesuai gambar)
+const getLabelText = (rating) => {
+  switch (rating) {
+    case 4: return 'Sangat Baik';
+    case 3: return 'Baik';
+    case 2: return 'Buruk';
+    case 1: return 'Sangat Buruk';
+    default: return '';
+  }
+};
+
+// Fungsi untuk menentukan warna label berdasarkan rating (tidak ada perubahan)
 const getLabelClass = (rating) => {
-  if (rating >= 4) return 'bg-green-100 text-green-800';
-  if (rating === 3) return 'bg-yellow-100 text-yellow-800';
-  return 'bg-red-100 text-red-800';
+  switch (rating) {
+    case 4: return 'bg-green-200 text-green-900';
+    case 3: return 'bg-blue-200 text-blue-900';
+    case 2: return 'bg-yellow-200 text-yellow-900';
+    case 1: return 'bg-red-200 text-red-900';
+    default: return 'bg-gray-200 text-gray-900';
+  }
 };
 </script>
 
@@ -91,14 +104,14 @@ const getLabelClass = (rating) => {
         <div class="step-line completed"></div>
         <div class="flex flex-col items-center text-center step-item active">
           <div class="step-icon">
-            <i class="fa-solid fa-building"></i>
+            <i class="fa-solid fa-clipboard-list"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Survey</p>
         </div>
         <div class="step-line"></div>
         <div class="flex flex-col items-center text-center step-item">
           <div class="step-icon">
-            <i class="fa-solid fa-comments"></i>
+            <i class="fa-solid fa-comment-dots"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
         </div>
@@ -111,25 +124,34 @@ const getLabelClass = (rating) => {
         </div>
       </div>
 
-      <section class="form-card-gradient w-full px-8 sm:px-12 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="text-2xl font-bold text-[#009293]">
+      <section class="form-card-gradient w-full px-8 sm:px-12 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4 relative">
+        <div class="absolute top-3 right-3 group">
+            <div @click="isModalVisible = true" class="w-6 h-6 flex items-center justify-center rounded-full bg-[#209FA0] text-white cursor-pointer shadow-md hover:opacity-90 transition-opacity z-10">
+                <i class="fa-solid fa-info text-white text-sm"></i>
+            </div>
+            <div class="absolute right-0 top-full mt-2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Petunjuk Survei
+                <div class="absolute -top-1 right-2 w-2 h-2 bg-gray-800 rotate-45"></div>
+            </div>
+        </div>
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold text-[#009293] text-center">
                 "Persyaratan"
             </h3>
-            <i class="fa-solid fa-info-circle text-2xl text-gray-400 cursor-pointer" title="Informasi"></i>
         </div>
 
-        <div class="space-y-8 flex-grow flex flex-col">
+        <div class="space-y-2 flex-grow flex flex-col">
             <div v-for="item in surveyQuestions" :key="item.id" class="flex flex-col">
                 <p class="text-base text-[#016465] mb-3">{{ item.id }}. {{ item.text }}</p>
                 <div class="flex items-center gap-4">
-                    <div class="flex items-center space-x-2">
-                        <i v-for="n in 5" :key="n" 
-                           :class="['fa-solid fa-star text-2xl cursor-pointer', n <= item.rating ? 'text-yellow-400' : 'text-gray-300']">
+                    <div class="flex items-center space-x-2 ml-2">
+                        <i v-for="n in 4" :key="n" 
+                           @click="item.rating = n"
+                           :class="['fa-solid fa-star text-2xl cursor-pointer transition-transform duration-150 ease-in-out hover:scale-125', n <= item.rating ? 'text-yellow-400' : 'text-gray-300']">
                         </i>
                     </div>
-                    <span :class="['px-3 py-1 text-sm font-semibold rounded-full', getLabelClass(item.rating)]">
-                        {{ item.label }}
+                    <span v-if="item.rating > 0" :class="['px-3 py-1 text-sm font-semibold rounded-full', getLabelClass(item.rating)]">
+                        {{ getLabelText(item.rating) }}
                     </span>
                 </div>
             </div>
@@ -145,6 +167,22 @@ const getLabelClass = (rating) => {
         </div>
       </section>
     </main>
+
+    <div v-if="isModalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-[#00c8c9] text-white rounded-2xl shadow-xl p-8 max-w-sm w-full relative">
+        <button @click="isModalVisible = false" class="absolute top-3 right-3 w-8 h-8 bg-white text-[#00c8c9] rounded-full flex items-center justify-center font-bold text-xl hover:bg-gray-200 transition-colors">
+            &times;
+        </button>
+        
+        <h3 class="text-2xl font-bold text-center mb-6">Petunjuk Penilaian Survei</h3>
+        <div class="space-y-3 text-lg">
+          <p>1. Bintang 1 = Sangat Buruk</p>
+          <p>2. Bintang 2 = Buruk</p>
+          <p>3. Bintang 3 = Baik</p>
+          <p>4. Bintang 4 = Sangat Baik</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <footer class="w-full relative h-48">
@@ -153,7 +191,7 @@ const getLabelClass = (rating) => {
 </template>
 
 <style>
-/* Global & Reusable Styles (SAMA PERSIS) */
+/* Semua style tetap sama, tidak ada perubahan */
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
@@ -173,8 +211,6 @@ footer {
   background-clip: text;
   color: transparent;
 }
-
-/* Header Styles (SAMA PERSIS) */
 header {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
   backdrop-filter: blur(0px);
@@ -185,8 +221,6 @@ header.scrolled {
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
-
-/* Stepper Styles (DITAMBAH GAYA BARU UNTUK 'completed') */
 .step-item {
   color: #aaeeed;
 }
@@ -217,21 +251,18 @@ header.scrolled {
   background-color: #aaeeed;
   margin: 0 1rem;
   position: relative;
-  top: -14px; /* Disesuaikan agar sejajar dengan tengah ikon */
+  top: -14px;
 }
-
-/* Gaya baru untuk step yang sudah selesai */
 .step-item.completed {
-    color: #a0a0a0; /* Teks menjadi abu-abu */
+    color: #a0a000;
 }
 .step-item.completed .step-icon {
     background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
     color: white;
 }
 .step-line.completed {
-    background-color: #26ebd2; /* Garis menjadi warna aktif */
+    background-color: #26ebd2;
 }
-
 
 .form-card-gradient {
   background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);

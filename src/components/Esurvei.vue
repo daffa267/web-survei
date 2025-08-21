@@ -1,6 +1,132 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
+import Chart from 'chart.js/auto';
+
+// --- START: Modal Logic (No changes) ---
+const isModalVisible = ref(false);
+const modalContent = ref({
+  title: '',
+  image: '',
+  description: ''
+});
+
+const biayaTarifContent = {
+  title: 'Biaya/Tarif',
+  image: '/images/img_money_bag_1.png', 
+  description: 'Ongkos yang dikenakan kepada penerima layanan dalam mengurus dan/atau memperoleh pelayanan dari penyelenggara yang besarnya ditetapkan berdasarkan kesepakatan antara penyelenggara dan masyarakat.'
+};
+
+const openModal = (content) => {
+  modalContent.value = content;
+  isModalVisible.value = true;
+};
+
+const closeModal = () => {
+  isModalVisible.value = false;
+};
+// --- END: Modal Logic ---
+
+// --- START: Chart Logic (No changes) ---
+
+// Ref to hold the Chart.js instance
+let opdChartInstance = null;
+
+// Reactive state for selected filters
+const selectedYear = ref('2023');
+const activeDinas = ref(null); // null means top-level view
+
+// Hierarchical survey data for different years
+const surveyData = ref({
+  '2023': [
+    { name: 'Dinas Kesehatan', value: 2.1, opd: [{ name: 'Puskesmas Mekar Baru', value: 2.5 }, { name: 'Puskesmas Batu 10', value: 1.8 }, { name: 'Labkesda', value: 2.0 }, { name: 'Gudang Farmasi', value: 2.1 }] },
+    { name: 'Dinas Kehutanan', value: 4.1, opd: [{ name: 'UPT Tahura', value: 4.2 }, { name: 'Bidang Konservasi', value: 4.0 }] },
+    { name: 'Dinas Pertanian', value: 3.1, opd: [{ name: 'Bidang Tanaman Pangan', value: 3.3 }, { name: 'Bidang Peternakan', value: 2.9 }, { name: 'Balai Penyuluhan', value: 3.1 }] },
+    { name: 'Dinas Perikanan', value: 2.1, opd: [{ name: 'UPT Pelabuhan Ikan', value: 2.0 }, { name: 'Seksi Budidaya', value: 2.2 }] },
+    { name: 'Dinas Kepemudaan', value: 3.1, opd: [{ name: 'Bidang Olahraga', value: 3.5 }, { name: 'Bidang Pemuda', value: 2.8 }] },
+    { name: 'Dinas Perhubungan', value: 3.8, opd: [{ name: 'Sektor Parkir', value: 3.9 }, { name: 'Sektor Transportasi Darat', value: 3.7 }] },
+    { name: 'Dinas Luar', value: 4.5, opd: [{ name: 'Bagian Kerjasama Internasional', value: 4.6 }, { name: 'Bagian Protokol', value: 4.4 }] },
+    { name: 'Dinas Dalam', value: 2.8, opd: [{ name: 'Seksi Kependudukan', value: 2.7 }, { name: 'Seksi Catatan Sipil', value: 2.9 }] },
+    { name: 'Dinas Kelautan', value: 2.1, opd: [{ name: 'Bidang Pengawasan', value: 2.3 }, { name: 'Bidang Pemberdayaan Nelayan', value: 1.9 }] },
+    { name: 'Diskominfo', value: 4.1, opd: [{ name: 'Bidang TIK', value: 4.5 }, { name: 'Bidang IKP', value: 3.9 }, { name: 'UPT Radio', value: 3.9 }] },
+  ],
+  '2024': [ // Sample data for 2024
+    { name: 'Dinas Kesehatan', value: 2.3, opd: [{ name: 'Puskesmas Mekar Baru', value: 2.6 }, { name: 'Puskesmas Batu 10', value: 1.9 }, { name: 'Labkesda', value: 2.2 }] },
+    { name: 'Dinas Kehutanan', value: 4.0, opd: [{ name: 'UPT Tahura', value: 4.1 }, { name: 'Bidang Konservasi', value: 3.9 }] },
+    { name: 'Dinas Pertanian', value: 3.3, opd: [{ name: 'Bidang Tanaman Pangan', value: 3.4 }, { name: 'Bidang Peternakan', value: 3.2 }] },
+    { name: 'Dinas Perhubungan', value: 3.9, opd: [{ name: 'Sektor Parkir', value: 4.0 }, { name: 'Sektor Transportasi Darat', value: 3.8 }] },
+    { name: 'Diskominfo', value: 4.3, opd: [{ name: 'Bidang TIK', value: 4.6 }, { name: 'Bidang IKP', value: 4.1 }] },
+  ],
+  '2025': [ // Sample data for 2025
+    { name: 'Dinas Kesehatan', value: 2.5, opd: [{ name: 'Puskesmas Mekar Baru', value: 2.8 }, { name: 'Puskesmas Batu 10', value: 2.2 }] },
+    { name: 'Dinas Pertanian', value: 3.5, opd: [{ name: 'Bidang Tanaman Pangan', value: 3.6 }, { name: 'Bidang Peternakan', value: 3.4 }, { name: 'Balai Penyuluhan', value: 3.5 }] },
+    { name: 'Dinas Perhubungan', value: 4.1, opd: [{ name: 'Sektor Parkir', value: 4.2 }, { name: 'Sektor Transportasi Darat', value: 4.0 }] },
+    { name: 'Diskominfo', value: 4.4, opd: [{ name: 'Bidang TIK', value: 4.5 }, { name: 'Bidang IKP', value: 4.3 }] },
+  ]
+});
+
+// Computed property to get the list of available agencies for the selected year
+const availableDinas = computed(() => 
+  surveyData.value[selectedYear.value]?.map(d => d.name) || []
+);
+
+// Computed property to determine the chart's title
+const chartTitle = computed(() => {
+    if (activeDinas.value) {
+        return `Detail Nilai Pelayanan: ${activeDinas.value}`;
+    }
+    return `Nilai Pelayanan OPD Tahun ${selectedYear.value}`;
+});
+
+// Function to reset view to the top-level
+const goBack = () => {
+    activeDinas.value = null;
+};
+
+// Main function to update the chart based on current state
+const updateChart = () => {
+    if (!opdChartInstance) return;
+
+    const dataForYear = surveyData.value[selectedYear.value];
+    if (!dataForYear) return;
+
+    let labels, data, backgroundColor, label;
+
+    if (activeDinas.value) {
+        // Drill-down view
+        const dinasData = dataForYear.find(d => d.name === activeDinas.value);
+        labels = dinasData?.opd?.map(o => o.name) || [];
+        data = dinasData?.opd?.map(o => o.value) || [];
+        label = `Rincian ${activeDinas.value}`;
+        backgroundColor = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF'];
+    } else {
+        // Top-level view
+        labels = dataForYear.map(d => d.name);
+        data = dataForYear.map(d => d.value);
+        label = 'Nilai Pelayanan';
+        backgroundColor = dataForYear.map((_, i) => i % 2 === 0 ? '#00a0a1' : '#00c8c9');
+    }
+
+    opdChartInstance.data.labels = labels;
+    opdChartInstance.data.datasets[0].label = label;
+    opdChartInstance.data.datasets[0].data = data;
+    opdChartInstance.data.datasets[0].backgroundColor = backgroundColor;
+    
+    opdChartInstance.update();
+};
+
+// Watch for changes in filters and update the chart
+watch([selectedYear, activeDinas], () => {
+  // If year changes, reset to top-level view
+  if (activeDinas.value && !availableDinas.value.includes(activeDinas.value)) {
+      activeDinas.value = null;
+  }
+  updateChart();
+});
+
+// --- END: Chart Logic ---
+
 onMounted(() => {
+  // --- START: Existing Scroll/Nav Logic (No changes here) ---
   const handleScroll = () => {
     const header = document.querySelector("header");
     if (window.scrollY > 10) {
@@ -81,35 +207,54 @@ onMounted(() => {
   window.addEventListener("scroll", handleScrollNavUpdate);
 
   handleScroll();
-  setTimeout(() => {
-    const initialActiveItem = document.querySelector(
-      ".nav-item[data-nav='beranda']"
-    );
-    updateNavIndicator(initialActiveItem);
-  }, 100);
 
+  // --- START: Fix for Navbar Indicator Initial Animation & Position ---
+  // Kita akan memanggil fungsi handleScrollNavUpdate() satu kali setelah halaman dimuat.
+  // Fungsi ini sudah pintar untuk mendeteksi posisi scroll dan mengatur indikator ke nav-item yang aktif.
+  setTimeout(() => {
+    if (indicator) {
+      // 1. Nonaktifkan transisi agar posisi awal langsung diatur tanpa animasi.
+      indicator.style.transition = 'none';
+
+      // 2. Jalankan fungsi pendeteksi scroll satu kali untuk mengatur posisi awal indikator
+      // sesuai dengan posisi scroll saat halaman di-refresh.
+      handleScrollNavUpdate();
+
+      // 3. Aktifkan kembali transisi setelah posisi awal diatur, agar animasi berfungsi
+      // saat pengguna meng-klik atau scroll.
+      setTimeout(() => {
+        indicator.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      }, 50);
+    }
+  }, 100); // Diberi jeda 100ms untuk memastikan browser selesai melakukan scroll otomatis ke anchor (#) saat refresh.
+  // --- END: Fix for Navbar Indicator Initial Animation & Position ---
+  
+  // --- END: Existing Scroll/Nav Logic ---
+
+
+  // --- START: Chart Initialization (No changes) ---
   const ctx = document.getElementById("opdChart")?.getContext("2d");
   if (ctx && typeof Chart !== "undefined") {
-    new Chart(ctx, {
+    opdChartInstance = new Chart(ctx, {
       type: "bar",
       data: {
-        labels: ["OPD 1", "OPD 2", "OPD 3", "OPD 4", "OPD 5", "OPD 6", "OPD 7", "OPD 8", "OPD 9", "OPD 10"],
+        labels: [], 
         datasets: [{
           label: "Nilai Pelayanan",
-          data: [3.2, 4.1, 3.8, 3.2, 3.8, 4.2, 4.5, 3.9, 3.3, 4.1],
-          backgroundColor: ["#00a0a1", "#00c8c9", "#00a0a1", "#00c8c9", "#00a0a1", "#00c8c9", "#00a0a1", "#00c8c9", "#00a0a1", "#00c8c9"],
+          data: [],
+          backgroundColor: [],
           borderRadius: 4,
           borderSkipped: false,
         }],
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
             enabled: true,
-            backgroundColor: "rgba(0, 192, 201, 0.9)",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
             titleColor: "#ffffff",
             bodyColor: "#ffffff",
             borderColor: "#00c8c9",
@@ -129,11 +274,26 @@ onMounted(() => {
           },
         },
         animation: { duration: 1000, easing: "easeOutQuart" },
+        onClick: (event, elements) => {
+            if (activeDinas.value || elements.length === 0) {
+                return; 
+            }
+            const chartElement = elements[0];
+            const index = chartElement.index;
+            const dinasName = opdChartInstance.data.labels[index];
+            const dinasData = surveyData.value[selectedYear.value].find(d => d.name === dinasName);
+
+            if (dinasData && dinasData.opd && dinasData.opd.length > 0) {
+                 activeDinas.value = dinasName;
+            }
+        }
       },
     });
+    updateChart();
   } else {
     console.warn("Chart.js atau canvas tidak ditemukan.");
   }
+  // --- END: Chart Initialization ---
 });
 
 const toggleMobileMenu = () => {
@@ -155,7 +315,7 @@ const toggleMobileMenu = () => {
         </div>
 
         <nav class="hidden lg:flex flex-row items-center gap-6 xl:gap-8 relative">
-          <div id="nav-indicator" class="absolute left-0 top-1/2 h-10 w-24 bg-white rounded-full -z-10" style="transform-origin: center;"></div>
+          <div id="nav-indicator" class="absolute left-0 top-1/2 h-10 bg-white rounded-full -z-10" style="transform-origin: center;"></div>
           <button class="px-4 py-2 relative z-10 text-white font-semibold text-sm hover:text-[#01c4c6] transition-colors nav-item" data-nav="beranda">
             Beranda
           </button>
@@ -205,7 +365,7 @@ const toggleMobileMenu = () => {
       </div>
 
       <main class="relative w-full min-h-[800px] flex items-center z-10">
-        <div class="w-full max-w-[1280px] mx-auto pl-0 pr-8 flex items-center justify-between">
+        <div class="w-full max-w-[1280px] mx-auto pl-2 pr-8 flex items-center justify-between">
           <div class="flex flex-col w-full max-w-lg">
             <h1 class="text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 max-w-md">
               Survei Kepuasan Masyarakat
@@ -246,7 +406,7 @@ const toggleMobileMenu = () => {
             <img src="/images/pencil-about.svg" class="w-[280px] sm:w-[320px] lg:w-[362px] h-auto" alt="Survey Illustration" />
           </div>
 
-          <div class="w-full lg:w-1/2 max-w-[650px] ml-[-30px] lg:ml-0">
+          <div class="w-full lg:w-1/2 max-w-[650px] ml-[-30px] lg:-ml-2">
             <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 text-center lg:text-right">
               Tentang E-survei
             </h2>
@@ -372,11 +532,12 @@ const toggleMobileMenu = () => {
                 alt="Cost"
               />
               <button
+                @click="openModal(biayaTarifContent)"
                 class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
               >
                 Lihat Detail
               </button>
-            </div>
+              </div>
           </div>
 
           <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
@@ -503,7 +664,7 @@ const toggleMobileMenu = () => {
     </section>
 
     <section class="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
-      <div class="text-center mb-16 relative">
+      <div class="text-center mb-12 sm:mb-16 relative">
         <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#00c8c9] leading-tight mb-6">
           Nilai Pelayanan OPD
         </h2>
@@ -514,12 +675,52 @@ const toggleMobileMenu = () => {
         <img src="/images/cloud-9.svg" class="absolute right-[-30px] top-[30px] w-[270px] h-auto" alt="Cloud 9" />
       </div>
 
-      <div class="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-4">
-        <canvas id="opdChart" class="w-full h-[250px] sm:h-[300px] lg:h-[350px]" role="img" aria-label="Chart representing OPD service ratings"></canvas>
+      <div class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+         <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+            <h3 class="text-lg sm:text-xl font-semibold text-[#007c7e] text-center sm:text-left order-2 sm:order-1">
+                {{ chartTitle }}
+            </h3>
+            <div class="flex items-center gap-2 sm:gap-3 order-1 sm:order-2">
+                <button 
+                    v-if="activeDinas" 
+                    @click="goBack"
+                    class="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-md text-sm font-semibold hover:bg-gray-300 transition-colors"
+                >
+                    &larr; Kembali
+                </button>
+                <select v-model="selectedYear" class="dropdown-style">
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+                <select v-model="activeDinas" class="dropdown-style">
+                    <option :value="null">Semua Dinas</option>
+                    <option v-for="dinas in availableDinas" :key="dinas" :value="dinas">
+                        {{ dinas }}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="w-full h-[300px] sm:h-[400px] lg:h-[450px]">
+          <canvas id="opdChart" role="img" :aria-label="chartTitle"></canvas>
+        </div>
       </div>
     </section>
-  </div>
+    </div>
 
+  <div v-if="isModalVisible" @click="closeModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+    <div @click.stop class="relative bg-[#00c8c9] text-white rounded-2xl shadow-lg w-11/12 max-w-2xl p-8 transform transition-all duration-300 scale-95 opacity-0" :class="{ 'scale-100 opacity-100': isModalVisible }">
+      <button @click="closeModal" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors z-10">
+        <i class="fa-solid fa-times text-[#00c8c9]"></i>
+      </button>
+      
+      <h2 class="text-3xl font-bold mb-6 text-center">{{ modalContent.title }}</h2>
+      <img :src="modalContent.image" class="w-32 h-32 mx-auto mb-8 card-image" alt="Modal Icon" />
+      <p class="text-base leading-relaxed text-justify">
+        {{ modalContent.description }}
+      </p>
+    </div>
+  </div>
   <footer class="w-full relative">
     <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10" alt="Footer Background" />
     <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-6 sm:pt-24 lg:pt-28">
@@ -644,4 +845,45 @@ footer {
   background-color: #00c8c9;
   color: white;
 }
+
+/* Added for modal transition */
+.scale-95 {
+  transform: scale(0.95);
+}
+.opacity-0 {
+  opacity: 0;
+}
+.scale-100 {
+  transform: scale(1);
+}
+.opacity-100 {
+  opacity: 1;
+}
+
+/* Added for Dropdown styling */
+.dropdown-style {
+    border: 1px solid #00c8c9;
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #007c7e;
+    font-weight: 500;
+    font-size: 14px;
+    background-color: #f2fffc;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300c8c9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.2em;
+    padding-right: 2rem;
+}
+
+.dropdown-style:focus {
+    outline: none;
+    border-color: #007c7e;
+    box-shadow: 0 0 0 2px rgba(0, 192, 201, 0.3);
+}
+
 </style>

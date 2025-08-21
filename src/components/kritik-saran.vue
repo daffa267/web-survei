@@ -1,5 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Efek scroll pada header (sama seperti sebelumnya)
 onMounted(() => {
@@ -53,14 +56,14 @@ const kritikSaran = ref('');
         <div class="step-line completed"></div>
         <div class="flex flex-col items-center text-center step-item completed">
           <div class="step-icon">
-            <i class="fa-solid fa-building"></i>
+            <i class="fa-solid fa-clipboard-list"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Survey</p>
         </div>
         <div class="step-line completed"></div>
         <div class="flex flex-col items-center text-center step-item active">
           <div class="step-icon">
-            <i class="fa-solid fa-comments"></i>
+            <i class="fa-solid fa-comment-dots"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
         </div>
@@ -78,7 +81,6 @@ const kritikSaran = ref('');
             <h3 class="text-2xl font-bold text-[#009293]">
                 "Kritik & Saran"
             </h3>
-            <i class="fa-solid fa-info-circle text-2xl text-gray-400 cursor-pointer" title="Informasi"></i>
         </div>
 
         <div class="flex-grow flex flex-col">
@@ -90,8 +92,8 @@ const kritikSaran = ref('');
         </div>
 
         <div class="flex justify-between items-center pt-8 mt-4">
-            <button type="button" class="px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
-            &larr; Sebelumnya
+            <button @click="$router.push('/survei')" class="px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+                &larr; Sebelumnya
             </button>
             <router-link to="/finish" class="px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
             Kirim &rarr;
@@ -102,7 +104,7 @@ const kritikSaran = ref('');
   </div>
 
   <footer class="w-full relative h-48">
-    <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
+    <img src="/images/footer-cut.svg" class="w-full min-w-[100vw] h-auto absolute bottom-0 left-[100.97%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
   </footer>
 </template>
 

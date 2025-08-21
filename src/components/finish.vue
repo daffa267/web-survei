@@ -58,14 +58,14 @@ onMounted(() => {
         <div class="step-line completed"></div>
         <div class="flex flex-col items-center text-center step-item completed">
           <div class="step-icon">
-            <i class="fa-solid fa-building"></i>
+            <i class="fa-solid fa-clipboard-list"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Survey</p>
         </div>
         <div class="step-line completed"></div>
         <div class="flex flex-col items-center text-center step-item completed">
           <div class="step-icon">
-            <i class="fa-solid fa-comments"></i>
+            <i class="fa-solid fa-comment-dots"></i>
           </div>
           <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
         </div>
@@ -104,7 +104,7 @@ onMounted(() => {
   </div>
 
   <footer class="w-full relative h-48">
-    <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
+    <img src="/images/footer-cut.svg" class="w-full min-w-[100vw] h-auto absolute bottom-0 left-[100.97%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
   </footer>
 </template>
 
