@@ -46,38 +46,37 @@ const kritikSaran = ref('');
         </h2>
       </section>
 
-      <div class="w-full flex items-center justify-center px-4 sm:px-12 my-8">
+      <div class="w-full flex items-start justify-center px-2 sm:px-12 my-8">
         <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-user"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Responden</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Responden</p>
         </div>
-        <div class="step-line completed"></div>
+        <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
         <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-clipboard-list"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Survey</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Survey</p>
         </div>
-        <div class="step-line completed"></div>
+        <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
         <div class="flex flex-col items-center text-center step-item active">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-comment-dots"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Kritik & Saran</p>
         </div>
-        <div class="step-line"></div>
+        <div class="step-line relative top-[28px] sm:top-[36px]"></div>
         <div class="flex flex-col items-center text-center step-item">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-check"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Selesai</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Selesai</p>
         </div>
       </div>
-
-      <section class="form-card-gradient w-full px-8 sm:px-12 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4 min-h-[450px]">
-        <div class="flex justify-between items-center mb-6">
+      <section class="form-card-gradient w-full px-6 sm:px-12 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4 min-h-[450px]">
+        <div class="text-center mb-6">
             <h3 class="text-2xl font-bold text-[#009293]">
                 "Kritik & Saran"
             </h3>
@@ -91,25 +90,25 @@ const kritikSaran = ref('');
           ></textarea>
         </div>
 
-        <div class="flex justify-between items-center pt-8 mt-4">
-            <button @click="$router.push('/survei')" class="px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-auto gap-4 sm:gap-0">
+            <button @click="$router.push('/survei')" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
                 &larr; Sebelumnya
             </button>
-            <router-link to="/finish" class="px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
+            <router-link to="/finish" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
             Kirim &rarr;
             </router-link>
         </div>
-      </section>
+        </section>
     </main>
   </div>
 
   <footer class="w-full relative h-48">
-    <img src="/images/footer-cut.svg" class="w-full min-w-[100vw] h-auto absolute bottom-0 left-[100.97%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
+    <img src="/images/footer-cut.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
   </footer>
 </template>
 
 <style>
-/* SEMUA GAYA SAMA PERSIS SEPERTI SEBELUMNYA, TIDAK PERLU DIUBAH */
+/* Sebagian besar styling dipindahkan ke class Tailwind, sisa style di sini untuk dasar */
 
 /* Global & Reusable Styles */
 body {
@@ -144,50 +143,42 @@ header.scrolled {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
-/* Stepper Styles */
+/* --- STYLE UNTUK STEPPER (SUDAH DIPERBAIKI) --- */
 .step-item {
   color: #aaeeed;
-}
-.step-item .step-icon {
-  color: #ececec;
+  width: 80px; /* Memberi lebar tetap agar tidak terlalu mepet */
 }
 .step-item.active {
   color: #00c8c9;
 }
+.step-item.completed {
+    color: #009293; /* Warna untuk step yang sudah selesai */
+}
 .step-icon {
   border-radius: 50%;
-  width: 72px;
-  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   background-color: #aaeeed;
+  color: #ececec;
 }
 .step-item.active .step-icon {
   background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
   border: none;
   color: white;
 }
-.step-line {
-  flex-grow: 1;
-  height: 3.2px;
-  background-color: #aaeeed;
-  margin: 0 1rem;
-  position: relative;
-  top: -14px;
-}
-
-/* Gaya untuk step yang sudah selesai */
-.step-item.completed {
-    color: #a0a0a0;
-}
 .step-item.completed .step-icon {
     background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
     color: white;
 }
+.step-line {
+  flex-grow: 1;
+  height: 3.2px;
+  background-color: #aaeeed;
+  margin: 0 0.25rem;
+}
 .step-line.completed {
-    background-color: #26ebd2;
+    background-color: #26ebd2; /* Warna garis untuk step yang selesai */
 }
 
 .form-card-gradient {
@@ -195,24 +186,6 @@ header.scrolled {
 }
 
 .kritik-saran-textarea::placeholder {
-  color: #7DC3C3 !important;
-  font-style: italic;
-  opacity: 1;
-}
-
-.kritik-saran-textarea::-webkit-input-placeholder {
-  color: #7DC3C3 !important;
-  font-style: italic;
-  opacity: 1;
-}
-
-.kritik-saran-textarea:-ms-input-placeholder {
-  color: #7DC3C3 !important;
-  font-style: italic;
-  opacity: 1;
-}
-
-.kritik-saran-textarea:-moz-placeholder {
   color: #7DC3C3 !important;
   font-style: italic;
   opacity: 1;

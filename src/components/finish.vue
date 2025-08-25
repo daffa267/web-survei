@@ -48,55 +48,56 @@ onMounted(() => {
         </h2>
       </section>
 
-      <div class="w-full flex items-center justify-center px-4 sm:px-12 my-8">
+      <div class="w-full flex items-start justify-center px-2 sm:px-12 my-8">
         <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-user"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Responden</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Responden</p>
         </div>
-        <div class="step-line completed"></div>
+        <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
         <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-clipboard-list"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Survey</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Survey</p>
         </div>
-        <div class="step-line completed"></div>
+        <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
         <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-comment-dots"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Kritik & Saran</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Kritik & Saran</p>
         </div>
-        <div class="step-line completed"></div>
+        <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
         <div class="flex flex-col items-center text-center step-item active">
-          <div class="step-icon">
+          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
             <i class="fa-solid fa-check"></i>
           </div>
-          <p class="mt-2 text-base font-semibold">Selesai</p>
+          <p class="mt-2 text-sm sm:text-base font-semibold">Selesai</p>
         </div>
       </div>
 
       <section class="w-full flex justify-center items-center mt-4 min-h-[350px]">
         <div
           data-aos="zoom-in"
-          class="relative w-full max-w-md bg-[#00c8c9] text-white p-8 rounded-2xl shadow-lg text-center flex flex-col items-center"
+          data-aos-easing="ease-out-back"
+          class="relative w-full max-w-md bg-[#00c8c9] text-white p-6 sm:p-8 rounded-2xl shadow-lg text-center flex flex-col items-center"
         >
           <router-link to="/" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
             <i class="fa-solid fa-house text-[#00c8c9]"></i>
           </router-link>
           
-          <h3 class="text-2xl font-bold mb-4">
+          <h3 class="text-xl sm:text-2xl font-bold mb-4">
             Survei Berhasil Terkirim!
           </h3>
           
           <div class="my-4">
-            <img src="/images/img_recommendation_1.png" alt="Recommendation" class="h-32 w-auto">
+            <img src="/images/img_recommendation_1.png" alt="Recommendation" class="h-28 sm:h-32 w-auto">
           </div>
 
-          <p class="mt-4 text-base">
-            Terimakasih karena telah mengisi survei kami, semoga kami lebih baik lagi kedepannya.
+          <p class="mt-4 text-sm sm:text-base">
+            Terima kasih telah mengisi survei kami. Masukan Anda sangat berarti untuk kemajuan layanan kami.
           </p>
         </div>
       </section>
@@ -104,11 +105,12 @@ onMounted(() => {
   </div>
 
   <footer class="w-full relative h-48">
-    <img src="/images/footer-cut.svg" class="w-full min-w-[100vw] h-auto absolute bottom-0 left-[100.97%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
+    <img src="/images/footer-cut.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
   </footer>
 </template>
 
 <style>
+/* Style tidak ada perubahan dari sebelumnya */
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
@@ -129,7 +131,6 @@ footer {
   color: transparent;
 }
 
-/* Header Styles */
 header {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
   backdrop-filter: blur(0px);
@@ -141,53 +142,40 @@ header.scrolled {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
-/* Stepper Styles */
 .step-item {
   color: #aaeeed;
-}
-.step-item .step-icon {
-  color: #ececec;
+  width: 80px;
 }
 .step-item.active {
   color: #00c8c9;
 }
+.step-item.completed {
+    color: #009293;
+}
 .step-icon {
   border-radius: 50%;
-  width: 72px;
-  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   background-color: #aaeeed;
+  color: #ececec;
 }
 .step-item.active .step-icon {
   background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
   border: none;
   color: white;
 }
-.step-line {
-  flex-grow: 1;
-  height: 3.2px;
-  background-color: #aaeeed;
-  margin: 0 1rem;
-  position: relative;
-  top: -14px;
-}
-
-/* Gaya untuk step yang sudah selesai */
-.step-item.completed {
-    color: #a0a0a0;
-}
 .step-item.completed .step-icon {
     background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
     color: white;
 }
+.step-line {
+  flex-grow: 1;
+  height: 3.2px;
+  background-color: #aaeeed;
+  margin: 0 0.25rem;
+}
 .step-line.completed {
     background-color: #26ebd2;
-}
-
-.form-card-gradient {
-  background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
 }
 </style>

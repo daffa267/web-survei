@@ -126,7 +126,7 @@ watch([selectedYear, activeDinas], () => {
 // --- END: Chart Logic ---
 
 onMounted(() => {
-  // --- START: Existing Scroll/Nav Logic (No changes here) ---
+  // --- START: Existing Scroll/Nav Logic (Now for both Desktop & Mobile) ---
   const handleScroll = () => {
     const header = document.querySelector("header");
     if (window.scrollY > 10) {
@@ -137,61 +137,86 @@ onMounted(() => {
   };
   window.addEventListener("scroll", handleScroll);
 
-   let isClickScrolling = false;
+  let isClickScrolling = false;
   let scrollTimeout = null;
-  const navItems = document.querySelectorAll(".nav-item");
-  const indicator = document.getElementById("nav-indicator");
   const sections = document.querySelectorAll("section[id]");
 
+  // Desktop Nav Elements
+  const navItems = document.querySelectorAll(".nav-item");
+  const indicator = document.getElementById("nav-indicator");
+  
+  // Mobile Nav Elements
+  const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
+  const mobileIndicator = document.getElementById("mobile-nav-indicator");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  // Function to update DESKTOP nav indicator
   const updateNavIndicator = (activeItem) => {
     if (!activeItem || !indicator) return;
-
     navItems.forEach((item) => {
       item.classList.remove("text-[#01c4c6]");
       item.classList.add("text-white");
     });
     activeItem.classList.remove("text-white");
     activeItem.classList.add("text-[#01c4c6]");
-
     indicator.style.width = `${activeItem.offsetWidth}px`;
     indicator.style.transform = `translateX(${activeItem.offsetLeft}px) translateY(calc(-50%))`;
   };
-
-  navItems.forEach((item) => {
-    item.addEventListener("click", function (e) {
-      e.preventDefault();
-      const navName = this.getAttribute("data-nav");
-      if (!navName) return;
-
-      isClickScrolling = true;
-      clearTimeout(scrollTimeout);
-
-      updateNavIndicator(this);
-
+  
+  // NEW: Function to update MOBILE nav indicator
+  const updateMobileNavIndicator = (activeItem) => {
+    if (!activeItem || !mobileIndicator) return;
+    mobileNavItems.forEach(item => item.classList.remove('active'));
+    activeItem.classList.add('active');
+    mobileIndicator.style.transform = `translateY(${activeItem.offsetTop}px)`;
+  };
+  
+  // Function for scrolling to a section
+  const scrollToSection = (navName) => {
       if (navName === "beranda") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         const targetSection = document.getElementById(navName);
         if (targetSection) {
-          targetSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
+          targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }
+      scrollTimeout = setTimeout(() => { isClickScrolling = false; }, 800);
+  };
 
-      scrollTimeout = setTimeout(() => {
-        isClickScrolling = false;
-      }, 800);
+  // Click listener for DESKTOP nav items
+  navItems.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      const navName = this.getAttribute("data-nav");
+      if (!navName) return;
+      isClickScrolling = true;
+      clearTimeout(scrollTimeout);
+      updateNavIndicator(this);
+      scrollToSection(navName);
     });
   });
 
+  // NEW: Click listener for MOBILE nav items
+  mobileNavItems.forEach((item) => {
+    item.addEventListener("click", function (e) {
+        e.preventDefault();
+        const navName = this.getAttribute("data-nav");
+        if (!navName) return;
+        isClickScrolling = true;
+        clearTimeout(scrollTimeout);
+        updateMobileNavIndicator(this);
+        scrollToSection(navName);
+        // Close menu after a short delay to see the animation
+        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
+    });
+  });
+
+  // MODIFIED: This function now updates BOTH desktop and mobile navs on scroll
   const handleScrollNavUpdate = () => {
     if (isClickScrolling) return;
-
     const scrollY = window.pageYOffset;
     let currentSectionId = "beranda";
-
     sections.forEach((section) => {
       const sectionTop = section.offsetTop;
       if (scrollY >= sectionTop - 150) {
@@ -199,37 +224,30 @@ onMounted(() => {
       }
     });
 
-    const activeItem = document.querySelector(
-      `.nav-item[data-nav="${currentSectionId}"]`
-    );
-    updateNavIndicator(activeItem);
+    const activeDesktopItem = document.querySelector(`.nav-item[data-nav="${currentSectionId}"]`);
+    updateNavIndicator(activeDesktopItem);
+
+    const activeMobileItem = document.querySelector(`.mobile-nav-item[data-nav="${currentSectionId}"]`);
+    updateMobileNavIndicator(activeMobileItem);
   };
   window.addEventListener("scroll", handleScrollNavUpdate);
 
   handleScroll();
 
-  // --- START: Fix for Navbar Indicator Initial Animation & Position ---
-  // Kita akan memanggil fungsi handleScrollNavUpdate() satu kali setelah halaman dimuat.
-  // Fungsi ini sudah pintar untuk mendeteksi posisi scroll dan mengatur indikator ke nav-item yang aktif.
+  // MODIFIED: This now initializes BOTH nav indicators without animation on page load
   setTimeout(() => {
-    if (indicator) {
-      // 1. Nonaktifkan transisi agar posisi awal langsung diatur tanpa animasi.
-      indicator.style.transition = 'none';
+    if (indicator) indicator.style.transition = 'none';
+    if (mobileIndicator) mobileIndicator.style.transition = 'none';
 
-      // 2. Jalankan fungsi pendeteksi scroll satu kali untuk mengatur posisi awal indikator
-      // sesuai dengan posisi scroll saat halaman di-refresh.
-      handleScrollNavUpdate();
+    handleScrollNavUpdate(); // Set initial position for both
 
-      // 3. Aktifkan kembali transisi setelah posisi awal diatur, agar animasi berfungsi
-      // saat pengguna meng-klik atau scroll.
-      setTimeout(() => {
-        indicator.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-      }, 50);
-    }
-  }, 100); // Diberi jeda 100ms untuk memastikan browser selesai melakukan scroll otomatis ke anchor (#) saat refresh.
-  // --- END: Fix for Navbar Indicator Initial Animation & Position ---
+    setTimeout(() => {
+      if (indicator) indicator.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      if (mobileIndicator) mobileIndicator.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    }, 50);
+  }, 100);
   
-  // --- END: Existing Scroll/Nav Logic ---
+  // --- END: Scroll/Nav Logic ---
 
 
   // --- START: Chart Initialization (No changes) ---
@@ -333,44 +351,57 @@ const toggleMobileMenu = () => {
 
         <button class="lg:hidden p-2 text-white" @click="toggleMobileMenu">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
 
-      <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4">
-        <div class="flex flex-col gap-3">
-          <button class="px-4 py-2 bg-white text-[#01c4c6] font-semibold text-sm rounded-2xl text-left">
+      <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 px-4">
+        <div class="relative flex flex-col gap-2">
+          <div id="mobile-nav-indicator" class="absolute left-0 w-full h-10 bg-[#01c4c6] rounded-2xl -z-10 transition-transform duration-400" style="transform: translateY(0px);"></div>
+          
+          <button data-nav="beranda" class="mobile-nav-item flex items-center gap-2 px-4 py-2 font-semibold text-sm text-left transition-colors z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
             Beranda
           </button>
-          <a href="#tentang" class="text-white font-semibold text-sm py-2">
+          <button data-nav="tentang" class="mobile-nav-item flex items-center gap-2 px-4 py-2 font-semibold text-sm text-left transition-colors z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             Tentang
-          </a>
-          <a href="#unsur" class="text-white font-semibold text-sm py-2">
+          </button>
+          <button data-nav="unsur" class="mobile-nav-item flex items-center gap-2 px-4 py-2 font-semibold text-sm text-left transition-colors z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
             Unsur Survei
-          </a>
-          <router-link to="/kategori-opd" class="flex items-center gap-2 px-4 py-2 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl w-fit">
+          </button>
+
+          <router-link to="/kategori-opd" class="flex items-center justify-center gap-2 px-4 py-2 mt-2 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl w-fit">
             <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
             Mulai Survei
           </router-link>
         </div>
-      </div>
+    </div>
     </header>
 
     <div class="relative">
-      <div class="absolute top-0 right-0 w-full h-[1200px] z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-0 right-0 w-full h-[1200px] z-0 pointer-events-none overflow-hidden hidden lg:block">
         <img src="/images/Line 2.svg" class="absolute top-0 right-0 w-[970.76px] h-[916px]" alt="Background Line 2" />
         <img src="/images/Line 3.svg" class="absolute top-[260px] right-[-150px] w-[530.12px] h-[441.59px] scale-125" alt="Background Line 3" />
         <img src="/images/Line 1.svg" class="absolute top-0 right-0 w-[886px] h-[651px]" alt="Background Line 1" />
       </div>
 
-      <main class="relative w-full min-h-[800px] flex items-center z-10">
-        <div class="w-full max-w-[1280px] mx-auto pl-2 pr-8 flex items-center justify-between">
-          <div class="flex flex-col w-full max-w-lg">
-            <h1 class="text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 max-w-md">
+      <main class="relative w-full lg:min-h-[800px] flex items-center z-10 pt-32 pb-16 lg:pt-0 lg:pb-0">
+        <div class="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:pl-4 lg:pr-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-12 lg:gap-4">
+          
+          <div class="flex flex-col w-full max-w-lg items-center text-center lg:items-start lg:text-left" data-aos="slide-from-far-left" data-aos-duration="1100" data-aos-easing="ease-out-cubic" data-aos-delay="400">
+            <h1 class="text-[32px] sm:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 max-w-md">
               Survei Kepuasan Masyarakat
             </h1>
-            <p class="text-[16px] text-[#04b0b1] leading-relaxed mb-8 text-justify">
+            <p class="text-base text-[#04b0b1] leading-relaxed mb-8 text-justify">
               SURVEI KEPUASAN MASYARAKAT (SKM) adalah data dan informasi tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran secara kuantitatif dan kualitatif atas pendapat masyarakat dalam memperoleh pelayanan dari aparatur penyelenggara pelayanan publik.
             </p>
             <a href="/kategori-opd" class="group flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#04b0b1] text-[#04b0b1] font-semibold text-sm rounded-2xl hover:bg-[#04b0b1] hover:text-white transition-all duration-300 w-fit">
@@ -378,22 +409,45 @@ const toggleMobileMenu = () => {
               <img src="/images/img_heroicons_outline_login_cyan_600.svg" class="w-5 h-5 group-hover:invert group-hover:brightness-0 group-hover:transition-all group-hover:duration-300" alt="Arrow" />
             </a>
           </div>
+          
+          <div class="relative w-full max-w-[320px] sm:max-w-[420px] lg:w-[486px] h-auto lg:mr-12 mt-8 lg:mt-0" data-aos="slide-from-far-right" data-aos-duration="800" data-aos-easing="ease-out-cubic">
+            <img src="/images/Line 22.svg" 
+                 class="absolute top-1/2 left-1/2 -translate-x-[calc(50%-63px)] -translate-y-[calc(50%-75px)]
+                 w-[271px] h-[250px] 
+                 sm:-translate-x-[calc(50%-80px)] sm:-translate-y-[calc(50%-97px)] sm:w-[340px] sm:h-[322px]
+                 md:w-[380.28px] md:h-[360.91px]" 
+                 alt="Phone Background"/>
 
-          <div class="relative w-[486px] h-auto mr-12">
-            <img src="/images/Line 22.svg" class="absolute top-1/2 left-1/2 -translate-x-[calc(50%-90px)] -translate-y-[calc(50%-97px)] w-[400.28px] h-[360.91px]" alt="Phone Background" />
-            <img src="/images/Line 21.svg" class="absolute top-1/2 left-1/2 -translate-x-[calc(50%-81.8px)] -translate-y-[calc(50%-78.2px)] w-[360.77px] h-[314.66px] scale-105" alt="Phone Background" />
-            <img src="/images/hp dipegang 1.svg" class="relative z-10 w-full h-auto -translate-y-[20px] translate-x-[-4.6px]" alt="Phone Mockup" />
-            <img src="/images/logo esurvey.png" class="absolute z-20 top-1/2 left-1/2 -translate-x-[calc(50%-40px)] -translate-y-[calc(50%+7px)] h-[90px] w-auto" alt="Logo on Phone" />
-          </div>
+            <img src="/images/Line 21.svg" 
+                 class="absolute top-1/2 left-1/2 -translate-x-[calc(50%-62.5px)] -translate-y-[calc(50%-55px)]
+                 w-[260px] h-[195px]
+                 sm:-translate-x-[calc(50%-76.5px)] sm:-translate-y-[calc(50%-72.5px)] sm:w-[320px] sm:h-[240px]
+                 md:w-[360.77px] md:h-[270.66px] scale-105" 
+                 alt="Phone Background" />
+  
+            <img src="/images/hp dipegang 1.svg" 
+                 class="relative z-10 w-full h-auto 
+                 -translate-y-[5.7px] -translate-x
+                 sm:-translate-y-[7.3px] sm:-translate-x-[14px]" 
+                 alt="Phone Mockup" />
+  
+            <img src="/images/logo esurvey.png" 
+                 class="absolute z-20 top-1/2 left-1/2 
+                 h-[70px] -translate-x-[calc(50%-32.5px)] -translate-y-[calc(50%-4px)]
+                 sm:h-[80px] sm:-translate-x-[calc(50%-24px)] sm:-translate-y-[calc(50%-8px)]
+                 md:h-[90px] md:-translate-x-[calc(50%-28px)] md:-translate-y-[calc(50%-5px)] 
+                 w-auto" 
+                 alt="Logo on Phone" />
+            </div>
         </div>
 
-        <img src="/images/Group 3.svg" class="absolute left-0 top-[130px] w-[230px] h-auto z-20" alt="Decoration" />
-        <img src="/images/Line 7.svg" class="absolute left-[0px] top-[270px] w-[180px] h-auto z-20" alt="Decoration" />
-        <img src="/images/Group 4.svg" class="absolute left-[70px] top-[430px] w-[270px] h-auto z-20" alt="Decoration" />
+        <img src="/images/Group 3.svg" class="absolute left-0 top-[130px] w-[230px] h-auto z-20 hidden lg:block" alt="Decoration" />
+        <img src="/images/Line 7.svg" class="absolute left-[0px] top-[270px] w-[180px] h-auto z-20 hidden lg:block" alt="Decoration" />
+        <img src="/images/Group 4.svg" class="absolute left-[70px] top-[430px] w-[270px] h-auto z-20 hidden lg:block" alt="Decoration" />
       </main>
 
-      <section id="tentang" class="relative w-full pl-2 pr-8 pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 mt-16 overflow-visible">
-        <div class="absolute inset-0 z-0 overflow-visible">
+      <section id="tentang" class="relative w-full px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 mt-0 lg:mt-16">
+        <div class="absolute inset-0 z-0 overflow-visible hidden md:block">
           <img src="/images/wave-1.svg" class="absolute left-[-108px] top-[286px] w-[835.29px] h-[665.74px]" alt="Wave 1" />
           <img src="/images/cloud-1.svg" class="absolute left-[80px] top-[130px] w-[245px] h-auto" alt="Cloud 1" />
           <img src="/images/cloud-2.svg" class="absolute left-0 top-[260px] w-[230px] h-auto" alt="Cloud 2" />
@@ -401,278 +455,172 @@ const toggleMobileMenu = () => {
           <img src="/images/cloud-4.svg" class="absolute left-[125px] top-[430px] w-[300px] h-auto" alt="Cloud 4" />
           <img src="/images/cloud-5.svg" class="absolute left-[100px] top-[580px] w-[290px] h-auto" alt="Cloud 5" />
         </div>
-        <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-          <div class="w-full lg:w-1/2 flex justify-center ml-[-30px] lg:ml-[-45px] mt-8 lg:mt-12 relative z-10">
+        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-12 max-w-6xl mx-auto">
+          <div class="w-full lg:w-1/2 flex justify-center order-last lg:order-first mt-8 lg:mt-12" data-aos="zoom-in" data-aos-duration="1000">
             <img src="/images/pencil-about.svg" class="w-[280px] sm:w-[320px] lg:w-[362px] h-auto" alt="Survey Illustration" />
           </div>
-
-          <div class="w-full lg:w-1/2 max-w-[650px] ml-[-30px] lg:-ml-2">
-            <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 text-center lg:text-right">
+          <div class="w-full lg:w-1/2" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="200">
+            <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 text-center lg:text-left">
               Tentang E-survei
             </h2>
-            <p class="text-[14px] sm:text-[15px] lg:text-[16px] text-[#04b0b1] leading-relaxed text-justify mb-8">
+            <p class="text-base text-[#04b0b1] leading-relaxed text-justify">
               SURVEI KEPUASAN MASYARAKAT (SKM) adalah data dan informasi tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran secara kuantitatif dan kualitatif atas pendapat masyarakat dalam memperoleh pelayanan dari aparatur penyelenggara pelayanan publik. Survei Kepuasan Masyarakat merupakan tolok ukur untuk menilai tingkat kualitas pelayanan yang diberikan oleh Unit Pelayanan publik.
               <br /><br />
               Berdasarkan Permenpan No. 14 Tahun 2017, Survei Kepuasan Masyarakat adalah pengukuran secara komprehensif kegiatan tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran atas pendapat masyarakat. Melalui survei ini diharapkan mendorong partisipasi masyarakat sebagai pengguna layanan dalam menilai kinerja penyelenggara pelayanan serta mendorong penyelenggara pelayanan publik untuk meningkatkan kualitas pelayanan dan melakukan pengembangan melalui inovasi-inovasi pelayanan publik.
             </p>
-            <div class="flex justify-end relative z-10">
-              <a href="/kategori-opd" class="flex items-center gap-2 px-6 py-3 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors relative z-20">
+            <div class="flex justify-center lg:justify-start mt-6">
+              <a href="/kategori-opd" class="flex items-center gap-2 px-6 py-3 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors">
                 <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
                 Mulai Survey
               </a>
             </div>
           </div>
-        </div>
+          </div>
       </section>
     </div>
 
-    <section id="unsur" class="w-full px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-20 mt-16">
-      <div class="text-center mb-12 relative">
+    <section id="unsur" class="w-full px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-20 lg:pt-24 lg:pb-20">
+      <div class="text-center mb-12 relative max-w-4xl mx-auto">
         <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
           Unsur Survei
         </h2>
-        <p class="text-[14px] sm:text-[15px] lg:text-[16px] text-[#04b0b1] leading-relaxed max-w-4xl mx-auto relative">
+        <p class="text-base text-[#04b0b1] leading-relaxed">
           Kuesioner Survei Kepuasan Masyarakat disusun berdasarkan prinsip pelayanan sebagaimana telah ditetapkan dalam Peraturan Menteri Pendayagunaan Aparatur Negara dan Reformasi Birokrasi Republik Indonesia Nomor 14 Tahun 2017 tentang Pedoman Penyusunan Survei Kepuasan Masyarakat Unit Penyelenggara Pelayanan Publik terdiri dari pertanyaan yang mencangkup 9 (sembilan) unsur pelayanan
         </p>
-        <img src="/images/cloud-6.svg" class="absolute right-[40px] top-[50px] w-[270px] h-auto" alt="Cloud 6" />
-        <img src="/images/cloud-7.svg" class="absolute right-[-70px] top-[200px] w-[270px] h-auto" alt="Cloud 7" />
+        <img src="/images/cloud-6.svg" class="absolute right-[-80px] top-[50px] w-[270px] h-auto hidden md:block" alt="Cloud 6" />
+        <img src="/images/cloud-7.svg" class="absolute right-[-120px] top-[200px] w-[270px] h-auto hidden md:block" alt="Cloud 7" />
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16 px-4 sm:px-8 lg:px-12 justify-items-center">
-        <div class="relative w-[261px] h-[261px] overflow-visible rounded-xl custom-shadow">
-          <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-          <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Unsur Decoration" />
-          <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
-            <div class="mt-4"></div>
-            <h3 class="text-white font-semibold text-sm mb-4">Persyaratan</h3>
-            <img src="/images/img_wired_flat_56_d.png" class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px] mb-6 card-image" alt="Requirements" />
-            <button class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-4 mb-16 max-w-7xl mx-auto justify-items-center">
+        
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+          <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+          <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.99%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+          <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+            <div class="mt-2 sm:mt-4"></div>
+            <h3 class="text-white font-semibold text-sm mb-2">Persyaratan</h3>
+            <img src="/images/img_wired_flat_56_d.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] mb-3 card-image" alt="Requirements" />
+            <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
               Lihat Detail
             </button>
           </div>
         </div>
-        <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[60px] left-1/2 transform -translate-x-[24.95%] h-auto z-10"
-              style="width: 102.6% !important; max-width: 103% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
-              <div class="mt-2"></div>
-              <h3 class="text-white font-semibold text-sm mb-4 leading-tight">
+
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.95%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+              <div class="mt-1"></div>
+              <h3 class="text-white font-semibold text-xs sm:text-sm mb-2 leading-tight">
                 Sistem, Mekanisme,<br />dan Prosedur
               </h3>
-              <img
-                src="/images/img_operation_1.png"
-                class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[106px] lg:h-[106px] mb-4 card-image"
-                alt="System"
-              />
-              <button
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+              <img src="/images/img_operation_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[106px] lg:h-[106px] mb-2 card-image" alt="System" />
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
             </div>
-          </div>
+        </div>
 
-          <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[59px] left-1/2 transform -translate-x-[24.95%] h-auto z-10"
-              style="width: 102.6% !important; max-width: 103% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
-              <div class="mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-4">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.3% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+              <div class="mt-2 sm:mt-4"></div>
+              <h3 class="text-white font-semibold text-sm mb-2">
                 Waktu Penyelesaian
               </h3>
-              <img
-                src="/images/img_wired_flat_45_c.png"
-                class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image"
-                alt="Time"
-              />
-              <button
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+              <img src="/images/img_wired_flat_45_c.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Time" />
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
             </div>
-          </div>
+        </div>
 
-          <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10"
-              style="width: 102.2% !important; max-width: 103% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
-              <div class="mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-4">Biaya/Tarif</h3>
-              <img
-                src="/images/img_money_bag_1.png"
-                class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px] mb-6 card-image"
-                alt="Cost"
-              />
-              <button
-                @click="openModal(biayaTarifContent)"
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.97%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+              <div class="mt-2 sm:mt-4"></div>
+              <h3 class="text-white font-semibold text-sm mb-2">Biaya/Tarif</h3>
+              <img src="/images/img_money_bag_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] mb-3 card-image" alt="Cost" />
+              <button @click="openModal(biayaTarifContent)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
-              </div>
-          </div>
+            </div>
+        </div>
 
-          <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10"
-              style="width: 102.262% !important; max-width: 103% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.99%] h-auto z-10" style="width: 102.5% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
               <div class="mt-0"></div>
-              <h3 class="text-white font-semibold text-sm mb-4 leading-tight">
+              <h3 class="text-white font-semibold text-xs sm:text-sm mb-2 leading-tight">
                 Produk Spesifikasi<br />dan Jenis Pelayanan
               </h3>
-              <img
-                src="/images/img_received_1.png"
-                class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image"
-                alt="Product"
-              />
-              <button
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+              <img src="/images/img_received_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Product" />
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
             </div>
-          </div>
+        </div>
 
-          <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10"
-              style="width: 102.34% !important; max-width: 103% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
-              <div class="mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-4">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.99%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+              <div class="mt-2 sm:mt-4"></div>
+              <h3 class="text-white font-semibold text-sm mb-2">
                 Kompetensi Pelaksana
               </h3>
-              <img
-                src="/images/img_personal_growth.png"
-                class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image"
-                alt="Competence"
-              />
-              <button
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+              <img src="/images/img_personal_growth.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Competence" />
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
             </div>
-          </div>
-
-          <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10"
-              style="width: 102.5% !important; max-width: 105% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
-              <div class="mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-4">
+        </div>
+        
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
+              <div class="mt-2 sm:mt-4"></div>
+              <h3 class="text-white font-semibold text-sm mb-2">
                 Perilaku Pelaksana
               </h3>
-              <img
-                src="/images/img_consumer_behavior.png"
-                class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image"
-                alt="Behavior"
-              />
-              <button
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+              <img src="/images/img_consumer_behavior.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Behavior" />
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
             </div>
-          </div>
-
-          <div class="relative w-[261px] h-[261px] rounded-xl custom-shadow">
-            <div
-              class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"
-            ></div>
-            <img
-              src="/images/card-unsur.svg"
-              class="absolute top-[60px] left-1/2 transform -translate-x-[25.05%] h-auto z-10"
-              style="width: 102.2% !important; max-width: 105% !important"
-              alt="Card Unsur Decoration"
-            />
-            <div
-              class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center"
-            >
+        </div>
+        
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+            <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.9%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
               <div class="mt-0"></div>
-              <h3 class="text-white font-semibold text-sm mb-4 leading-tight">
+              <h3 class="text-white font-semibold text-xs sm:text-sm mb-2 leading-tight">
                 Penanganan Pengaduan,<br />Saran, dan Masukan
               </h3>
-              <img
-                src="/images/img_recommendation_1.png"
-                class="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[116px] lg:h-[116px] mb-4 card-image"
-                alt="Complaint"
-              />
-              <button
-                class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA]"
-              >
+              <img src="/images/img_recommendation_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Complaint" />
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Lihat Detail
               </button>
             </div>
-          </div>
-
+        </div>
       </div>
-    </section>
+      </section>
 
     <section class="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
-      <div class="text-center mb-12 sm:mb-16 relative">
+      <div class="text-center mb-12 sm:mb-16 relative max-w-4xl mx-auto">
         <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#00c8c9] leading-tight mb-6">
           Nilai Pelayanan OPD
         </h2>
-        <p class="text-[14px] sm:text-[15px] lg:text-[16px] text-[#00c8c9] leading-relaxed max-w-4xl mx-auto">
+        <p class="text-base text-[#00c8c9] leading-relaxed">
           Nilai pelayanan OPD menggambarkan seberapa baik instansi pemerintah daerah memberikan layanan kepada masyarakat, sebagai dasar evaluasi kinerja dan peningkatan kualitas pelayanan publik.
         </p>
-        <img src="/images/cloud-8.svg" class="absolute left-[-32px] top-[-120px] w-[250px] h-auto" alt="Cloud 8" />
-        <img src="/images/cloud-9.svg" class="absolute right-[-30px] top-[30px] w-[270px] h-auto" alt="Cloud 9" />
+        <img src="/images/cloud-8.svg" class="absolute left-[-60px] top-[-120px] w-[250px] h-auto hidden md:block" alt="Cloud 8" />
+        <img src="/images/cloud-9.svg" class="absolute right-[-60px] top-[30px] w-[270px] h-auto hidden md:block" alt="Cloud 9" />
       </div>
 
       <div class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-6">
@@ -721,29 +669,29 @@ const toggleMobileMenu = () => {
       </p>
     </div>
   </div>
+  
   <footer class="w-full relative">
-    <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10" alt="Footer Background" />
+    <img src="/images/Group Footer.svg" class="w-[150vw] h-[120%] sm:h-auto sm:w-auto sm:min-w-[108vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" />
     <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-6 sm:pt-24 lg:pt-28">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
         <div class="lg:col-span-1 lg:ml-[-10px]">
           <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
           <div class="text-white/90 text-sm leading-relaxed">
-            <p class="mb-2">Sekretariat Daerah Kabupaten Sidoarjo</p>
-            <p class="mb-4">Bagian Organisasi</p>
+            <p class="mb-2">Dinas Komunikasi dan Informatika Kota Tanjungpinang</p>
             <p class="mb-4">
-              Jl. Gubernur Suryo No.1, Gajah Timur, Magersari, Kec. Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61212
+              Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
             </p>
-            <p class="mb-2">(031) 8921945</p>
-            <p>organisasi@sidoarjokab.go.id</p>
+            <p class="mb-2">(031) 12345678</p>
+            <p>kominfo@tanjungpinangkota.go.id</p>
           </div>
         </div>
         <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="md:ml-12">
             <h3 class="text-white font-semibold text-2xl mb-4">E-Survei</h3>
             <div class="text-white/90 text-sm leading-relaxed space-y-2">
-              <p><a href="index.html" class="hover:text-white transition-colors">Home</a></p>
-              <p><a href="index.html#tentang" class="hover:text-white transition-colors">Tentang E-SKM</a></p>
-              <p><a href="index.html#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
+              <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
+              <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
+              <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
             </div>
           </div>
           <div>
@@ -822,6 +770,14 @@ header.scrolled {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
+.mobile-nav-item {
+  color: #01c4c6; /* Warna teks saat tidak aktif */
+}
+
+.mobile-nav-item.active {
+  color: white; /* Warna teks saat aktif */
+}
+
 .custom-gradient-text {
   background: linear-gradient(to right, #007c7e, #00b9b9);
   -webkit-background-clip: text;
@@ -884,6 +840,44 @@ footer {
     outline: none;
     border-color: #007c7e;
     box-shadow: 0 0 0 2px rgba(0, 192, 201, 0.3);
+}
+
+[data-aos="slide-from-far-left"] {
+  transform: translateX(-128%);
+  opacity: 0;
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+[data-aos="slide-from-far-left"].aos-animate {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+[data-aos="slide-from-far-right"] {
+  transform: translateX(128%);
+  opacity: 0;
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+[data-aos="slide-from-far-right"].aos-animate {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+@media (max-width: 1023px) {
+  .content-wrapper > header {
+    background: linear-gradient(
+      90deg,
+      #f2fffc 25%,
+      rgba(57, 211, 211, 0.748) 100%
+    ) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  }
 }
 
 </style>

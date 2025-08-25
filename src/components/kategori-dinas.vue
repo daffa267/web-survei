@@ -97,41 +97,40 @@ const toggleMobileMenu = () => {
           </h1>
         </div>
 
-        <div class="w-full max-w-[1800px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 lg:gap-y-8 lg:gap-x-32 mb-16 px-4 sm:px-4 lg:px-6 justify-items-center">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
             
-            <div v-for="(item, index) in dinas" :key="index" class="relative w-[261px] h-[261px] overflow-visible rounded-xl custom-shadow">
+            <div v-for="(item, index) in dinas" :key="index" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
               <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[60px] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.5%; max-width: 103%;" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-6 flex flex-col items-center justify-center text-center">
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
+              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 
-                <h3 class="text-white font-semibold text-sm mb-4 leading-tight min-h-[40px] flex items-center justify-center">{{ item.name }}</h3>
+                <h3 class="text-white font-semibold text-[11px] sm:text-xs mb-1 sm:mb-2 leading-tight min-h-[34px] flex items-center justify-center">{{ item.name }}</h3>
                 
-                <div class="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px] mb-6 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
-                  <span class="text-white font-bold text-xl sm:text-2xl tracking-tight">{{ item.rating }}</span>
+                <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[100px] lg:h-[100px] mb-2 sm:mb-3 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
+                  <span class="text-white font-bold text-lg sm:text-xl lg:text-2xl tracking-tight">{{ item.rating }}</span>
                 </div>
                 
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-6 py-2 rounded-2xl text-sm font-semibold border-2 border-[#00C9CA] inline-block">Mulai Survei</router-link>
+                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Mulai Survei</router-link>
               </div>
             </div>
 
         </div>
-    </main>
+        </main>
   </div>
 
-  <footer class="w-full relative mt-20">
-    <img src="/images/Group Footer.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
+  <footer class="w-full relative">
+    <img src="/images/Group Footer.svg" class="w-[150vw] h-[120%] sm:h-auto sm:w-auto sm:min-w-[108vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" />
     <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-6 sm:pt-24 lg:pt-28">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
         <div class="lg:col-span-1 lg:ml-[-10px]">
           <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
           <div class="text-white/90 text-sm leading-relaxed">
-            <p class="mb-2">Sekretariat Daerah Kabupaten Sidoarjo</p>
-            <p class="mb-4">Bagian Organisasi</p>
+            <p class="mb-2">Dinas Komunikasi dan Informatika Kota Tanjungpinang</p>
             <p class="mb-4">
-              Jl. Gubernur Suryo No.1, Gajah Timur, Magersari, Kec. Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61212
+              Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
             </p>
-            <p class="mb-2">(031) 8921945</p>
-            <p>organisasi@sidoarjokab.go.id</p>
+            <p class="mb-2">(031) 12345678</p>
+            <p>kominfo@tanjungpinangkota.go.id</p>
           </div>
         </div>
         <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -139,7 +138,7 @@ const toggleMobileMenu = () => {
             <h3 class="text-white font-semibold text-2xl mb-4">E-Survei</h3>
             <div class="text-white/90 text-sm leading-relaxed space-y-2">
               <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
-              <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang E-SKM</a></p>
+              <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
               <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
             </div>
           </div>
