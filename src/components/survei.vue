@@ -4,20 +4,8 @@ import { onMounted, ref } from 'vue';
 // State untuk mengontrol visibilitas modal
 const isModalVisible = ref(false);
 
-// Efek scroll pada header (tidak ada perubahan)
-onMounted(() => {
-  const handleScroll = () => {
-    const header = document.querySelector("header");
-    if (header && window.scrollY > 10) {
-      header.classList.add("scrolled");
-    } else if (header) {
-      header.classList.remove("scrolled");
-    }
-  };
-  window.addEventListener("scroll", handleScroll);
-  handleScroll();
-});
-
+// onMounted dan fungsi handleScroll telah dihapus.
+ 
 // Data untuk pertanyaan survei (tidak ada perubahan)
 const surveyQuestions = ref([
   {
@@ -72,7 +60,7 @@ const getLabelClass = (rating) => {
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
           <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
@@ -192,7 +180,30 @@ const getLabelClass = (rating) => {
 </template>
 
 <style>
-/* Semua style tetap sama */
+/* --- STYLE HEADER BARU --- */
+.content-wrapper > header.header-solid {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Remove any gradient or other background effects */
+.content-wrapper > header.header-solid,
+.content-wrapper > header.header-solid.scrolled {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Ensure mobile view also has solid white */
+@media screen and (max-width: 1023px) {
+  .content-wrapper > header.header-solid {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}
+
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
@@ -211,16 +222,6 @@ footer {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-header {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
-  backdrop-filter: blur(0px);
-  transition: all 0.3s ease-in-out;
-}
-header.scrolled {
-  background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
 .step-item {

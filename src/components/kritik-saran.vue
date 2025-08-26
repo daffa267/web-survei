@@ -24,7 +24,7 @@ const kritikSaran = ref('');
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
           <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
@@ -109,7 +109,26 @@ const kritikSaran = ref('');
 
 <style>
 /* Sebagian besar styling dipindahkan ke class Tailwind, sisa style di sini untuk dasar */
+.content-wrapper > header.header-solid {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
 
+.content-wrapper > header.header-solid,
+.content-wrapper > header.header-solid.scrolled {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+@media screen and (max-width: 1023px) {
+  .content-wrapper > header.header-solid {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}
 /* Global & Reusable Styles */
 body {
   font-family: "Archivo", sans-serif;

@@ -158,15 +158,31 @@ onMounted(() => {
 
   // Function to update DESKTOP nav indicator
   const updateNavIndicator = (activeItem) => {
-    if (!activeItem || !indicator) return;
+    if (!indicator) return;
     navItems.forEach((item) => {
+      // Reset all items to inactive state
       item.classList.remove("text-[#01c4c6]");
       item.classList.add("text-white");
+      // Add shadow to all items initially with increased opacity
+      const span = item.querySelector('span');
+      if (span) {
+        span.classList.add('drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]');
+      }
     });
-    activeItem.classList.remove("text-white");
-    activeItem.classList.add("text-[#01c4c6]");
-    indicator.style.width = `${activeItem.offsetWidth}px`;
-    indicator.style.transform = `translateX(${activeItem.offsetLeft}px) translateY(calc(-50%))`;
+    
+    if (activeItem) {
+      // Set active item
+      activeItem.classList.remove("text-white");
+      activeItem.classList.add("text-[#01c4c6]");
+      // Remove shadow from active item
+      const activeSpan = activeItem.querySelector('span');
+      if (activeSpan) {
+        activeSpan.classList.remove('drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]');
+      }
+      
+      indicator.style.width = `${activeItem.offsetWidth}px`;
+      indicator.style.transform = `translateX(${activeItem.offsetLeft}px) translateY(calc(-50%))`;
+    }
   };
   
   // NEW: Function to update MOBILE nav indicator
@@ -341,13 +357,13 @@ const toggleMobileMenu = () => {
         <nav class="hidden lg:flex flex-row items-center gap-6 xl:gap-8 relative">
           <div id="nav-indicator" class="absolute left-0 top-1/2 h-10 bg-white rounded-full -z-10" style="transform-origin: center;"></div>
           <button class="px-4 py-2 relative z-10 text-white font-semibold text-sm hover:text-[#01c4c6] transition-colors nav-item" data-nav="beranda">
-            Beranda
+            <span class="drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]">Beranda</span>
           </button>
           <a href="#tentang" class="px-4 py-2 relative z-10 text-white font-semibold text-sm hover:text-[#01c4c6] transition-colors nav-item" data-nav="tentang">
-            Tentang
+            <span class="drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]">Tentang</span>
           </a>
           <a href="#unsur" class="px-4 py-2 relative z-10 text-white font-semibold text-sm hover:text-[#01c4c6] transition-colors nav-item" data-nav="unsur">
-            Unsur Survei
+            <span class="drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]">Unsur Survei</span>
           </a>
           <router-link to="/kategori-opd" class="flex items-center justify-center gap-2 px-4 h-10 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl hover:bg-[#1a8485] transition-colors">
             <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
@@ -688,54 +704,76 @@ const toggleMobileMenu = () => {
   <footer class="w-full relative">
     <img src="/images/Group Footer.svg" class="w-[150vw] h-[120%] sm:h-auto sm:w-auto sm:min-w-[108vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" />
     <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-6 sm:pt-24 lg:pt-28">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
-        <div class="lg:col-span-1 lg:ml-[-10px]">
-          <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
-          <div class="text-white/90 text-sm leading-relaxed">
-            <p class="mb-2">Dinas Komunikasi dan Informatika Kota Tanjungpinang</p>
-            <p class="mb-4">
-              Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
-            </p>
-            <p class="mb-2">(031) 12345678</p>
-            <p>kominfo@tanjungpinangkota.go.id</p>
-          </div>
-        </div>
-        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="md:ml-12">
-            <h3 class="text-white font-semibold text-2xl mb-4">E-Survei</h3>
-            <div class="text-white/90 text-sm leading-relaxed space-y-2">
-              <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
-              <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
-              <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
+            <div class="lg:col-span-1 lg:ml-[-10px]">
+                <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
+                <div class="text-white/90 text-sm leading-relaxed">
+                    <p class="mb-2">Dinas Komunikasi dan Informatika Kota Tanjungpinang</p>
+                    <p class="mb-4">
+                        Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
+                    </p>
+                    <p class="mb-2">(031) 12345678</p>
+                    <p>kominfo@tanjungpinangkota.go.id</p>
+                </div>
             </div>
-          </div>
-          <div>
-            <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
-            <form action="#" method="POST" class="space-y-3">
-              <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" name="nama" placeholder="Nama" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
-                <input type="text" name="email_hp" placeholder="Email/No. HP" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
-              </div>
-              <div>
-                <input type="text" name="subjek" placeholder="Subjek" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
-              </div>
-              <div>
-                <textarea name="pesan" rows="4" placeholder="Pesan..." class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white"></textarea>
-              </div>
-              <div>
-                <button type="submit" class="w-full bg-white/90 text-[#007576] font-bold py-2 px-4 rounded-md hover:bg-white transition-colors">
-                  Kirim
-                </button>
-              </div>
-            </form>
-          </div>
+            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="md:ml-12">
+                    <h3 class="text-white font-semibold text-2xl mb-4">E-Survei</h3>
+                    <div class="text-white/90 text-sm leading-relaxed space-y-2">
+                        <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
+                        <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
+                        <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-white/20">
+                        <router-link to="/login" class="group relative inline-flex items-center gap-3 px-6 py-2.5 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-sm border border-white/40 rounded-xl text-white font-bold text-sm overflow-hidden transition-all duration-500 hover:shadow-lg hover:shadow-white/10 hover:border-white/60">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                            
+                            <div class="relative p-1.5 bg-gradient-to-br from-white/30 to-white/10 rounded-lg transition-all duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            
+                            <span class="relative z-10">
+                                Portal Admin
+                            </span>
+                            
+                            <div class="relative ml-2 group-hover:translate-x-1.5 transition-transform duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
+                    <form action="#" method="POST" class="space-y-3">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" name="nama" placeholder="Nama" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                            <input type="text" name="email_hp" placeholder="Email/No. HP" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                        </div>
+                        <div>
+                            <input type="text" name="subjek" placeholder="Subjek" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                        </div>
+                        <div>
+                            <textarea name="pesan" rows="4" placeholder="Pesan..." class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-white/90 text-[#007576] font-bold py-2 px-4 rounded-md hover:bg-white transition-colors">
+                                Kirim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="mt-0 pt-8 text-center">
-        <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
-          Copyright Kerja Praktek UMRAH 2025
-        </p>
-      </div>
+        <div class="mt-0 pt-8 text-center">
+            <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
+                Copyright Kerja Praktek UMRAH 2025
+            </p>
+        </div>
     </div>
   </footer>
 </template>
@@ -893,6 +931,28 @@ footer {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   }
+}
+
+.login-btn-glow {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+.login-btn-glow:hover {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+.gradient-border {
+    background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+    padding: 2px;
+    border-radius: 9999px;
+}
+.gradient-border-inner {
+    background: rgba(0, 117, 118, 0.9);
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+}
+.gradient-border:hover .gradient-border-inner {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 </style>

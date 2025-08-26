@@ -1,24 +1,10 @@
 <script setup>
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  // Efek scroll pada header
-  const handleScroll = () => {
-    const header = document.querySelector("header");
-    if (header && window.scrollY > 10) {
-      header.classList.add("scrolled");
-    } else if (header) {
-      header.classList.remove("scrolled");
-    }
-  };
-  window.addEventListener("scroll", handleScroll);
-  handleScroll();
-});
+// onMounted dan fungsi handleScroll telah dihapus karena tidak lagi diperlukan.
 </script>
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
           <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
@@ -69,7 +55,10 @@ onMounted(() => {
           <p class="mt-2 text-sm sm:text-base font-semibold">Selesai</p>
         </div>
       </div>
-      <section class="form-card-gradient w-full px-6 sm:px-12 md:px-20 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4">
+      <section class="form-card-gradient w-full px-6 sm:px-12 md:px-20 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4 relative">
+        <div @click="isModalVisible = true" class="absolute top-4 right-4 w-6 h-6 flex items-center justify-center rounded-full bg-[#209FA0] text-white cursor-pointer shadow-md hover:opacity-90 transition-opacity">
+            <i class="fa-solid fa-info text-white text-sm"></i>
+        </div>
         <h3 class="text-2xl font-bold text-[#009293] mb-6 text-center">
           Data Responden
         </h3>
@@ -172,8 +161,33 @@ onMounted(() => {
   opacity: 1 !important;     
 }
 
-.content-wrapper {
-  flex: 1 0 auto;
+.content-wrapper > header.header-solid {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.content-wrapper > header.header-solid,
+.content-wrapper > header.header-solid.scrolled {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+@media screen and (max-width: 1023px) {
+  .content-wrapper > header.header-solid {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}
+
+body {
+  font-family: "Archivo", sans-serif;
+  background-color: #f2fffc;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 footer {
   flex-shrink: 0;
@@ -185,20 +199,9 @@ footer {
   color: transparent;
 }
 
-header {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
-  backdrop-filter: blur(0px);
-  transition: all 0.3s ease-in-out;
-}
-header.scrolled {
-  background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
-}
-
 .step-item {
   color: #aaeeed;
-  width: 80px; /* Memberi lebar tetap agar tidak terlalu mepet */
+  width: 80px;
 }
 .step-item.active {
   color: #00c8c9;
@@ -220,20 +223,10 @@ header.scrolled {
   flex-grow: 1;
   height: 3.2px;
   background-color: #aaeeed;
-  margin: 0 0.25rem; /* Mengurangi margin horizontal */
+  margin: 0 0.25rem;
 }
 
 .form-card-gradient {
   background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
-}
-</style>
-
-<style>
-body {
-  font-family: "Archivo", sans-serif;
-  background-color: #f2fffc;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 </style>

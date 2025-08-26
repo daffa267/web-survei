@@ -9,24 +9,12 @@ onMounted(() => {
     duration: 800,
     once: true, // Animasi hanya berjalan sekali
   });
-
-  // Efek scroll pada header (sama seperti sebelumnya)
-  const handleScroll = () => {
-    const header = document.querySelector("header");
-    if (header && window.scrollY > 10) {
-      header.classList.add("scrolled");
-    } else if (header) {
-      header.classList.remove("scrolled");
-    }
-  };
-  window.addEventListener("scroll", handleScroll);
-  handleScroll();
 });
 </script>
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
           <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
@@ -119,6 +107,27 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+.content-wrapper > header.header-solid {
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.content-wrapper > header.header-solid,
+.content-wrapper > header.header-solid.scrolled {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+@media screen and (max-width: 1023px) {
+  .content-wrapper > header.header-solid {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
 }
 .content-wrapper {
   flex: 1 0 auto;
