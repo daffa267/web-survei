@@ -10,6 +10,12 @@ const modalContent = ref({
   description: ''
 });
 
+const persyaratanContent = {
+  title: 'Persyaratan',
+  image: '/images/img_wired_flat_56_d.png',
+  description: 'Syarat yang harus dipenuhi dalam pengurusan suatu jenis pelayanan, baik persyaratan teknis maupun administratif.'
+};
+
 const biayaTarifContent = {
   title: 'Biaya/Tarif',
   image: '/images/img_money_bag_1.png', 
@@ -455,11 +461,12 @@ const toggleMobileMenu = () => {
           <img src="/images/cloud-4.svg" class="absolute left-[125px] top-[430px] w-[300px] h-auto" alt="Cloud 4" />
           <img src="/images/cloud-5.svg" class="absolute left-[100px] top-[580px] w-[290px] h-auto" alt="Cloud 5" />
         </div>
-        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-12 max-w-6xl mx-auto">
-          <div class="w-full lg:w-1/2 flex justify-center order-last lg:order-first mt-8 lg:mt-12" data-aos="zoom-in" data-aos-duration="1000">
+        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-12 max-w-6xl mx-auto" style="--section-shift: 3rem;">
+          <div class="w-full lg:w-1/2 flex justify-center order-last lg:order-first -mt-4 lg:mt-12 lg:-translate-x-[var(--section-shift)]" data-aos="zoom-in" data-aos-duration="1000">
             <img src="/images/pencil-about.svg" class="w-[280px] sm:w-[320px] lg:w-[362px] h-auto" alt="Survey Illustration" />
           </div>
-          <div class="w-full lg:w-1/2" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="200">
+
+          <div class="w-full lg:w-1/2 lg:translate-x-[var(--section-shift)]" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="200">
             <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 text-center lg:text-left">
               Tentang E-survei
             </h2>
@@ -475,12 +482,12 @@ const toggleMobileMenu = () => {
               </a>
             </div>
           </div>
-          </div>
+        </div>
       </section>
     </div>
 
     <section id="unsur" class="w-full px-4 sm:px-6 lg:px-8 pt-16 pb-12 sm:pt-20 lg:pt-24 lg:pb-20">
-      <div class="text-center mb-12 relative max-w-4xl mx-auto">
+      <div class="text-center mb-12 relative max-w-4xl mx-auto" data-aos="zoom-in-up" data-aos-duration="600">
         <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
           Unsur Survei
         </h2>
@@ -493,123 +500,131 @@ const toggleMobileMenu = () => {
 
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-4 mb-16 max-w-7xl mx-auto justify-items-center">
         
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="100" data-aos-once="true">
           <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
           <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.99%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-          <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-            <div class="mt-2 sm:mt-4"></div>
-            <h3 class="text-white font-semibold text-sm mb-2">Persyaratan</h3>
-            <img src="/images/img_wired_flat_56_d.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] mb-3 card-image" alt="Requirements" />
-            <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+          <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+            <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+              <h3 class="text-white font-semibold text-sm mb-6 text-center">Persyaratan</h3>
+              <img src="/images/img_wired_flat_56_d.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[90px] lg:h-[90px] mb-6 card-image" alt="Requirements" />
+            </div>
+            <button @click="openModal(persyaratanContent)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
               Lihat Detail
             </button>
           </div>
         </div>
 
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="200" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
             <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.95%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-1"></div>
-              <h3 class="text-white font-semibold text-xs sm:text-sm mb-2 leading-tight">
-                Sistem, Mekanisme,<br />dan Prosedur
-              </h3>
-              <img src="/images/img_operation_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[106px] lg:h-[106px] mb-2 card-image" alt="System" />
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-white font-semibold text-xs sm:text-sm mb-4 leading-tight text-center">
+                  Sistem, Mekanisme,<br />dan Prosedur
+                </h3>
+                <img src="/images/img_operation_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] mb-6 card-image" alt="System" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
 
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="300" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.3% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-2 sm:mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-2">
-                Waktu Penyelesaian
-              </h3>
-              <img src="/images/img_wired_flat_45_c.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Time" />
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.4% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-white font-semibold text-sm mb-4 text-center">
+                  Waktu Penyelesaian
+                </h3>
+                <img src="/images/img_wired_flat_45_c.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-4 card-image" alt="Time" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
 
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="400" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
             <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.97%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-2 sm:mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-2">Biaya/Tarif</h3>
-              <img src="/images/img_money_bag_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] mb-3 card-image" alt="Cost" />
-              <button @click="openModal(biayaTarifContent)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-white font-semibold text-sm mb-6 text-center">Biaya/Tarif</h3>
+                <img src="/images/img_money_bag_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[90px] lg:h-[90px] mb-6 card-image" alt="Cost" />
+              </div>
+              <button @click="openModal(biayaTarifContent)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
 
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="400" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
             <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.99%] h-auto z-10" style="width: 102.5% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-0"></div>
-              <h3 class="text-white font-semibold text-xs sm:text-sm mb-2 leading-tight">
-                Produk Spesifikasi<br />dan Jenis Pelayanan
-              </h3>
-              <img src="/images/img_received_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Product" />
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-white font-semibold text-xs sm:text-sm mb-6 leading-tight text-center">
+                  Produk Spesifikasi<br />dan Jenis Pelayanan
+                </h3>
+                <img src="/images/img_received_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-6 card-image" alt="Product" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
 
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="500" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
             <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.99%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-2 sm:mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-2">
-                Kompetensi Pelaksana
-              </h3>
-              <img src="/images/img_personal_growth.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Competence" />
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-white font-semibold text-xs sm:text-sm mb-4 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
+                  Kompetensi Pelaksana
+                </h3>
+                <img src="/images/img_personal_growth.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
         
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="600" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
             <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-2 sm:mt-4"></div>
-              <h3 class="text-white font-semibold text-sm mb-2">
-                Perilaku Pelaksana
-              </h3>
-              <img src="/images/img_consumer_behavior.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Behavior" />
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-white font-semibold text-sm mb-4 text-center">
+                  Perilaku Pelaksana
+                </h3>
+                <img src="/images/img_consumer_behavior.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-4 card-image" alt="Behavior" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
         
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="700" data-aos-once="true">
             <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-[8px] sm:rounded-[10px] z-0"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.9%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-              <div class="mt-0"></div>
-              <h3 class="text-white font-semibold text-xs sm:text-sm mb-2 leading-tight">
-                Penanganan Pengaduan,<br />Saran, dan Masukan
-              </h3>
-              <img src="/images/img_recommendation_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[116px] lg:h-[116px] mb-2 card-image" alt="Complaint" />
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-start pt-0 pb-4 sm:py-0 sm:justify-center lg:pb-0">
+                <h3 class="text-white font-semibold text-xs sm:text-sm mb-1 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
+                  Penanganan Pengaduan,<br />Saran, dan Masukan
+                </h3>
+                <img src="/images/img_recommendation_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-0 sm:mb-6 card-image" alt="Complaint" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
               </button>
             </div>
         </div>
       </div>
-      </section>
+    </section>
 
     <section class="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
       <div class="text-center mb-12 sm:mb-16 relative max-w-4xl mx-auto">

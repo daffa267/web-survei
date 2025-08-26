@@ -84,9 +84,11 @@ onMounted(() => {
           data-aos-easing="ease-out-back"
           class="relative w-full max-w-md bg-[#00c8c9] text-white p-6 sm:p-8 rounded-2xl shadow-lg text-center flex flex-col items-center"
         >
-          <router-link to="/" class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
-            <i class="fa-solid fa-house text-[#00c8c9]"></i>
-          </router-link>
+          <div class="absolute top-4 right-4 group">
+            <router-link to="/" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors" title="Beranda">
+              <i class="fa-solid fa-house text-[#00c8c9]"></i>
+            </router-link>
+          </div>
           
           <h3 class="text-xl sm:text-2xl font-bold mb-4">
             Survei Berhasil Terkirim!
@@ -105,7 +107,7 @@ onMounted(() => {
   </div>
 
   <footer class="w-full relative h-48">
-    <img src="/images/footer-cut.svg" class="w-full min-w-[108vw] h-auto absolute bottom-0 left-[103%] -translate-x-1/2 -z-10 mt-12" alt="Footer Background" />
+    <img src="/images/footer-cut.svg" class="w-[150vw] h-[150%] sm:h-auto sm:w-auto sm:min-w-[102vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" />
   </footer>
 </template>
 
