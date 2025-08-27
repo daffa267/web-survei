@@ -1,5 +1,66 @@
 <script setup>
-// onMounted dan fungsi handleScroll telah dihapus karena tidak lagi diperlukan.
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+
+// State untuk menampung nilai dari setiap input form
+const nama = ref('');
+const umur = ref('');
+const emailHp = ref('');
+const jenisKelamin = ref('');
+const pendidikan = ref('');
+const pekerjaan = ref('');
+const jenisLayanan = ref('');
+
+const router = useRouter();
+
+// State reaktif untuk melacak error pada setiap field
+const errors = reactive({
+  umur: false,
+  emailHp: false,
+  jenisKelamin: false,
+  pendidikan: false,
+  pekerjaan: false,
+  jenisLayanan: false,
+});
+
+// Fungsi untuk menangani klik tombol "Selanjutnya"
+const handleNext = () => {
+  // Reset semua status error sebelum validasi ulang
+  Object.keys(errors).forEach(key => errors[key] = false);
+
+  let validationFailed = false;
+
+  // Validasi setiap field satu per satu
+  if (!umur.value) {
+    errors.umur = true;
+    validationFailed = true;
+  }
+  if (!emailHp.value) {
+    errors.emailHp = true;
+    validationFailed = true;
+  }
+  if (!jenisKelamin.value) {
+    errors.jenisKelamin = true;
+    validationFailed = true;
+  }
+  if (!pendidikan.value) {
+    errors.pendidikan = true;
+    validationFailed = true;
+  }
+  if (!pekerjaan.value) {
+    errors.pekerjaan = true;
+    validationFailed = true;
+  }
+  if (!jenisLayanan.value) {
+    errors.jenisLayanan = true;
+    validationFailed = true;
+  }
+
+  // Jika tidak ada error validasi, lanjutkan ke halaman berikutnya
+  if (!validationFailed) {
+    router.push('/survei');
+  }
+};
 </script>
 
 <template>
@@ -56,84 +117,89 @@
         </div>
       </div>
       <section class="form-card-gradient w-full px-6 sm:px-12 md:px-20 py-8 sm:py-10 rounded-2xl shadow-[-4px_4px_10px_0px_rgba(0,0,0,0.17)] flex flex-col mt-4 relative">
-        <div @click="isModalVisible = true" class="absolute top-4 right-4 w-6 h-6 flex items-center justify-center rounded-full bg-[#209FA0] text-white cursor-pointer shadow-md hover:opacity-90 transition-opacity">
-            <i class="fa-solid fa-info text-white text-sm"></i>
-        </div>
-        <h3 class="text-2xl font-bold text-[#009293] mb-6 text-center">
+        <h3 class="text-2xl font-bold text-[#009293] mb-2 text-center">
           Data Responden
         </h3>
-        <form @submit.prevent="" class="space-y-6 flex-grow flex flex-col">
+        <p class="text-sm text-left text-gray-600 mb-8 italic">
+          Isian yang ditandai dengan bintang (<span class="text-red-500">*</span>) wajib diisi.
+        </p>
+        <form @submit.prevent="" class="space-y-2 flex-grow flex flex-col">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="nama" class="block text-sm font-semibold text-[#009293]">Nama Lengkap</label>
-              <input type="text" id="nama" placeholder="Masukkan nama lengkap anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
+              <input v-model="nama" type="text" id="nama" placeholder="Masukkan nama lengkap anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
             </div>
-            <div>
-              <label for="umur" class="block text-sm font-semibold text-[#009293]">Umur</label>
-              <input type="number" id="umur" placeholder="Masukkan umur anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
+            <div class="relative pb-5">
+              <label for="umur" class="block text-sm font-semibold text-[#009293]">Umur <span class="text-red-500">*</span></label>
+              <input v-model="umur" type="number" id="umur" placeholder="Masukkan umur anda" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none placeholder:italic" 
+                     :class="errors.umur ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'" />
+              <p v-if="errors.umur" class="absolute bottom-0 left-0 text-xs text-red-600">Umur wajib diisi.</p>
             </div>
           </div>
 
-          <div>
-            <label for="email" class="block text-sm font-semibold text-[#009293]">Email/No.HP</label>
-            <input type="text" id="email" placeholder="Masukkan email atau nomor HP anda" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] placeholder:italic" />
+          <div class="relative pb-5">
+            <label for="email" class="block text-sm font-semibold text-[#009293]">Email/No.HP <span class="text-red-500">*</span></label>
+            <input v-model="emailHp" type="text" id="email" placeholder="Masukkan email atau nomor HP anda" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none placeholder:italic"
+                   :class="errors.emailHp ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'" />
+            <p v-if="errors.emailHp" class="absolute bottom-0 left-0 text-xs text-red-600">Email/No.HP wajib diisi.</p>
           </div>
 
-          <div>
-            <label class="block text-sm font-semibold text-[#009293]">Jenis Kelamin</label>
+          <div class="relative pb-5">
+            <label class="block text-sm font-semibold text-[#009293]">Jenis Kelamin <span class="text-red-500">*</span></label>
             <div class="mt-2 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <label class="flex items-center bg-white border border-gray-300 rounded-[12px] px-6 py-2 cursor-pointer hover:bg-cyan-50">
-                <input type="radio" name="jenis_kelamin" value="laki-laki" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
+              <label class="flex items-center bg-white border rounded-[12px] px-6 py-2 cursor-pointer hover:bg-cyan-50"
+                     :class="errors.jenisKelamin ? 'border-red-500' : 'border-gray-300'">
+                <input v-model="jenisKelamin" type="radio" name="jenis_kelamin" value="laki-laki" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
                 <span class="ml-3 text-[#016465]">Laki-laki</span>
               </label>
-              <label class="flex items-center bg-white border border-gray-300 rounded-[12px] px-6 py-2 cursor-pointer hover:bg-cyan-50">
-                <input type="radio" name="jenis_kelamin" value="perempuan" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
+              <label class="flex items-center bg-white border rounded-[12px] px-6 py-2 cursor-pointer hover:bg-cyan-50"
+                     :class="errors.jenisKelamin ? 'border-red-500' : 'border-gray-300'">
+                <input v-model="jenisKelamin" type="radio" name="jenis_kelamin" value="perempuan" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
                 <span class="ml-3 text-[#016465]">Perempuan</span>
               </label>
             </div>
+            <p v-if="errors.jenisKelamin" class="absolute bottom-0 left-0 text-xs text-red-600">Jenis kelamin wajib dipilih.</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="pendidikan" class="block text-sm font-semibold text-[#009293]">Pendidikan</label>
-              <select id="pendidikan" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] text-[#016465]">
-                <option>Pilih tingkat pendidikan</option>
+            <div class="relative pb-5">
+              <label for="pendidikan" class="block text-sm font-semibold text-[#009293]">Pendidikan <span class="text-red-500">*</span></label>
+              <select v-model="pendidikan" id="pendidikan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
+                      :class="errors.pendidikan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
+                <option disabled value="">Pilih tingkat pendidikan</option>
                 <option>SD</option>
                 <option>SMP</option>
                 <option>SMA/SMK</option>
                 <option>D3/S1</option>
                 <option>S2/S3</option>
               </select>
+              <p v-if="errors.pendidikan" class="absolute bottom-0 left-0 text-xs text-red-600">Pendidikan wajib dipilih.</p>
             </div>
-            <div>
-              <label for="pekerjaan" class="block text-sm font-semibold text-[#009293]">Pekerjaan</label>
-              <select id="pekerjaan" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] text-[#016465]">
-                <option>Pilih pekerjaan anda</option>
+            <div class="relative pb-5">
+              <label for="pekerjaan" class="block text-sm font-semibold text-[#009293]">Pekerjaan <span class="text-red-500">*</span></label>
+              <select v-model="pekerjaan" id="pekerjaan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
+                      :class="errors.pekerjaan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
+                <option disabled value="">Pilih pekerjaan anda</option>
                 <option>PNS/TNI/POLRI</option>
                 <option>Wiraswasta</option>
                 <option>Karyawan Swasta</option>
                 <option>Pelajar/Mahasiswa</option>
                 <option>Lainnya</option>
               </select>
+              <p v-if="errors.pekerjaan" class="absolute bottom-0 left-0 text-xs text-red-600">Pekerjaan wajib dipilih.</p>
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="jenis_layanan" class="block text-sm font-semibold text-[#009293]">Jenis Layanan</label>
-              <select id="jenis_layanan" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] text-[#016465]">
-                <option>Pilih jenis layanan</option>
+            <div class="relative pb-5">
+              <label for="jenis_layanan" class="block text-sm font-semibold text-[#009293]">Jenis Layanan <span class="text-red-500">*</span></label>
+              <select v-model="jenisLayanan" id="jenis_layanan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
+                      :class="errors.jenisLayanan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
+                <option disabled value="">Pilih jenis layanan</option>
                 <option>Layanan A</option>
                 <option>Layanan B</option>
               </select>
-            </div>
-            <div>
-              <label for="petugas_pelayanan" class="block text-sm font-semibold text-[#009293]">Petugas Pelayanan</label>
-              <select id="petugas_pelayanan" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-[12px] shadow-sm focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] text-[#016465]">
-                <option>Pilih petugas</option>
-                <option>Petugas 1</option>
-                <option>Petugas 2</option>
-              </select>
+              <p v-if="errors.jenisLayanan" class="absolute bottom-0 left-0 text-xs text-red-600">Jenis layanan wajib dipilih.</p>
             </div>
           </div>
 
@@ -141,9 +207,9 @@
             <router-link to="/kategori-dinas" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
               &larr; Sebelumnya
             </router-link>
-            <router-link to="/survei" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
+            <button @click="handleNext" type="button" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
               Selanjutnya &rarr;
-            </router-link>
+            </button>
           </div>
         </form>
       </section>
@@ -156,6 +222,7 @@
 </template>
 
 <style scoped>
+/* Tidak ada perubahan pada CSS di sini */
 :deep(input::placeholder) {
   color: #82CACA !important;
   opacity: 1 !important;     

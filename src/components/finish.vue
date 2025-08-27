@@ -72,12 +72,6 @@ onMounted(() => {
           data-aos-easing="ease-out-back"
           class="relative w-full max-w-md bg-[#00c8c9] text-white p-6 sm:p-8 rounded-2xl shadow-lg text-center flex flex-col items-center"
         >
-          <div class="absolute top-4 right-4 group">
-            <router-link to="/" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors" title="Beranda">
-              <i class="fa-solid fa-house text-[#00c8c9]"></i>
-            </router-link>
-          </div>
-          
           <h3 class="text-xl sm:text-2xl font-bold mb-4">
             Survei Berhasil Terkirim!
           </h3>
@@ -89,6 +83,15 @@ onMounted(() => {
           <p class="mt-4 text-sm sm:text-base">
             Terima kasih telah mengisi survei kami. Masukan Anda sangat berarti untuk kemajuan layanan kami.
           </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 w-full">
+            <router-link to="/kategori-opd" class="w-full sm:flex-1 text-center bg-white text-[#009293] font-semibold py-2.5 px-4 rounded-lg shadow-md hover:bg-gray-200 transition-colors duration-300">
+              Isi Survei Lagi
+            </router-link>
+            <router-link to="/" class="w-full sm:flex-1 text-center bg-transparent border-2 border-white text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-white hover:text-[#009293] transition-colors duration-300">
+              Kembali ke Beranda
+            </router-link>
+          </div>
         </div>
       </section>
     </main>

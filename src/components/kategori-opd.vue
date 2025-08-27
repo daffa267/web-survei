@@ -119,81 +119,81 @@ const toggleMobileMenu = () => {
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
             
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.87%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">DINAS</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">DINAS</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">BADAN</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">BADAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.23% !important; max-width: 103% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
             
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 103% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">DINAS</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">DINAS</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.34% !important; max-width: 103% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">BADAN</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">BADAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25%] h-auto z-10" style="width: 102.5% !important; max-width: 105% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.3% !important; max-width: 105% !important" alt="Card Decoration" />
+            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-white font-semibold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
                 <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>

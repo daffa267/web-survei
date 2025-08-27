@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onBeforeUpdate, ref, nextTick } from 'vue';
 
-// Data dinamis untuk setiap kategori dinas (tetap dipertahankan)
+// Data dinamis untuk setiap kategori dinas
 const dinas = ref([
   { name: 'DINAS KEPEMUDAAN, OLAHRAGA DAN PARIWISATA', rating: '98.10' },
   { name: 'DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL', rating: '95.50' },
@@ -13,19 +13,63 @@ const dinas = ref([
   { name: 'DINAS KOMUNIKASI DAN INFORMATIKA', rating: '99.20' }
 ]);
 
+const ratingElements = ref([]);
+onBeforeUpdate(() => {
+  ratingElements.value = [];
+});
+
+const setRatingRef = (el) => {
+  if (el) {
+    ratingElements.value.push(el);
+  }
+};
+
+// Fungsi untuk menganimasikan angka dari 0 ke nilai target (durasinya cepat: 800ms)
+function animateNumber(el, targetValue, duration = 800) {
+  const startValue = 0;
+  const endValue = parseFloat(targetValue);
+  if (isNaN(endValue)) return;
+
+  let startTime = null;
+
+  const animationStep = (currentTime) => {
+    if (!startTime) {
+      startTime = currentTime;
+    }
+    
+    const progress = Math.min((currentTime - startTime) / duration, 1);
+    const currentValue = progress * (endValue - startValue) + startValue;
+    
+    el.textContent = currentValue.toFixed(2);
+
+    if (progress < 1) {
+      requestAnimationFrame(animationStep);
+    } else {
+      el.textContent = endValue.toFixed(2);
+    }
+  };
+
+  requestAnimationFrame(animationStep);
+}
+
 onMounted(() => {
-  // --- Logika untuk Navigasi Interaktif (Sama seperti kategori-opd.vue) ---
+  nextTick(() => {
+    ratingElements.value.forEach((el, index) => {
+      const targetRating = dinas.value[index].rating;
+      // Jeda antar kartu dipercepat (50ms)
+      setTimeout(() => {
+        animateNumber(el, targetRating);
+      }, index * 50); 
+    });
+  });
+
   let isClickScrolling = false;
   let scrollTimeout = null;
 
-  // Elemen Desktop
   const navItems = document.querySelectorAll(".nav-item");
-
-  // Elemen Mobile
   const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
   const mobileMenu = document.getElementById("mobileMenu");
 
-  // Fungsi untuk navigasi kembali ke halaman utama dan scroll ke section
   const navigateToHomeSection = (navName) => {
     if (!navName) return;
     isClickScrolling = true;
@@ -38,7 +82,6 @@ onMounted(() => {
     }, 800);
   };
 
-  // Event listener untuk item nav desktop
   navItems.forEach((item) => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
@@ -47,7 +90,6 @@ onMounted(() => {
     });
   });
 
-  // Event listener untuk item nav mobile
   mobileNavItems.forEach((item) => {
     item.addEventListener("click", function (e) {
         e.preventDefault();
@@ -58,7 +100,6 @@ onMounted(() => {
   });
 });
 
-// --- Fungsi untuk Toggle Menu Mobile ---
 const toggleMobileMenu = () => {
   const menu = document.getElementById("mobileMenu");
   if (menu) {
@@ -131,14 +172,14 @@ const toggleMobileMenu = () => {
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
             
             <div v-for="(item, index) in dinas" :key="index" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 bg-[#00c8c9] border-2 border-[#00c8c9] rounded-xl z-0"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[25.05%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
+              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.96%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 
-                <h3 class="text-white font-semibold text-[11px] sm:text-xs mb-1 sm:mb-2 leading-tight min-h-[34px] flex items-center justify-center">{{ item.name }}</h3>
+                <h3 class="text-[#209fa0] font-bold text-[11px] sm:text-xs mb-1 sm:mb-6 leading-tight min-h-[34px] flex items-center justify-center">{{ item.name }}</h3>
                 
-                <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[100px] lg:h-[100px] mb-2 sm:mb-3 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
-                  <span class="text-white font-bold text-lg sm:text-xl lg:text-2xl tracking-tight">{{ item.rating }}</span>
+                <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[100px] lg:h-[100px] mb-2 sm:mb-6 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
+                  <span :ref="setRatingRef" class="text-white font-bold text-lg sm:text-xl lg:text-2xl tracking-tight">0.00</span>
                 </div>
                 
                 <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Mulai Survei</router-link>
