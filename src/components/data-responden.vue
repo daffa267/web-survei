@@ -1,6 +1,7 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios'; 
 
 // State untuk menampung nilai dari setiap input form
 const nama = ref('');
@@ -10,6 +11,9 @@ const jenisKelamin = ref('');
 const pendidikan = ref('');
 const pekerjaan = ref('');
 const jenisLayanan = ref('');
+
+// State baru untuk menampung opsi pendidikan yang dinamis
+const pendidikanOptions = ref([]);
 
 const router = useRouter();
 
@@ -23,40 +27,39 @@ const errors = reactive({
   jenisLayanan: false,
 });
 
+// --- Ambil Data Pendidikan ---
+const getPendidikanOptions = async () => {
+  try {
+    // URL API yang benar sekarang digunakan di sini
+    const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/pendidikan-option');
+    
+    if (response.data.success) {
+      // Simpan data yang diambil ke dalam state
+      pendidikanOptions.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('Gagal mengambil opsi pendidikan:', error);
+    // Tambahkan penanganan error di sini, misalnya, tampilkan pesan ke pengguna
+  }
+};
+
+// Gunakan onMounted lifecycle hook untuk memanggil fungsi fetch kita
+onMounted(() => {
+  getPendidikanOptions();
+});
+
 // Fungsi untuk menangani klik tombol "Selanjutnya"
 const handleNext = () => {
-  // Reset semua status error sebelum validasi ulang
   Object.keys(errors).forEach(key => errors[key] = false);
-
   let validationFailed = false;
 
-  // Validasi setiap field satu per satu
-  if (!umur.value) {
-    errors.umur = true;
-    validationFailed = true;
-  }
-  if (!emailHp.value) {
-    errors.emailHp = true;
-    validationFailed = true;
-  }
-  if (!jenisKelamin.value) {
-    errors.jenisKelamin = true;
-    validationFailed = true;
-  }
-  if (!pendidikan.value) {
-    errors.pendidikan = true;
-    validationFailed = true;
-  }
-  if (!pekerjaan.value) {
-    errors.pekerjaan = true;
-    validationFailed = true;
-  }
-  if (!jenisLayanan.value) {
-    errors.jenisLayanan = true;
-    validationFailed = true;
-  }
+  if (!umur.value) { errors.umur = true; validationFailed = true; }
+  if (!emailHp.value) { errors.emailHp = true; validationFailed = true; }
+  if (!jenisKelamin.value) { errors.jenisKelamin = true; validationFailed = true; }
+  if (!pendidikan.value) { errors.pendidikan = true; validationFailed = true; }
+  if (!pekerjaan.value) { errors.pekerjaan = true; validationFailed = true; }
+  if (!jenisLayanan.value) { errors.jenisLayanan = true; validationFailed = true; }
 
-  // Jika tidak ada error validasi, lanjutkan ke halaman berikutnya
   if (!validationFailed) {
     router.push('/survei');
   }
@@ -68,10 +71,10 @@ const handleNext = () => {
     <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
-          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemkot" />
+          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
             <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
-            <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemkot Tanjungpinang</span>
+            <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
       </div>
@@ -123,7 +126,7 @@ const handleNext = () => {
         <p class="text-sm text-left text-gray-600 mb-8 italic">
           Isian yang ditandai dengan bintang (<span class="text-red-500">*</span>) wajib diisi.
         </p>
-        <form @submit.prevent="" class="space-y-2 flex-grow flex flex-col">
+        <form @submit.prevent="handleNext" class="space-y-2 flex-grow flex flex-col">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="nama" class="block text-sm font-semibold text-[#009293]">Nama Lengkap</label>
@@ -167,11 +170,9 @@ const handleNext = () => {
               <select v-model="pendidikan" id="pendidikan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
                       :class="errors.pendidikan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
                 <option disabled value="">Pilih tingkat pendidikan</option>
-                <option>SD</option>
-                <option>SMP</option>
-                <option>SMA/SMK</option>
-                <option>D3/S1</option>
-                <option>S2/S3</option>
+                <option v-for="option in pendidikanOptions" :key="option.id" :value="option.id">
+                  {{ option.name }}
+                </option>
               </select>
               <p v-if="errors.pendidikan" class="absolute bottom-0 left-0 text-xs text-red-600">Pendidikan wajib dipilih.</p>
             </div>
@@ -222,7 +223,6 @@ const handleNext = () => {
 </template>
 
 <style scoped>
-/* Tidak ada perubahan pada CSS di sini */
 :deep(input::placeholder) {
   color: #82CACA !important;
   opacity: 1 !important;     
