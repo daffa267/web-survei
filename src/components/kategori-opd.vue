@@ -1,8 +1,36 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
-onMounted(() => {
-  // --- Logika untuk Navigasi Interaktif ---
+const siteInfo = ref({
+  logo: '/images/Logo-Pemko.png',
+  name: '...',
+  nama_aplikasi: 'Memuat...',
+  telp: '',
+  email: '',
+  copyright: ''
+});
+
+onMounted(async () => {
+  try {
+    const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const data = result.data;
+      siteInfo.value = {
+        logo: data.file_logo,
+        name: data.name.toUpperCase(),
+        nama_aplikasi: data.nama_aplikasi,
+        telp: data.telp,
+        email: data.email,
+        copyright: data.copyright
+      };
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data pengaturan situs:", error);
+  }
+
   let isClickScrolling = false;
   let scrollTimeout = null;
 
@@ -31,7 +59,6 @@ onMounted(() => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
       const navName = this.getAttribute("data-nav");
-      // Fungsi update indikator telah dihapus
       navigateToHomeSection(navName);
     });
   });
@@ -47,7 +74,6 @@ onMounted(() => {
   });
 });
 
-// --- Fungsi untuk Toggle Menu Mobile ---
 const toggleMobileMenu = () => {
   const menu = document.getElementById("mobileMenu");
   if (menu) {
@@ -58,12 +84,12 @@ const toggleMobileMenu = () => {
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
+    <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
-          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemko" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
+          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
+            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -124,7 +150,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.87%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">DINAS</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -134,7 +160,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">BADAN</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -144,7 +170,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -154,7 +180,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -164,7 +190,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">DINAS</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -174,7 +200,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">BADAN</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -184,7 +210,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -194,7 +220,7 @@ const toggleMobileMenu = () => {
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
-                <img src="/images/logo tanjungpinang.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
               </div>
             </div>
@@ -213,8 +239,8 @@ const toggleMobileMenu = () => {
                     <p class="mb-4">
                         Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
                     </p>
-                    <p class="mb-2">(031) 12345678</p>
-                    <p>kominfo@tanjungpinangkota.go.id</p>
+                    <p class="mb-2">{{ siteInfo.telp }}</p>
+                    <p>{{ siteInfo.email }}</p>
                 </div>
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -272,7 +298,7 @@ const toggleMobileMenu = () => {
         </div>
         <div class="mt-0 pt-8 text-center">
             <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
-                Copyright Kerja Praktek UMRAH 2025
+                {{ siteInfo.copyright }}
             </p>
         </div>
     </div>

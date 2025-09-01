@@ -1,6 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
+const siteInfo = ref({
+  logo: '/images/Logo-Pemko.png',
+  name: '...',
+});
+
 // State untuk mengontrol visibilitas modal
 const isModalVisible = ref(false);
 
@@ -35,6 +40,24 @@ const surveyQuestions = ref([
   }
 ]);
 
+onMounted(async () => {
+  try {
+    const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const data = result.data;
+      siteInfo.value = {
+        logo: data.file_logo,
+        name: data.name.toUpperCase(),
+      };
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data pengaturan situs:", error);
+  }
+});
+
 // Fungsi untuk mendapatkan teks label berdasarkan rating (sesuai gambar)
 const getLabelText = (rating) => {
   switch (rating) {
@@ -60,12 +83,12 @@ const getLabelClass = (rating) => {
 
 <template>
   <div class="content-wrapper">
-    <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="header-solid w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
-          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemko" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
+          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
+            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>

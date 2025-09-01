@@ -2,6 +2,22 @@
 import { onMounted, ref, computed, watch } from 'vue';
 import Chart from 'chart.js/auto';
 
+// --- START: Site Info Logic (BARU) ---
+const siteInfo = ref({
+  logo: '/images/Logo-Pemko.png', 
+  name: '...',
+  nama_aplikasi: 'Memuat...', 
+  deskripsi: '',
+  tentang: '',
+  deskripsi_unsur: '',
+  telp: '',
+  email: '',
+  copyright: ''
+});
+
+// --- END: Site Info Logic ---
+
+
 // --- START: Modal Logic (No changes) ---
 const isModalVisible = ref(false);
 const modalContent = ref({
@@ -131,7 +147,33 @@ watch([selectedYear, activeDinas], () => {
 
 // --- END: Chart Logic ---
 
-onMounted(() => {
+onMounted(async () => {
+  // --- START: Fetch Site Settings (BARU) ---
+  try {
+    const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const data = result.data;
+      siteInfo.value = {
+        logo: data.file_logo,
+        name: data.name.toUpperCase(),
+        nama_aplikasi: data.nama_aplikasi,
+        deskripsi: data.deskripsi,
+        tentang: data.tentang,
+        deskripsi_unsur: data.deskripsi_unsur,
+        telp: data.telp,
+        email: data.email,
+        copyright: data.copyright
+      };
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data pengaturan situs:", error);
+  }
+  // --- END: Fetch Site Settings ---
+
+
   // --- START: Existing Scroll/Nav Logic (Now for both Desktop & Mobile) ---
   const handleScroll = () => {
     const header = document.querySelector("header");
@@ -344,12 +386,12 @@ const toggleMobileMenu = () => {
 
 <template>
   <div class="content-wrapper mb-60">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <div class="flex flex-row items-center gap-3 sm:gap-1">
-          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemko" />
+        <div class="flex flex-row items-center gap-3 sm:gap-4 h-20">
+          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
+            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </div>
@@ -401,9 +443,9 @@ const toggleMobileMenu = () => {
             Unsur Survei
           </button>
 
-          <router-link to="/kategori-opd" class="flex items-center justify-center gap-2 px-4 py-2 mt-2 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl w-fit">
+          <router-link to="/kategori-opd" @click="toggleMobileMenu" class="flex items-center justify-center gap-2 px-4 py-2 mt-2 bg-[#209fa0] text-white font-semibold text-sm rounded-2xl w-fit z-10">
             <img src="/images/img_heroiconsoutlinelogin.svg" class="w-5 h-5" alt="Login" />
-            Mulai Survei
+              Mulai Survei
           </router-link>
         </div>
     </div>
@@ -419,17 +461,17 @@ const toggleMobileMenu = () => {
       <main class="relative w-full lg:min-h-[800px] flex items-center z-10 pt-32 pb-16 lg:pt-0 lg:pb-0">
         <div class="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:pl-4 lg:pr-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-12 lg:gap-4">
           
-          <div class="flex flex-col w-full max-w-lg items-center text-center lg:items-start lg:text-left" data-aos="slide-from-far-left" data-aos-duration="1100" data-aos-easing="ease-out-cubic" data-aos-delay="400">
+          <div class="flex flex-col w-full max-w-lg items-center text-center lg:items-start lg:text-left relative z-[100]" data-aos="slide-from-far-left" data-aos-duration="1100" data-aos-easing="ease-out-cubic" data-aos-delay="400">
             <h1 class="text-[32px] sm:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 max-w-md">
-              Survei Kepuasan Masyarakat
+              {{ siteInfo.nama_aplikasi }}
             </h1>
             <p class="text-base text-[#04b0b1] leading-relaxed mb-8 text-justify">
-              SURVEI KEPUASAN MASYARAKAT (SKM) adalah data dan informasi tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran secara kuantitatif dan kualitatif atas pendapat masyarakat dalam memperoleh pelayanan dari aparatur penyelenggara pelayanan publik.
+              {{ siteInfo.deskripsi }}
             </p>
-            <a href="/kategori-opd" class="group flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#04b0b1] text-[#04b0b1] font-semibold text-sm rounded-2xl hover:bg-[#04b0b1] hover:text-white transition-all duration-300 w-fit">
+            <router-link to="/kategori-opd" class="group flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#04b0b1] text-[#04b0b1] font-semibold text-sm rounded-2xl hover:bg-[#04b0b1] hover:text-white transition-all duration-300 w-fit">
               Mulai Survey
               <img src="/images/img_heroicons_outline_login_cyan_600.svg" class="w-5 h-5 group-hover:invert group-hover:brightness-0 group-hover:transition-all group-hover:duration-300" alt="Arrow" />
-            </a>
+            </router-link>
           </div>
           
           <div class="relative w-full max-w-[320px] sm:max-w-[420px] lg:w-[486px] h-auto lg:mr-12 mt-8 lg:mt-0" data-aos="slide-from-far-right" data-aos-duration="800" data-aos-easing="ease-out-cubic">
@@ -463,9 +505,9 @@ const toggleMobileMenu = () => {
             </div>
         </div>
 
-        <img src="/images/Group 3.svg" class="absolute left-0 top-[130px] w-[230px] h-auto z-20 hidden lg:block" alt="Decoration" />
-        <img src="/images/Line 7.svg" class="absolute left-[0px] top-[270px] w-[180px] h-auto z-20 hidden lg:block" alt="Decoration" />
-        <img src="/images/Group 4.svg" class="absolute left-[70px] top-[430px] w-[270px] h-auto z-20 hidden lg:block" alt="Decoration" />
+        <img src="/images/Group 3.svg" class="absolute left-0 top-[130px] w-[230px] h-auto z-5 hidden lg:block" alt="Decoration" />
+        <img src="/images/Line 7.svg" class="absolute left-[0px] top-[270px] w-[180px] h-auto z-5 hidden lg:block" alt="Decoration" />
+        <img src="/images/Group 4.svg" class="absolute left-[70px] top-[430px] w-[270px] h-auto z-5 hidden lg:block" alt="Decoration" />
       </main>
 
       <section id="tentang" class="relative w-full px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 mt-0 lg:mt-16">
@@ -484,7 +526,7 @@ const toggleMobileMenu = () => {
 
           <div class="w-full lg:w-1/2 lg:translate-x-[var(--section-shift)]" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="200">
             <h2 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 text-center lg:text-left">
-              Tentang E-survei
+              {{ siteInfo.tentang }}
             </h2>
             <p class="text-base text-[#04b0b1] leading-relaxed text-justify">
               SURVEI KEPUASAN MASYARAKAT (SKM) adalah data dan informasi tentang tingkat kepuasan masyarakat yang diperoleh dari hasil pengukuran secara kuantitatif dan kualitatif atas pendapat masyarakat dalam memperoleh pelayanan dari aparatur penyelenggara pelayanan publik. Survei Kepuasan Masyarakat merupakan tolok ukur untuk menilai tingkat kualitas pelayanan yang diberikan oleh Unit Pelayanan publik.
@@ -508,7 +550,7 @@ const toggleMobileMenu = () => {
           Unsur Survei
         </h2>
         <p class="text-base text-[#04b0b1] leading-relaxed">
-          Kuesioner Survei Kepuasan Masyarakat disusun berdasarkan prinsip pelayanan sebagaimana telah ditetapkan dalam Peraturan Menteri Pendayagunaan Aparatur Negara dan Reformasi Birokrasi Republik Indonesia Nomor 14 Tahun 2017 tentang Pedoman Penyusunan Survei Kepuasan Masyarakat Unit Penyelenggara Pelayanan Publik terdiri dari pertanyaan yang mencangkup 9 (sembilan) unsur pelayanan
+          {{ siteInfo.deskripsi_unsur }}
         </p>
         <img src="/images/cloud-6.svg" class="absolute right-[-80px] top-[50px] w-[270px] h-auto hidden md:block" alt="Cloud 6" />
         <img src="/images/cloud-7.svg" class="absolute right-[-120px] top-[200px] w-[270px] h-auto hidden md:block" alt="Cloud 7" />
@@ -712,8 +754,8 @@ const toggleMobileMenu = () => {
                     <p class="mb-4">
                         Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
                     </p>
-                    <p class="mb-2">(031) 12345678</p>
-                    <p>kominfo@tanjungpinangkota.go.id</p>
+                    <p class="mb-2">{{ siteInfo.telp }}</p>
+                    <p>{{ siteInfo.email }}</p>
                 </div>
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -771,7 +813,7 @@ const toggleMobileMenu = () => {
         </div>
         <div class="mt-0 pt-8 text-center">
             <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
-                Copyright Kerja Praktek UMRAH 2025
+                {{ siteInfo.copyright }}
             </p>
         </div>
     </div>

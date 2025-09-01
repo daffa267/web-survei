@@ -3,6 +3,11 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios'; 
 
+const siteInfo = ref({
+  logo: '/images/Logo-Pemko.png',
+  name: '...',
+});
+
 // State untuk menampung nilai dari setiap input form
 const nama = ref('');
 const umur = ref('');
@@ -12,8 +17,10 @@ const pendidikan = ref('');
 const pekerjaan = ref('');
 const jenisLayanan = ref('');
 
-// State baru untuk menampung opsi pendidikan yang dinamis
+// State baru untuk menampung opsi dinamis
 const pendidikanOptions = ref([]);
+const jenisLayananOptions = ref([]);
+const pekerjaanOptions = ref([]);
 
 const router = useRouter();
 
@@ -27,25 +34,63 @@ const errors = reactive({
   jenisLayanan: false,
 });
 
-// --- Ambil Data Pendidikan ---
 const getPendidikanOptions = async () => {
   try {
-    // URL API yang benar sekarang digunakan di sini
     const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/pendidikan-option');
     
     if (response.data.success) {
-      // Simpan data yang diambil ke dalam state
       pendidikanOptions.value = response.data.data;
     }
   } catch (error) {
     console.error('Gagal mengambil opsi pendidikan:', error);
-    // Tambahkan penanganan error di sini, misalnya, tampilkan pesan ke pengguna
   }
 };
 
-// Gunakan onMounted lifecycle hook untuk memanggil fungsi fetch kita
-onMounted(() => {
+const getJenisLayananOptions = async () => {
+  try {
+    // Menggunakan API endpoint untuk jenis layanan
+    const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/layanan-opd-option?id_opd=102');
+    
+    if (response.data.success) {
+      // Simpan data yang diambil ke dalam state baru
+      jenisLayananOptions.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('Gagal mengambil opsi jenis layanan:', error);
+  }
+};
+
+const getPekerjaanOptions = async () => {
+  try {
+    const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/pekerjaan-option');
+    
+    if (response.data.success) {
+      pekerjaanOptions.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('Gagal mengambil opsi pekerjaan:', error);
+  }
+};
+onMounted(async () => {
+  try {
+    const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const data = result.data;
+      siteInfo.value = {
+        logo: data.file_logo,
+        name: data.name.toUpperCase(),
+      };
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data pengaturan situs:", error);
+  }
+
   getPendidikanOptions();
+  getJenisLayananOptions();
+  getPekerjaanOptions();
 });
 
 // Fungsi untuk menangani klik tombol "Selanjutnya"
@@ -68,12 +113,12 @@ const handleNext = () => {
 
 <template>
   <div class="content-wrapper">
-    <header class="header-solid w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
+    <header class="header-solid w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
-          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemko" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
+          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
+            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -176,16 +221,15 @@ const handleNext = () => {
               </select>
               <p v-if="errors.pendidikan" class="absolute bottom-0 left-0 text-xs text-red-600">Pendidikan wajib dipilih.</p>
             </div>
+
             <div class="relative pb-5">
               <label for="pekerjaan" class="block text-sm font-semibold text-[#009293]">Pekerjaan <span class="text-red-500">*</span></label>
               <select v-model="pekerjaan" id="pekerjaan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
                       :class="errors.pekerjaan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
                 <option disabled value="">Pilih pekerjaan anda</option>
-                <option>PNS/TNI/POLRI</option>
-                <option>Wiraswasta</option>
-                <option>Karyawan Swasta</option>
-                <option>Pelajar/Mahasiswa</option>
-                <option>Lainnya</option>
+                <option v-for="option in pekerjaanOptions" :key="option.id" :value="option.id">
+                  {{ option.name }}
+                </option>
               </select>
               <p v-if="errors.pekerjaan" class="absolute bottom-0 left-0 text-xs text-red-600">Pekerjaan wajib dipilih.</p>
             </div>
@@ -197,13 +241,13 @@ const handleNext = () => {
               <select v-model="jenisLayanan" id="jenis_layanan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
                       :class="errors.jenisLayanan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
                 <option disabled value="">Pilih jenis layanan</option>
-                <option>Layanan A</option>
-                <option>Layanan B</option>
+                <option v-for="option in jenisLayananOptions" :key="option.id" :value="option.id">
+                  {{ option.name }}
+                </option>
               </select>
               <p v-if="errors.jenisLayanan" class="absolute bottom-0 left-0 text-xs text-red-600">Jenis layanan wajib dipilih.</p>
             </div>
           </div>
-
           <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-auto gap-4 sm:gap-0">
             <router-link to="/kategori-dinas" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
               &larr; Sebelumnya

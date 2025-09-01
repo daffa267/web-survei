@@ -1,6 +1,15 @@
 <script setup>
 import { onMounted, onBeforeUpdate, ref, nextTick } from 'vue';
 
+const siteInfo = ref({
+  logo: '/images/Logo-Pemko.png',
+  name: '...',
+  nama_aplikasi: 'Memuat...',
+  telp: '',
+  email: '',
+  copyright: ''
+});
+
 // Data dinamis untuk setiap kategori dinas
 const dinas = ref([
   { name: 'DINAS KEPEMUDAAN, OLAHRAGA DAN PARIWISATA', rating: '98.10' },
@@ -13,14 +22,11 @@ const dinas = ref([
   { name: 'DINAS KOMUNIKASI DAN INFORMATIKA', rating: '99.20' }
 ]);
 
-const ratingElements = ref([]);
-onBeforeUpdate(() => {
-  ratingElements.value = [];
-});
+const ratingElements = ref({});
 
-const setRatingRef = (el) => {
+const setRatingRef = (el, index) => {
   if (el) {
-    ratingElements.value.push(el);
+    ratingElements.value[index] = el;
   }
 };
 
@@ -52,15 +58,39 @@ function animateNumber(el, targetValue, duration = 800) {
   requestAnimationFrame(animationStep);
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const data = result.data;
+      siteInfo.value = {
+        logo: data.file_logo || siteInfo.value.logo,
+        name: (data.name || siteInfo.value.name).toUpperCase(),
+        nama_aplikasi: data.nama_aplikasi || siteInfo.value.nama_aplikasi,
+        telp: data.telp || siteInfo.value.telp,
+        email: data.email || siteInfo.value.email,
+        copyright: data.copyright || siteInfo.value.copyright
+      };
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data pengaturan situs:", error);
+  }
+
+  // Wait for the next tick to ensure all refs are set
   nextTick(() => {
-    ratingElements.value.forEach((el, index) => {
-      const targetRating = dinas.value[index].rating;
-      // Jeda antar kartu dipercepat (50ms)
-      setTimeout(() => {
-        animateNumber(el, targetRating);
-      }, index * 50); 
-    });
+    // Use a small delay to ensure the DOM is fully updated
+    setTimeout(() => {
+      Object.entries(ratingElements.value).forEach(([index, el]) => {
+        const targetRating = dinas.value[parseInt(index)].rating;
+        if (el && targetRating) {
+          // Start all animations simultaneously
+          animateNumber(el, targetRating);
+        }
+      });
+    }, 100);
   });
 
   let isClickScrolling = false;
@@ -98,6 +128,7 @@ onMounted(() => {
         setTimeout(() => mobileMenu.classList.add("hidden"), 300);
     });
   });
+
 });
 
 const toggleMobileMenu = () => {
@@ -110,12 +141,12 @@ const toggleMobileMenu = () => {
 
 <template>
   <div class="content-wrapper">
-    <header class="w-full pl-1 pr-4 sm:pl-2 sm:pr-6 lg:pl-4 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
+    <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1">
-          <img src="/images/logo esurvey.png" class="h-[80px] w-auto" alt="Logo Pemko" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
+          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">E-Survei</span>
+            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -179,7 +210,7 @@ const toggleMobileMenu = () => {
                 <h3 class="text-[#209fa0] font-bold text-[11px] sm:text-xs mb-1 sm:mb-6 leading-tight min-h-[34px] flex items-center justify-center">{{ item.name }}</h3>
                 
                 <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[100px] lg:h-[100px] mb-2 sm:mb-6 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
-                  <span :ref="setRatingRef" class="text-white font-bold text-lg sm:text-xl lg:text-2xl tracking-tight">0.00</span>
+                  <span :ref="el => setRatingRef(el, index)" class="text-white font-bold text-lg sm:text-xl lg:text-2xl tracking-tight">0.00</span>
                 </div>
                 
                 <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Mulai Survei</router-link>
@@ -201,8 +232,8 @@ const toggleMobileMenu = () => {
                     <p class="mb-4">
                         Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
                     </p>
-                    <p class="mb-2">(031) 12345678</p>
-                    <p>kominfo@tanjungpinangkota.go.id</p>
+                    <p class="mb-2">{{ siteInfo.telp }}</p>
+                    <p>{{ siteInfo.email }}</p>
                 </div>
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -260,7 +291,7 @@ const toggleMobileMenu = () => {
         </div>
         <div class="mt-0 pt-8 text-center">
             <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
-                Copyright Kerja Praktek UMRAH 2025
+                {{ siteInfo.copyright }}
             </p>
         </div>
     </div>
