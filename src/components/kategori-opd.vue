@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
@@ -8,6 +8,42 @@ const siteInfo = ref({
   telp: '',
   email: '',
   copyright: ''
+});
+
+const opdList = ref([]);
+const searchQuery = ref('');
+
+const normalizeString = (s) => {
+  if (!s) return '';
+  return s.normalize('NFKD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+};
+
+const filteredOpdList = computed(() => {
+  const normalizedSearchQuery = normalizeString(searchQuery.value);
+
+  if (!normalizedSearchQuery) {
+    return opdList.value;
+  }
+
+  if (normalizedSearchQuery.length === 1) {
+    return opdList.value.filter(opd => {
+      const opdName = normalizeString(opd.name);
+      const opdId = String(opd.id || '').toLowerCase();
+      return opdName.startsWith(normalizedSearchQuery) || opdId.startsWith(normalizedSearchQuery);
+    });
+  }
+  
+  const searchKeywords = normalizedSearchQuery.split(/\s+/).filter(Boolean);
+  return opdList.value.filter(opd => {
+    const opdName = normalizeString(opd.name);
+    const opdId = String(opd.id || '').toLowerCase();
+    const opdWords = opdName.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+
+    return searchKeywords.every(keyword => {
+      if (opdId.startsWith(keyword)) return true;
+      return opdWords.some(word => word.startsWith(keyword));
+    });
+  });
 });
 
 onMounted(async () => {
@@ -31,6 +67,17 @@ onMounted(async () => {
     console.error("Gagal mengambil data pengaturan situs:", error);
   }
 
+  try {
+    const opdResponse = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/form/opd-option');
+    if (!opdResponse.ok) throw new Error('Network response for OPD was not ok');
+    const opdResult = await opdResponse.json();
+    if (opdResult.success && opdResult.data) {
+      opdList.value = opdResult.data;
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data OPD:", error);
+  }
+
   let isClickScrolling = false;
   let scrollTimeout = null;
 
@@ -41,7 +88,6 @@ onMounted(async () => {
   const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
   const mobileMenu = document.getElementById("mobileMenu");
 
-  // Fungsi untuk navigasi kembali ke halaman utama dan scroll ke section
   const navigateToHomeSection = (navName) => {
     if (!navName) return;
     isClickScrolling = true;
@@ -137,93 +183,36 @@ const toggleMobileMenu = () => {
       </header>
 
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-28">
-        <div class="text-center mb-12 relative">
-          <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
-            Kategori OPD
+        <div class="mb-12 relative">
+          <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight text-center mx-auto">
+            OPD
           </h1>
+          <div class="flex justify-end mt-4">
+            <div class="relative w-48 lg:w-64">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#00c8c9]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+                </svg>
+              </span>
+              <input v-model="searchQuery" type="search" placeholder="Cari OPD..." class="search-input pl-9 pr-3 py-2 border border-[#00c8c9] rounded-lg outline-none text-sm w-full focus:ring-1 focus:ring-[#00c8c9]" />
+            </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
             
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
+            <div v-for="opd in filteredOpdList" :key="opd.id" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
               <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.87%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">DINAS</h3>
+                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3 uppercase">{{ opd.name }}</h3>
                 <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
+                
+                <router-link :to="{ path: `/kategori-dinas/${opd.id}`, query: { name: opd.name } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
+
               </div>
             </div>
 
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">BADAN</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
-            
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">DINAS</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">BADAN</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">KECAMATAN</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
-
-            <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3">PUSKESMAS</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                <router-link to="/kategori-dinas" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-              </div>
-            </div>
         </div>
         </main>
   </div>
@@ -278,14 +267,14 @@ const toggleMobileMenu = () => {
                     <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
                     <form action="#" method="POST" class="space-y-3">
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" name="nama" placeholder="Nama" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
-                            <input type="text" name="email_hp" placeholder="Email/No. HP" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                            <input type="text" name="nama" placeholder="Nama" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white placeholder:text-white/70" />
+                            <input type="text" name="email_hp" placeholder="Email/No. HP" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white placeholder:text-white/70" />
                         </div>
                         <div>
-                            <input type="text" name="subjek" placeholder="Subjek" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                            <input type="text" name="subjek" placeholder="Subjek" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white placeholder:text-white/70" />
                         </div>
                         <div>
-                            <textarea name="pesan" rows="4" placeholder="Pesan..." class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white"></textarea>
+                            <textarea name="pesan" rows="4" placeholder="Pesan..." class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white placeholder:text-white/70"></textarea>
                         </div>
                         <div>
                             <button type="submit" class="w-full bg-white/90 text-[#007576] font-bold py-2 px-4 rounded-md hover:bg-white transition-colors">
@@ -306,9 +295,6 @@ const toggleMobileMenu = () => {
 </template>
 
 <style>
-::placeholder {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
 html, body {
   width: 100%;
   overflow-x: hidden;
@@ -360,7 +346,6 @@ header.scrolled {
 footer {
   flex-shrink: 0;
 }
-/* Style untuk #nav-indicator telah dihapus */
 .button-detail {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -388,5 +373,18 @@ footer {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   }
+}
+
+/* Search input placeholder color to match faded icon */
+.search-input::placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input::-webkit-input-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input::-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input:-ms-input-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input:-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
+
+/* Set the actual typed text color and caret color */
+.search-input {
+  color: #04b0b1 !important;
+  caret-color: #04b0b1 !important;
 }
 </style>

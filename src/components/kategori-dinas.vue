@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, onBeforeUpdate, ref, nextTick } from 'vue';
+import { onMounted, ref, computed } from 'vue';
+import { useRoute } from 'vue-router'; 
 
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
@@ -10,62 +11,52 @@ const siteInfo = ref({
   copyright: ''
 });
 
-// Data dinamis untuk setiap kategori dinas
-const dinas = ref([
-  { name: 'DINAS KEPEMUDAAN, OLAHRAGA DAN PARIWISATA', rating: '98.10' },
-  { name: 'DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL', rating: '95.50' },
-  { name: 'DINAS KESEHATAN', rating: '92.75' },
-  { name: 'DINAS KOMUNIKASI DAN INFORMATIKA', rating: '99.20' },
-  { name: 'DINAS KEPEMUDAAN , OLAHRAGA DAN PARIWISATA', rating: '98.10' },
-  { name: 'DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL', rating: '95.50' },
-  { name: 'DINAS KESEHATAN', rating: '92.75' },
-  { name: 'DINAS KOMUNIKASI DAN INFORMATIKA', rating: '99.20' }
-]);
+const layananList = ref([]);
+const opdNama = ref('Memuat...'); 
+const route = useRoute(); 
 
-const ratingElements = ref({});
+const searchQuery = ref('');
 
-const setRatingRef = (el, index) => {
-  if (el) {
-    ratingElements.value[index] = el;
-  }
+const normalizeString = (s) => {
+  if (!s) return '';
+  return s.normalize('NFKD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 };
 
-// Fungsi untuk menganimasikan angka dari 0 ke nilai target (durasinya cepat: 800ms)
-function animateNumber(el, targetValue, duration = 800) {
-  const startValue = 0;
-  const endValue = parseFloat(targetValue);
-  if (isNaN(endValue)) return;
+const filteredLayananList = computed(() => {
+  const normalizedSearchQuery = normalizeString(searchQuery.value);
 
-  let startTime = null;
+  if (!normalizedSearchQuery) {
+    return layananList.value;
+  }
 
-  const animationStep = (currentTime) => {
-    if (!startTime) {
-      startTime = currentTime;
-    }
-    
-    const progress = Math.min((currentTime - startTime) / duration, 1);
-    const currentValue = progress * (endValue - startValue) + startValue;
-    
-    el.textContent = currentValue.toFixed(2);
+  if (normalizedSearchQuery.length === 1) {
+    return layananList.value.filter(item => {
+      const name = normalizeString(item.name);
+      const id = String(item.id || '').toLowerCase();
+      return name.startsWith(normalizedSearchQuery) || id.startsWith(normalizedSearchQuery);
+    });
+  }
 
-    if (progress < 1) {
-      requestAnimationFrame(animationStep);
-    } else {
-      el.textContent = endValue.toFixed(2);
-    }
-  };
+  const searchKeywords = normalizedSearchQuery.split(/\s+/).filter(Boolean);
+  return layananList.value.filter(item => {
+    const name = normalizeString(item.name);
+    const id = String(item.id || '').toLowerCase();
+    const words = name.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
 
-  requestAnimationFrame(animationStep);
-}
+    return searchKeywords.every(keyword => {
+      if (id.startsWith(keyword)) return true;
+      return words.some(w => w.startsWith(keyword));
+    });
+  });
+});
 
 onMounted(async () => {
   try {
-    const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
-
-    if (result.success && result.data) {
-      const data = result.data;
+    const siteResp = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
+    if (!siteResp.ok) throw new Error('Network response was not ok');
+    const siteResult = await siteResp.json();
+    if (siteResult.success && siteResult.data) {
+      const data = siteResult.data;
       siteInfo.value = {
         logo: data.file_logo || siteInfo.value.logo,
         name: (data.name || siteInfo.value.name).toUpperCase(),
@@ -75,23 +66,40 @@ onMounted(async () => {
         copyright: data.copyright || siteInfo.value.copyright
       };
     }
-  } catch (error) {
-    console.error("Gagal mengambil data pengaturan situs:", error);
+  } catch (err) {
+    console.error('Gagal mengambil data pengaturan situs:', err);
   }
 
-  // Wait for the next tick to ensure all refs are set
-  nextTick(() => {
-    // Use a small delay to ensure the DOM is fully updated
-    setTimeout(() => {
-      Object.entries(ratingElements.value).forEach(([index, el]) => {
-        const targetRating = dinas.value[parseInt(index)].rating;
-        if (el && targetRating) {
-          // Start all animations simultaneously
-          animateNumber(el, targetRating);
-        }
-      });
-    }, 100);
-  });
+  const id_opd = route.params.id;
+
+  if (route.query && route.query.name) {
+    opdNama.value = route.query.name;
+  }
+
+  if (!id_opd) {
+    console.error("ID OPD tidak ditemukan di URL");
+    opdNama.value = "Kategori Layanan";
+    return;
+  }
+  
+  try {
+    const response = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/form/layanan-opd-option?id_opd=${id_opd}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.length > 0) {
+      layananList.value = result.data;
+      if (!(route.query && route.query.name)) {
+        const possibleName = result.data[0] && (result.data[0].opd_name || result.data[0].opd || result.data[0].name);
+        opdNama.value = possibleName || `Layanan OPD`;
+      }
+    } else {
+        opdNama.value = "Belum Ada Layanan";
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data layanan OPD:", error);
+    opdNama.value = "Gagal Memuat Layanan";
+  }
 
   let isClickScrolling = false;
   let scrollTimeout = null;
@@ -196,27 +204,38 @@ const toggleMobileMenu = () => {
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-28">
         <div class="text-center mb-12 relative">
           <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
-            Kategori Dinas
+            {{ opdNama }}
           </h1>
+          <div class="flex justify-end mt-4">
+            <div class="relative w-48 lg:w-64">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#00c8c9]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+                </svg>
+              </span>
+              <input v-model="searchQuery" type="search" placeholder="Cari Layanan..." class="search-input pl-9 pr-3 py-2 border border-[#00c8c9] rounded-lg outline-none text-sm w-full focus:ring-1 focus:ring-[#00c8c9]" />
+            </div>
+          </div>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
+    <div v-if="filteredLayananList.length > 0" class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
             
-            <div v-for="(item, index) in dinas" :key="index" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
+      <div v-for="layanan in filteredLayananList" :key="layanan.id" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
               <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.96%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
                 
-                <h3 class="text-[#209fa0] font-bold text-[11px] sm:text-xs mb-1 sm:mb-6 leading-tight min-h-[34px] flex items-center justify-center">{{ item.name }}</h3>
+                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-2 sm:mb-3 leading-tight min-h-[40px] flex items-center justify-center">{{ layanan.name }}</h3>
                 
-                <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[100px] lg:h-[100px] mb-2 sm:mb-6 rounded-full flex items-center justify-center card-image border-2 border-white/80 bg-[#00B0B1]">
-                  <span :ref="el => setRatingRef(el, index)" class="text-white font-bold text-lg sm:text-xl lg:text-2xl tracking-tight">0.00</span>
-                </div>
+                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
                 
-                <router-link to="/data-responden" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Mulai Survei</router-link>
+                <router-link :to="'/data-responden/' + layanan.id" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Mulai Survei</router-link>
               </div>
             </div>
 
+        </div>
+         <div v-else class="text-center text-gray-500">
+            <p>Tidak ada layanan yang tersedia untuk kategori ini.</p>
         </div>
         </main>
   </div>
@@ -238,7 +257,7 @@ const toggleMobileMenu = () => {
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="md:ml-12">
-                    <h3 class="text-white font-semibold text-2xl mb-4">E-Survei</h3>
+                    <h3 class="text-white font-semibold text-2xl mb-4">SKM</h3>
                     <div class="text-white/90 text-sm leading-relaxed space-y-2">
                         <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
                         <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
@@ -353,7 +372,6 @@ header.scrolled {
 footer {
   flex-shrink: 0;
 }
-/* Style untuk #nav-indicator telah dihapus */
 .button-detail {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -361,16 +379,12 @@ footer {
   background-color: #00c8c9;
   color: white;
 }
-
-/* Style tambahan untuk Nav Mobile */
 .mobile-nav-item {
   color: #01c4c6;
 }
-
 .mobile-nav-item.active {
   color: white;
 }
-
 @media (max-width: 1023px) {
   .content-wrapper > header {
     background: linear-gradient(
@@ -381,5 +395,20 @@ footer {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   }
+}
+</style>
+
+<style>
+/* Search input placeholder color to match faded icon */
+.search-input::placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input::-webkit-input-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input::-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input:-ms-input-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input:-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
+
+/* Set the actual typed text color and caret color */
+.search-input {
+  color: #04b0b1 !important;
+  caret-color: #04b0b1 !important;
 }
 </style>
