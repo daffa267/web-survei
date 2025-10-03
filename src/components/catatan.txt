@@ -1,0 +1,6 @@
+Revisi UI SKM:
+
+1. card-card kategori OPD dan Dinas ubah menjadi dinamis (integrasikan dengan API)
+2. Integrasikan dengan API semua halaman
+3. Deadline 20 Oktober
+4. tambahkan fitur pencarian di halaman opd dan dinas ✅
