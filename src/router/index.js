@@ -11,7 +11,7 @@ import Finish from '../components/finish.vue'
 const routes = [
   { path: '/', component: Esurvei },
   { path: '/kategori-opd', component: KategoriOPD },
-  { path: '/kategori-dinas', component: KategoriDinas },
+  { path: '/kategori-dinas/:id?', component: KategoriDinas },
   { path: '/about', component: About },
   { path: '/data-responden', component: DataResponden },
   { path: '/survei', component: Survei },
