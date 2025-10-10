@@ -202,42 +202,42 @@ const toggleMobileMenu = () => {
       </header>
 
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-28">
-        <div class="text-center mb-12 relative">
-          <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
-            {{ opdNama }}
-          </h1>
-          <div class="flex justify-end mt-4">
-            <div class="relative w-48 lg:w-64">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#00c8c9]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
-                </svg>
-              </span>
-              <input v-model="searchQuery" type="search" placeholder="Cari Layanan..." class="search-input pl-9 pr-3 py-2 border border-[#00c8c9] rounded-lg outline-none text-sm w-full focus:ring-1 focus:ring-[#00c8c9]" />
-            </div>
+      <div class="text-center mb-12 relative">
+        <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
+          {{ opdNama }}
+        </h1>
+        <div class="flex justify-end mt-4">
+          <div class="relative w-48 lg:w-64">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#00c8c9]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+              </svg>
+            </span>
+            <input v-model="searchQuery" type="search" placeholder="Cari Layanan..." class="search-input pl-9 pr-3 py-2 border border-[#00c8c9] rounded-lg outline-none text-sm w-full focus:ring-1 focus:ring-[#00c8c9]" />
           </div>
         </div>
+      </div>
 
-    <div v-if="filteredLayananList.length > 0" class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
-            
-      <div v-for="layanan in filteredLayananList" :key="layanan.id" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[259px]">
-              <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-              <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.96%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-2 sm:mb-3 leading-tight min-h-[40px] flex items-center justify-center">{{ layanan.name }}</h3>
-                
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                
-                <router-link :to="'/data-responden/' + layanan.id" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Mulai Survei</router-link>
-              </div>
+      <div v-if="filteredLayananList.length > 0" class="w-full max-w-4xl mx-auto flex flex-col gap-4">
+        <div v-for="layanan in filteredLayananList" :key="layanan.id" 
+            class="list-item-custom bg-white p-4 rounded-lg custom-shadow flex items-center justify-between gap-4 transition-all duration-300">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-teal-50 to-cyan-100 p-3 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 8h.01M12 12h.01M15 12h.01M9 12h.01" />
+              </svg>
             </div>
-
+            <h3 class="text-gray-800 font-semibold text-sm sm:text-base">{{ layanan.name }}</h3>
+          </div>
+          <router-link :to="'/list-survey/' + layanan.id" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] whitespace-nowrap">
+            Pilih Survei
+          </router-link>
         </div>
-         <div v-else class="text-center text-gray-500">
-            <p>Tidak ada layanan yang tersedia untuk kategori ini.</p>
-        </div>
-        </main>
+      </div>
+      <div v-else class="text-center text-gray-500">
+        <p>Tidak ada layanan yang tersedia untuk kategori ini.</p>
+      </div>
+    </main>
   </div>
 
   <footer class="w-full relative">
@@ -368,6 +368,11 @@ header.scrolled {
 }
 .content-wrapper {
   flex: 1 0 auto;
+}
+
+.list-item-custom:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 footer {
   flex-shrink: 0;
