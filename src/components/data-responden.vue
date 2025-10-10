@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios'; 
 
 const siteInfo = ref({
@@ -8,36 +8,30 @@ const siteInfo = ref({
   name: '...',
 });
 
-// State untuk menampung nilai dari setiap input form
 const nama = ref('');
 const umur = ref('');
-const emailHp = ref('');
+const emailHp = ref(''); 
 const jenisKelamin = ref('');
 const pendidikan = ref('');
 const pekerjaan = ref('');
-const jenisLayanan = ref('');
 
-// State baru untuk menampung opsi dinamis
 const pendidikanOptions = ref([]);
-const jenisLayananOptions = ref([]);
 const pekerjaanOptions = ref([]);
 
 const router = useRouter();
+const route = useRoute(); 
 
-// State reaktif untuk melacak error pada setiap field
 const errors = reactive({
   umur: false,
   emailHp: false,
   jenisKelamin: false,
   pendidikan: false,
   pekerjaan: false,
-  jenisLayanan: false,
 });
 
 const getPendidikanOptions = async () => {
   try {
     const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/pendidikan-option');
-    
     if (response.data.success) {
       pendidikanOptions.value = response.data.data;
     }
@@ -46,24 +40,9 @@ const getPendidikanOptions = async () => {
   }
 };
 
-const getJenisLayananOptions = async () => {
-  try {
-    // Menggunakan API endpoint untuk jenis layanan
-    const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/layanan-opd-option?id_opd=102');
-    
-    if (response.data.success) {
-      // Simpan data yang diambil ke dalam state baru
-      jenisLayananOptions.value = response.data.data;
-    }
-  } catch (error) {
-    console.error('Gagal mengambil opsi jenis layanan:', error);
-  }
-};
-
 const getPekerjaanOptions = async () => {
   try {
     const response = await axios.get('https://admin.skm.tanjungpinangkota.go.id/api/form/pekerjaan-option');
-    
     if (response.data.success) {
       pekerjaanOptions.value = response.data.data;
     }
@@ -71,6 +50,7 @@ const getPekerjaanOptions = async () => {
     console.error('Gagal mengambil opsi pekerjaan:', error);
   }
 };
+
 onMounted(async () => {
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
@@ -78,10 +58,9 @@ onMounted(async () => {
     const result = await response.json();
 
     if (result.success && result.data) {
-      const data = result.data;
       siteInfo.value = {
-        logo: data.file_logo,
-        name: data.name.toUpperCase(),
+        logo: result.data.file_logo,
+        name: result.data.name.toUpperCase(),
       };
     }
   } catch (error) {
@@ -89,12 +68,10 @@ onMounted(async () => {
   }
 
   getPendidikanOptions();
-  getJenisLayananOptions();
   getPekerjaanOptions();
 });
 
-// Fungsi untuk menangani klik tombol "Selanjutnya"
-const handleNext = () => {
+const handleNext = () => { 
   Object.keys(errors).forEach(key => errors[key] = false);
   let validationFailed = false;
 
@@ -103,13 +80,38 @@ const handleNext = () => {
   if (!jenisKelamin.value) { errors.jenisKelamin = true; validationFailed = true; }
   if (!pendidikan.value) { errors.pendidikan = true; validationFailed = true; }
   if (!pekerjaan.value) { errors.pekerjaan = true; validationFailed = true; }
-  if (!jenisLayanan.value) { errors.jenisLayanan = true; validationFailed = true; }
-
-  if (!validationFailed) {
-    router.push('/survei');
+  
+  if (validationFailed) {  
+    console.log('Validasi gagal, ada data yang belum diisi.');
+    return; 
   }
+
+  const respondentData = {
+    id_pendidikan: parseInt(pendidikan.value),
+    id_pekerjaan: parseInt(pekerjaan.value),
+    name: nama.value || 'Anonim', 
+    umur: parseInt(umur.value),
+    gender: jenisKelamin.value.toLowerCase(),
+    keterangan: emailHp.value,
+  };
+
+  sessionStorage.setItem('respondentData', JSON.stringify(respondentData));
+  console.log('Data responden disimpan sementara:', respondentData);
+
+  const idSurvey = route.params.id; 
+  console.log('Mencoba navigasi ke halaman survei dengan ID:', idSurvey);
+
+  if (!idSurvey) {
+    console.error('NAVIGASI GAGAL: ID Survei tidak ditemukan dari URL.');
+    alert('Terjadi kesalahan: ID Survei tidak ditemukan. Mohon ulangi proses dari halaman sebelumnya.');
+    return;
+  }
+  
+  router.push(`/survei/${idSurvey}`);
+  
 };
 </script>
+
 
 <template>
   <div class="content-wrapper">
@@ -197,12 +199,12 @@ const handleNext = () => {
             <div class="mt-2 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <label class="flex items-center bg-white border rounded-[12px] px-6 py-2 cursor-pointer hover:bg-cyan-50"
                      :class="errors.jenisKelamin ? 'border-red-500' : 'border-gray-300'">
-                <input v-model="jenisKelamin" type="radio" name="jenis_kelamin" value="laki-laki" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
+                <input v-model="jenisKelamin" type="radio" name="jenis_kelamin" value="Laki-laki" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
                 <span class="ml-3 text-[#016465]">Laki-laki</span>
               </label>
               <label class="flex items-center bg-white border rounded-[12px] px-6 py-2 cursor-pointer hover:bg-cyan-50"
                      :class="errors.jenisKelamin ? 'border-red-500' : 'border-gray-300'">
-                <input v-model="jenisKelamin" type="radio" name="jenis_kelamin" value="perempuan" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
+                <input v-model="jenisKelamin" type="radio" name="jenis_kelamin" value="Perempuan" class="form-radio text-[#00c8c9] focus:ring-[#00c8c9]" />
                 <span class="ml-3 text-[#016465]">Perempuan</span>
               </label>
             </div>
@@ -235,24 +237,11 @@ const handleNext = () => {
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="relative pb-5">
-              <label for="jenis_layanan" class="block text-sm font-semibold text-[#009293]">Jenis Layanan <span class="text-red-500">*</span></label>
-              <select v-model="jenisLayanan" id="jenis_layanan" class="mt-1 block w-full px-4 py-2 bg-white border rounded-[12px] shadow-sm focus:outline-none text-[#016465]"
-                      :class="errors.jenisLayanan ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-[#00c8c9] focus:border-[#00c8c9]'">
-                <option disabled value="">Pilih jenis layanan</option>
-                <option v-for="option in jenisLayananOptions" :key="option.id" :value="option.id">
-                  {{ option.name }}
-                </option>
-              </select>
-              <p v-if="errors.jenisLayanan" class="absolute bottom-0 left-0 text-xs text-red-600">Jenis layanan wajib dipilih.</p>
-            </div>
-          </div>
           <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-auto gap-4 sm:gap-0">
-            <router-link to="/kategori-dinas" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+            <router-link :to="`/list-survey/${route.params.id}`" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
               &larr; Sebelumnya
             </router-link>
-            <button @click="handleNext" type="button" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
+            <button type="submit" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
               Selanjutnya &rarr;
             </button>
           </div>
@@ -271,7 +260,6 @@ const handleNext = () => {
   color: #82CACA !important;
   opacity: 1 !important;     
 }
-
 .content-wrapper > header.header-solid {
   background: #ffffff !important;
   background-image: none !important;
@@ -279,20 +267,12 @@ const handleNext = () => {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
-
-.content-wrapper > header.header-solid,
-.content-wrapper > header.header-solid.scrolled {
-  background: #ffffff !important;
-  background-image: none !important;
-}
-
 @media screen and (max-width: 1023px) {
   .content-wrapper > header.header-solid {
     background: #ffffff !important;
     background-image: none !important;
   }
 }
-
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
@@ -309,7 +289,6 @@ footer {
   background-clip: text;
   color: transparent;
 }
-
 .step-item {
   color: #aaeeed;
   width: 80px;
@@ -336,7 +315,6 @@ footer {
   background-color: #aaeeed;
   margin: 0 0.25rem;
 }
-
 .form-card-gradient {
   background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
 }
