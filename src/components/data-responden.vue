@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios'; 
 
@@ -28,6 +28,13 @@ const errors = reactive({
   pendidikan: false,
   pekerjaan: false,
 });
+
+// Watchers untuk menghilangkan error secara real-time saat pengguna mengisi input
+watch(umur, (newValue) => { if (newValue) errors.umur = false; });
+watch(emailHp, (newValue) => { if (newValue) errors.emailHp = false; });
+watch(jenisKelamin, (newValue) => { if (newValue) errors.jenisKelamin = false; });
+watch(pendidikan, (newValue) => { if (newValue) errors.pendidikan = false; });
+watch(pekerjaan, (newValue) => { if (newValue) errors.pekerjaan = false; });
 
 const getPendidikanOptions = async () => {
   try {
