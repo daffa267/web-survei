@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -14,83 +14,118 @@ const isModalVisible = ref(false);
 const route = useRoute();
 const router = useRouter();
 
+const opdName = ref('Memuat...');
+
 const surveyData = ref({
-  opdName: 'Memuat...',
   indicators: [],
 });
 
+// Penanda untuk mencegah watcher berjalan saat data pertama kali dimuat
+const initialLoadComplete = ref(false);
+
+// State untuk modal validasi (pengganti alert)
+const showValidationModal = ref(false);
+const validationMessage = ref('');
+
+const surveyAnswersKey = computed(() => `surveyAnswers-${route.params.id}`);
+
 onMounted(async () => {
+  opdName.value = route.query.name || 'Nama OPD Tidak Ditemukan';
+
   try {
-    // Langkah 1: Ambil data pengaturan situs
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
     if (response.ok) {
       const result = await response.json();
       if (result.success && result.data) {
         const data = result.data;
-        
-        // Langkah 2: Pra-muat (preload) gambar ikon header
         await new Promise((resolve) => {
             const img = new Image();
             img.onload = resolve;
-            img.onerror = () => {
-                console.error("Gagal memuat logo, menggunakan logo default.");
-                resolve();
-            };
+            img.onerror = () => { resolve(); };
             img.src = data.file_logo;
         });
-
-        // Setelah gambar siap, baru perbarui info situs
         siteInfo.value = { 
           logo: data.file_logo, 
           name: data.name.toUpperCase() 
         };
       }
-    } else {
-        console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
 
-    // Langkah 3: Ambil daftar pertanyaan survei
     const idSurvey = route.params.id;
     if (!idSurvey) { 
-      surveyData.value.opdName = "Error: ID Survei tidak valid"; 
+      opdName.value = "Error: ID Survei tidak valid"; 
+      isLoading.value = false;
       return; 
     }
 
     const surveyResp = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/survey/pertanyaan?id_survey=${idSurvey}`);
     if (surveyResp.ok) {
       const result = await surveyResp.json();
-      if (result.success && result.data.length > 0) {
+      if (result.success && result.data.length > 0 && result.data[0].pertanyaan.length > 0) {
         const data = result.data[0];
-        surveyData.value.opdName = data.get_layanan_opd?.get_opd?.name || 'Nama OPD';
         const groupedQuestions = {};
+        const savedAnswers = JSON.parse(sessionStorage.getItem(surveyAnswersKey.value)) || {};
+
         data.pertanyaan.forEach(q => {
           const indicatorName = q.indikator.name;
           if (!groupedQuestions[indicatorName]) { groupedQuestions[indicatorName] = []; }
-          groupedQuestions[indicatorName].push({ id: q.id, text: q.name, rating: 0, options: q.pilihan_jawaban });
+          groupedQuestions[indicatorName].push({ 
+            id: q.id, 
+            text: q.name, 
+            rating: savedAnswers[q.id] || 0, 
+            options: q.pilihan_jawaban 
+          });
         });
         surveyData.value.indicators = Object.keys(groupedQuestions).map(name => ({ name: name, questions: groupedQuestions[name] }));
+      } else {
+        surveyData.value.indicators = [];
+        console.warn("API tidak mengembalikan pertanyaan untuk survei ini.");
       }
     } else {
-        console.error("Gagal memuat pertanyaan survei: Network response was not ok");
-        surveyData.value.opdName = "Gagal Memuat Pertanyaan";
+        opdName.value = "Gagal Memuat Pertanyaan";
+        surveyData.value.indicators = [];
     }
 
   } catch (error) { 
     console.error("Gagal memuat data halaman:", error); 
-    surveyData.value.opdName = "Terjadi Kesalahan"; 
+    opdName.value = "Terjadi Kesalahan"; 
+    surveyData.value.indicators = [];
   } finally {
-    // Langkah 4: Sembunyikan loading screen setelah semua selesai
     isLoading.value = false;
+    // Setelah semua pemuatan data selesai, izinkan watcher untuk berjalan
+    setTimeout(() => {
+        initialLoadComplete.value = true;
+    }, 100);
   }
 });
+
+// Watcher untuk menyimpan jawaban secara otomatis ke sessionStorage
+watch(surveyData, (newData) => {
+  // Jangan jalankan watcher ini sampai data awal selesai dimuat
+  if (!initialLoadComplete.value) return;
+
+  const answersToSave = {};
+  if(newData && newData.indicators) {
+    newData.indicators.forEach(indicator => {
+      indicator.questions.forEach(question => {
+        if (question.rating > 0) {
+          answersToSave[question.id] = question.rating;
+        }
+      });
+    });
+  }
+  sessionStorage.setItem(surveyAnswersKey.value, JSON.stringify(answersToSave));
+}, { deep: true });
+
 
 const handleNext = async () => {
   const storedData = sessionStorage.getItem('respondentData');
   if (!storedData) {
-    console.error('Data responden tidak ditemukan!');
-    router.push(`/data-responden/${route.params.id}`);
+    validationMessage.value = 'Data responden tidak ditemukan. Harap kembali dan isi data responden terlebih dahulu.';
+    showValidationModal.value = true;
     return;
   }
+  
   const respondentData = JSON.parse(storedData);
 
   const jawaban = [];
@@ -100,15 +135,18 @@ const handleNext = async () => {
       if (question.rating === 0) {
         allAnswered = false;
       }
+      const pilihanJawaban = question.options.find(opt => opt.bobot === question.rating);
       jawaban.push({
         id_pertanyaan: question.id,
-        id_pilihan_jawaban: question.options.find(opt => opt.bobot === question.rating)?.id,
+        id_pilihan_jawaban: pilihanJawaban ? pilihanJawaban.id : null,
       });
     });
   });
 
+  // Jika ada pertanyaan yang belum dijawab, tampilkan modal validasi
   if (!allAnswered) {
-    alert('Harap isi semua pertanyaan survei sebelum melanjutkan.');
+    validationMessage.value = 'Harap isi semua pertanyaan survei sebelum melanjutkan.';
+    showValidationModal.value = true;
     return;
   }
 
@@ -118,20 +156,30 @@ const handleNext = async () => {
     jawaban: jawaban,
   };
 
-  console.log('Mengirim payload final:', finalPayload);
-
   try {
     const response = await axios.post('https://admin.skm.tanjungpinangkota.go.id/api/survey/kirim-jawaban', finalPayload);
 
     if (response.data.success) {
-      console.log('Survei berhasil dikirim!', response.data);
       const idJawaban = response.data.data.id;
       sessionStorage.removeItem('respondentData');
-      router.push(`/kritik-saran?id_jawaban=${idJawaban}`);
+      sessionStorage.removeItem(surveyAnswersKey.value);
+      
+      router.push({ 
+        path: '/kritik-saran', 
+        query: { 
+          id_jawaban: idJawaban, 
+          name: opdName.value,
+          survey_id: route.params.id
+        } 
+      });
     } else {
+      validationMessage.value = 'Gagal mengirimkan jawaban. Silakan coba lagi.';
+      showValidationModal.value = true;
       console.error('API merespons tidak sukses:', response.data.message);
     }
   } catch (error) {
+    validationMessage.value = 'Terjadi kesalahan saat mengirim survei. Periksa koneksi Anda dan coba lagi.';
+    showValidationModal.value = true;
     console.error('Gagal mengirim survei:', error);
     if (error.response) {
       console.log('Detail error dari server:', error.response.data);
@@ -186,7 +234,7 @@ const getLabelClass = (rating) => {
         <h1 class="text-lg font-semibold text-[#04b0b1] mt-1">
           Survei Kepuasan Masyarakat
         </h1>
-        <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">{{ surveyData.opdName }}</h2>
+        <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">{{ opdName }}</h2>
       </section>
 
       <div class="w-full flex items-start justify-center px-2 sm:px-12 my-8">
@@ -217,50 +265,68 @@ const getLabelClass = (rating) => {
             <div class="absolute right-0 top-full mt-2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Petunjuk Survei<div class="absolute -top-1 right-2 w-2 h-2 bg-gray-800 rotate-45"></div></div>
         </div>
         
-        <div v-for="(indicator, index) in surveyData.indicators" :key="indicator.name" :class="{'mt-10 pt-10 border-t-2 border-cyan-100' : index > 0}">
-          <div class="mb-8">
-              <h3 class="text-2xl font-bold text-[#009293] text-center">
-                  "{{ indicator.name }}"
-              </h3>
+        <div v-if="!isLoading && surveyData.indicators.length > 0">
+          <div v-for="(indicator, index) in surveyData.indicators" :key="indicator.name" :class="{'mt-10 pt-10 border-t-2 border-cyan-100' : index > 0}">
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-[#009293] text-center">
+                    "{{ indicator.name }}"
+                </h3>
+            </div>
+            <div class="space-y-6">
+                <div v-for="(item, qIndex) in indicator.questions" :key="item.id" class="flex flex-col">
+                    <p class="text-base text-[#016465] mb-3">{{ qIndex + 1 }}. {{ item.text }}</p>
+                    <div class="flex flex-row items-center gap-3">
+                        <div class="flex items-center space-x-1 sm:space-x-2">
+                            <i v-for="n in 4" :key="n" 
+                               @click="item.rating = n"
+                               :class="['fa-solid fa-star text-2xl cursor-pointer transition-transform duration-150 ease-in-out hover:scale-125', n <= item.rating ? 'text-yellow-400' : 'text-gray-300']">
+                            </i>
+                        </div>
+                        <span v-if="item.rating > 0" :class="['px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm font-semibold rounded-full', getLabelClass(item.rating)]">
+                            {{ getLabelText(item.rating) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
           </div>
-          <div class="space-y-6">
-              <div v-for="(item, qIndex) in indicator.questions" :key="item.id" class="flex flex-col">
-                  <p class="text-base text-[#016465] mb-3">{{ qIndex + 1 }}. {{ item.text }}</p>
-                  <div class="flex flex-row items-center gap-3">
-                      <div class="flex items-center space-x-1 sm:space-x-2">
-                          <i v-for="n in 4" :key="n" 
-                             @click="item.rating = n"
-                             :class="['fa-solid fa-star text-2xl cursor-pointer transition-transform duration-150 ease-in-out hover:scale-125', n <= item.rating ? 'text-yellow-400' : 'text-gray-300']">
-                          </i>
-                      </div>
-                      <span v-if="item.rating > 0" :class="['px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm font-semibold rounded-full', getLabelClass(item.rating)]">
-                          {{ getLabelText(item.rating) }}
-                      </span>
-                  </div>
-              </div>
-          </div>
+        </div>
+        
+        <div v-else-if="!isLoading && surveyData.indicators.length === 0" class="text-center py-10">
+          <p class="text-lg text-gray-600 font-semibold">Pertanyaan untuk survei ini belum tersedia.</p>
+          <p class="text-gray-500 mt-2">Silakan coba lagi nanti atau hubungi administrator.</p>
         </div>
 
         <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-10 border-t-2 border-cyan-100 gap-4 sm:gap-0">
-            <router-link :to="`/data-responden/${route.params.id}`" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+            <router-link :to="{ path: `/data-responden/${route.params.id}`, query: { name: opdName, from: 'survey' } }" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
               &larr; Sebelumnya
             </router-link>
-            <button @click="handleNext" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
+            <button @click="handleNext" :disabled="surveyData.indicators.length === 0" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
               Selanjutnya &rarr;
             </button>
         </div>
       </section>
     </main>
 
-    <div v-if="isModalVisible" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4">
-      <div class="bg-[#00c8c9] text-white rounded-2xl shadow-xl p-8 max-w-sm w-full relative">
-        <button @click="isModalVisible = false" class="absolute top-3 right-3 w-8 h-8 bg-white text-[#00c8c9] rounded-full flex items-center justify-center font-bold text-xl hover:bg-gray-200 transition-colors">&times;</button>
+    <div v-if="isModalVisible" class="modal-overlay">
+      <div class="modal-content">
+        <button @click="isModalVisible = false" class="modal-close-button">&times;</button>
         <h3 class="text-2xl font-bold text-center mb-6">Petunjuk Penilaian Survei</h3>
         <div class="space-y-3 text-lg">
           <p>1. Bintang 1 = Sangat Buruk</p><p>2. Bintang 2 = Buruk</p><p>3. Bintang 3 = Baik</p><p>4. Bintang 4 = Sangat Baik</p>
         </div>
       </div>
     </div>
+
+    <div v-if="showValidationModal" class="modal-overlay">
+       <div class="modal-content">
+        <h3 class="text-xl font-bold text-center mb-4 text-yellow-500">Peringatan</h3>
+        <p class="text-center text-white/90 mb-6">{{ validationMessage }}</p>
+        <button @click="showValidationModal = false" class="w-full bg-white/90 text-[#007576] font-bold py-2 px-4 rounded-md hover:bg-white transition-colors">
+            Mengerti
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <footer class="w-full relative h-72">
@@ -269,130 +335,89 @@ const getLabelClass = (rating) => {
 </template>
 
 <style>
-/* Tambahkan style untuk loading screen di sini */
+/* Style tidak diubah, hanya ditambahkan style untuk Modal Validasi */
 .loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #f2fffc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: #f2fffc; display: flex; justify-content: center; align-items: center; z-index: 9999;
 }
-
 .spinner-container {
-  width: 80px;
-  height: 80px;
-  border: 8px solid rgba(0, 192, 201, 0.2);
-  border-left-color: #00c8c9;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  width: 80px; height: 80px; border: 8px solid rgba(0, 192, 201, 0.2);
+  border-left-color: #00c8c9; border-radius: 50%; animation: spin 1s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-fade-leave-active { transition: opacity 0.5s ease-out; }
+.loader-fade-leave-to { opacity: 0; }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loader-fade-leave-active {
-  transition: opacity 0.5s ease-out;
-}
-.loader-fade-leave-to {
-  opacity: 0;
-}
-
-/* Style yang sudah ada */
 .content-wrapper > header.header-solid {
-  background-color: #ffffff !important;
-  background-image: none !important;
+  background-color: #ffffff !important; background-image: none !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
 }
-
 .content-wrapper > header.header-solid,
 .content-wrapper > header.header-solid.scrolled {
-  background-color: #ffffff !important;
-  background-image: none !important;
+  background-color: #ffffff !important; background-image: none !important;
 }
-
 @media screen and (max-width: 1023px) {
   .content-wrapper > header.header-solid {
-    background-color: #ffffff !important;
-    background-image: none !important;
+    background-color: #ffffff !important; background-image: none !important;
   }
 }
 
 body {
-  font-family: "Archivo", sans-serif;
-  background-color: #f2fffc;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  font-family: "Archivo", sans-serif; background-color: #f2fffc;
+  display: flex; flex-direction: column; min-height: 100vh;
 }
-
-.content-wrapper {
-  flex: 1 0 auto;
-}
-
-footer {
-  flex-shrink: 0;
-}
+.content-wrapper { flex: 1 0 auto; }
+footer { flex-shrink: 0; }
 
 .custom-gradient-text {
   background: linear-gradient(to right, #007c7e, #00b9b9);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
-.step-item {
-  color: #aaeeed;
-  width: 80px;
-}
-
-.step-item.active {
-  color: #00c8c9;
-}
-
-.step-item.completed {
-  color: #009293;
-}
-
+.step-item { color: #aaeeed; width: 80px; }
+.step-item.active { color: #00c8c9; }
+.step-item.completed { color: #009293; }
 .step-icon {
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #aaeeed;
-  color: #ececec;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background-color: #aaeeed; color: #ececec;
 }
-
 .step-item.active .step-icon {
   background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
-  border: none;
-  color: white;
+  border: none; color: white;
 }
-
 .step-item.completed .step-icon {
   background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
   color: white;
 }
-
 .step-line {
-  flex-grow: 1;
-  height: 3.2px;
-  background-color: #aaeeed;
-  margin: 0 0.25rem;
+  flex-grow: 1; height: 3.2px; background-color: #aaeeed; margin: 0 0.25rem;
 }
+.step-line.completed { background-color: #26ebd2; }
+.form-card-gradient { background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%); }
 
-.step-line.completed {
-  background-color: #26ebd2;
+/* Style Untuk Modal Baru */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
 }
-
-.form-card-gradient {
-  background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
+.modal-content {
+  background-color: #00c8c9; color: white;
+  border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  padding: 2rem; max-width: 24rem; width: 100%;
+  position: relative;
+}
+.modal-close-button {
+  position: absolute; top: 0.75rem; right: 0.75rem;
+  width: 2rem; height: 2rem; background-color: white; color: #00c8c9;
+  border-radius: 9999px; display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 1.25rem; line-height: 1;
+  transition: background-color 0.2s;
+}
+.modal-close-button:hover {
+  background-color: #e2e8f0;
 }
 </style>
