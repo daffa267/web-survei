@@ -3,6 +3,8 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
+const isLoading = ref(true);
+
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: '...',
@@ -19,41 +21,66 @@ const surveyData = ref({
 
 onMounted(async () => {
   try {
+    // Langkah 1: Ambil data pengaturan situs
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
-    if (result.success && result.data) { 
-      siteInfo.value = { 
-        logo: result.data.file_logo, 
-        name: result.data.name.toUpperCase() 
-      }; 
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data) {
+        const data = result.data;
+        
+        // Langkah 2: Pra-muat (preload) gambar ikon header
+        await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = () => {
+                console.error("Gagal memuat logo, menggunakan logo default.");
+                resolve();
+            };
+            img.src = data.file_logo;
+        });
+
+        // Setelah gambar siap, baru perbarui info situs
+        siteInfo.value = { 
+          logo: data.file_logo, 
+          name: data.name.toUpperCase() 
+        };
+      }
+    } else {
+        console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
-  } catch (error) { console.error("Gagal mengambil data pengaturan situs:", error); }
 
-  const idSurvey = route.params.id;
-  if (!idSurvey) { 
-    surveyData.value.opdName = "Error: ID Survei tidak valid"; 
-    return; 
-  }
+    // Langkah 3: Ambil daftar pertanyaan survei
+    const idSurvey = route.params.id;
+    if (!idSurvey) { 
+      surveyData.value.opdName = "Error: ID Survei tidak valid"; 
+      return; 
+    }
 
-  try {
     const surveyResp = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/survey/pertanyaan?id_survey=${idSurvey}`);
-    if (!surveyResp.ok) throw new Error('Gagal mengambil data survei');
-    const result = await surveyResp.json();
-    if (result.success && result.data.length > 0) {
-      const data = result.data[0];
-      surveyData.value.opdName = data.get_layanan_opd?.get_opd?.name || 'Nama OPD';
-      const groupedQuestions = {};
-      data.pertanyaan.forEach(q => {
-        const indicatorName = q.indikator.name;
-        if (!groupedQuestions[indicatorName]) { groupedQuestions[indicatorName] = []; }
-        groupedQuestions[indicatorName].push({ id: q.id, text: q.name, rating: 0, options: q.pilihan_jawaban });
-      });
-      surveyData.value.indicators = Object.keys(groupedQuestions).map(name => ({ name: name, questions: groupedQuestions[name] }));
+    if (surveyResp.ok) {
+      const result = await surveyResp.json();
+      if (result.success && result.data.length > 0) {
+        const data = result.data[0];
+        surveyData.value.opdName = data.get_layanan_opd?.get_opd?.name || 'Nama OPD';
+        const groupedQuestions = {};
+        data.pertanyaan.forEach(q => {
+          const indicatorName = q.indikator.name;
+          if (!groupedQuestions[indicatorName]) { groupedQuestions[indicatorName] = []; }
+          groupedQuestions[indicatorName].push({ id: q.id, text: q.name, rating: 0, options: q.pilihan_jawaban });
+        });
+        surveyData.value.indicators = Object.keys(groupedQuestions).map(name => ({ name: name, questions: groupedQuestions[name] }));
+      }
+    } else {
+        console.error("Gagal memuat pertanyaan survei: Network response was not ok");
+        surveyData.value.opdName = "Gagal Memuat Pertanyaan";
     }
+
   } catch (error) { 
-    console.error("Gagal memuat pertanyaan survei:", error); 
-    surveyData.value.opdName = "Gagal Memuat Pertanyaan"; 
+    console.error("Gagal memuat data halaman:", error); 
+    surveyData.value.opdName = "Terjadi Kesalahan"; 
+  } finally {
+    // Langkah 4: Sembunyikan loading screen setelah semua selesai
+    isLoading.value = false;
   }
 });
 
@@ -134,6 +161,13 @@ const getLabelClass = (rating) => {
 </script>
 
 <template>
+  <Transition name="loader-fade">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner-container">
+      </div>
+    </div>
+  </Transition>
+
   <div class="content-wrapper">
     <header class="header-solid w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
@@ -235,7 +269,41 @@ const getLabelClass = (rating) => {
 </template>
 
 <style>
-/* Style tidak ada perubahan */
+/* Tambahkan style untuk loading screen di sini */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f2fffc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-container {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(0, 192, 201, 0.2);
+  border-left-color: #00c8c9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-fade-leave-active {
+  transition: opacity 0.5s ease-out;
+}
+.loader-fade-leave-to {
+  opacity: 0;
+}
+
+/* Style yang sudah ada */
 .content-wrapper > header.header-solid {
   background-color: #ffffff !important;
   background-image: none !important;
