@@ -2,7 +2,8 @@
 import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router'; 
 
-// --- STATE MANAGEMENT ---
+const isLoading = ref(true);
+
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: '...',
@@ -38,56 +39,75 @@ const filteredSurveyList = computed(() => {
 
 // --- LIFECYCLE HOOK ---
 onMounted(async () => {
-  // 1. Fetch Site Settings 
   try {
+    // Langkah 1: Ambil data pengaturan situs
     const siteResp = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!siteResp.ok) throw new Error('Network response was not ok');
-    const siteResult = await siteResp.json();
-    if (siteResult.success && siteResult.data) {
-      const data = siteResult.data;
-      siteInfo.value = {
-        logo: data.file_logo || siteInfo.value.logo,
-        name: (data.name || siteInfo.value.name).toUpperCase(),
-        nama_aplikasi: data.nama_aplikasi || siteInfo.value.nama_aplikasi,
-        telp: data.telp || siteInfo.value.telp,
-        email: data.email || siteInfo.value.email,
-        copyright: data.copyright || siteInfo.value.copyright
-      };
-    }
-  } catch (err) {
-    console.error('Gagal mengambil data pengaturan situs:', err);
-  }
+    if (siteResp.ok) {
+      const siteResult = await siteResp.json();
+      if (siteResult.success && siteResult.data) {
+        const data = siteResult.data;
 
-  // 2. Fetch Survey List based on ID from URL
-  const id_layanan_opd = route.params.id;
+        // Langkah 2: Pra-muat (preload) gambar ikon header
+        await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = () => {
+                console.error("Gagal memuat logo, menggunakan logo default.");
+                resolve();
+            };
+            img.src = data.file_logo;
+        });
 
-  if (!id_layanan_opd) {
-    console.error("ID Layanan OPD tidak ditemukan di URL");
-    pageTitle.value = "Halaman Tidak Ditemukan";
-    return;
-  }
-  
-  try {
-    const response = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/form/survey-option?id_layanan_opd=${id_layanan_opd}`);
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
-    
-    if (result.success && result.data && result.data.length > 0) {
-      surveyList.value = result.data.map(survey => ({
-        ...survey,
-        // Nilai IKM acak antara 2.50 dan 4.00
-        nilai_ikm: (Math.random() * (4.0 - 2.5) + 2.5).toFixed(2) 
-      }));
-
-      pageTitle.value = `Survei untuk "${result.data[0].layanan_opd}"`;
+        // Setelah gambar siap, perbarui info situs
+        siteInfo.value = {
+          logo: data.file_logo,
+          name: data.name.toUpperCase(),
+          nama_aplikasi: data.nama_aplikasi,
+          telp: data.telp,
+          email: data.email,
+          copyright: data.copyright
+        };
+      }
     } else {
-      pageTitle.value = "Belum Ada Survei Tersedia";
+        console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
-  } catch (error) {
-    console.error("Gagal mengambil data survei:", error);
-    pageTitle.value = "Gagal Memuat Data Survei";
+
+    // Langkah 3: Ambil daftar survei berdasarkan ID dari URL
+    const id_layanan_opd = route.params.id;
+    if (!id_layanan_opd) {
+      console.error("ID Layanan OPD tidak ditemukan di URL");
+      pageTitle.value = "Halaman Tidak Ditemukan";
+      surveyList.value = [];
+      return;
+    }
+  
+    const response = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/form/survey-option?id_layanan_opd=${id_layanan_opd}`);
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data && result.data.length > 0) {
+        surveyList.value = result.data.map(survey => ({
+          ...survey,
+          nilai_ikm: (Math.random() * (4.0 - 2.5) + 2.5).toFixed(2) 
+        }));
+        pageTitle.value = `Survei untuk "${result.data[0].layanan_opd}"`;
+      } else {
+        pageTitle.value = "Belum Ada Survei Tersedia";
+        surveyList.value = [];
+      }
+    } else {
+        console.error("Gagal mengambil data survei: Network response was not ok");
+        pageTitle.value = "Gagal Memuat Data Survei";
+    }
+
+  } catch (err) {
+    console.error('Gagal mengambil data halaman:', err);
+    pageTitle.value = "Terjadi Kesalahan";
+  } finally {
+    // Langkah 4: Sembunyikan loading screen setelah semua selesai
+    isLoading.value = false;
   }
 
+  // Logika navigasi
   const navItems = document.querySelectorAll(".nav-item");
   const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
   navItems.forEach(item => item.addEventListener("click", (e) => handleNavClick(e)));
@@ -111,6 +131,13 @@ const toggleMobileMenu = () => {
 </script>
 
 <template>
+  <Transition name="loader-fade">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner-container">
+      </div>
+    </div>
+  </Transition>
+
   <div class="content-wrapper">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
@@ -200,7 +227,7 @@ const toggleMobileMenu = () => {
     </div>
 
     </div>
-    <div v-else class="text-center text-gray-500">
+    <div v-else class="text-center text-gray-500 py-10">
             <p>Tidak ada survei yang ditemukan atau tersedia untuk layanan ini.</p>
         </div>
         </main>
@@ -277,6 +304,42 @@ const toggleMobileMenu = () => {
 </template>
 
 <style>
+/* Tambahkan style untuk loading screen di sini */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f2fffc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-container {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(0, 192, 201, 0.2);
+  border-left-color: #00c8c9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-fade-leave-active {
+  transition: opacity 0.5s ease-out;
+}
+.loader-fade-leave-to {
+  opacity: 0;
+}
+
+
+/* Style yang sudah ada */
 ::placeholder {
     color: rgba(255, 255, 255, 0.8) !important;
   }
@@ -330,8 +393,6 @@ const toggleMobileMenu = () => {
 
   .card-oceanic-texture {
     background-color: #ffffff;
-
-    /* [FINAL] SVG dengan warna baru yang disamakan dengan warna header */
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 220'%3e%3cpath fill='%23E2FEFE' d='M 400,220 H 200 V 110 C 270,90 330,170 400,130 Z'/%3e%3cpath fill='%23BFFDFD' d='M 400,220 H 200 V 120 C 280,100 320,180 400,140 Z'/%3e%3cpath fill='%23E2FEFE' d='M 200,110 C 130,130 70,70 0,90 V 220 H 200 Z'/%3e%3cpath fill='%23BFFDFD' d='M 200,120 C 120,140 80,80 0,100 V 220 H 200 Z'/%3e%3c/svg%3e");    
     background-repeat: no-repeat;
     background-size: 200% auto;
