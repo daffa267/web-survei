@@ -2,6 +2,8 @@
 import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router'; 
 
+const isLoading = ref(true);
+
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: '...',
@@ -52,55 +54,77 @@ const filteredLayananList = computed(() => {
 
 onMounted(async () => {
   try {
+    // Langkah 1: Ambil data pengaturan situs
     const siteResp = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!siteResp.ok) throw new Error('Network response was not ok');
-    const siteResult = await siteResp.json();
-    if (siteResult.success && siteResult.data) {
-      const data = siteResult.data;
-      siteInfo.value = {
-        logo: data.file_logo || siteInfo.value.logo,
-        name: (data.name || siteInfo.value.name).toUpperCase(),
-        nama_aplikasi: data.nama_aplikasi || siteInfo.value.nama_aplikasi,
-        telp: data.telp || siteInfo.value.telp,
-        email: data.email || siteInfo.value.email,
-        copyright: data.copyright || siteInfo.value.copyright
-      };
-    }
-  } catch (err) {
-    console.error('Gagal mengambil data pengaturan situs:', err);
-  }
+    if (siteResp.ok) {
+      const siteResult = await siteResp.json();
+      if (siteResult.success && siteResult.data) {
+        const data = siteResult.data;
 
-  const id_opd = route.params.id;
+        // Langkah 2: Pra-muat (preload) gambar ikon header
+        await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = () => {
+                console.error("Gagal memuat logo, menggunakan logo default.");
+                resolve();
+            };
+            img.src = data.file_logo;
+        });
 
-  if (route.query && route.query.name) {
-    opdNama.value = route.query.name;
-  }
-
-  if (!id_opd) {
-    console.error("ID OPD tidak ditemukan di URL");
-    opdNama.value = "Kategori Layanan";
-    return;
-  }
-  
-  try {
-    const response = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/form/layanan-opd-option?id_opd=${id_opd}`);
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
-    
-    if (result.success && result.data && result.data.length > 0) {
-      layananList.value = result.data;
-      if (!(route.query && route.query.name)) {
-        const possibleName = result.data[0] && (result.data[0].opd_name || result.data[0].opd || result.data[0].name);
-        opdNama.value = possibleName || `Layanan OPD`;
+        // Setelah gambar siap, perbarui info situs
+        siteInfo.value = {
+          logo: data.file_logo,
+          name: data.name.toUpperCase(),
+          nama_aplikasi: data.nama_aplikasi,
+          telp: data.telp,
+          email: data.email,
+          copyright: data.copyright
+        };
       }
     } else {
-        opdNama.value = "Belum Ada Layanan";
+        console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
-  } catch (error) {
-    console.error("Gagal mengambil data layanan OPD:", error);
-    opdNama.value = "Gagal Memuat Layanan";
+
+    // Ambil ID OPD dari parameter URL
+    const id_opd = route.params.id;
+    if (route.query && route.query.name) {
+      opdNama.value = route.query.name;
+    }
+    if (!id_opd) {
+      console.error("ID OPD tidak ditemukan di URL");
+      opdNama.value = "Kategori Layanan";
+      layananList.value = [];
+      return; // Hentikan eksekusi jika tidak ada ID
+    }
+    
+    // Langkah 3: Ambil daftar layanan untuk OPD terkait
+    const response = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/form/layanan-opd-option?id_opd=${id_opd}`);
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data && result.data.length > 0) {
+        layananList.value = result.data;
+        if (!route.query.name) { // Jika nama tidak ada di query, coba ambil dari data
+          const possibleName = result.data[0]?.opd_name || result.data[0]?.opd || result.data[0]?.name;
+          opdNama.value = possibleName || `Layanan OPD`;
+        }
+      } else {
+          opdNama.value = route.query.name || "Belum Ada Layanan";
+          layananList.value = [];
+      }
+    } else {
+        console.error("Gagal mengambil data layanan OPD: Network response was not ok");
+        opdNama.value = "Gagal Memuat Layanan";
+    }
+  } catch (err) {
+    console.error('Gagal mengambil data halaman:', err);
+    opdNama.value = "Terjadi Kesalahan";
+  } finally {
+    // Langkah 4: Sembunyikan loading screen setelah semua selesai
+    isLoading.value = false;
   }
 
+  // Logika navigasi
   let isClickScrolling = false;
   let scrollTimeout = null;
 
@@ -148,6 +172,13 @@ const toggleMobileMenu = () => {
 </script>
 
 <template>
+  <Transition name="loader-fade">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner-container">
+      </div>
+    </div>
+  </Transition>
+
   <div class="content-wrapper">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
@@ -234,7 +265,7 @@ const toggleMobileMenu = () => {
           </router-link>
         </div>
       </div>
-      <div v-else class="text-center text-gray-500">
+      <div v-else class="text-center text-gray-500 py-10">
         <p>Tidak ada layanan yang tersedia untuk kategori ini.</p>
       </div>
     </main>
@@ -318,6 +349,42 @@ const toggleMobileMenu = () => {
 </template>
 
 <style>
+/* Tambahkan style untuk loading screen di sini */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f2fffc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-container {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(0, 192, 201, 0.2);
+  border-left-color: #00c8c9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-fade-leave-active {
+  transition: opacity 0.5s ease-out;
+}
+.loader-fade-leave-to {
+  opacity: 0;
+}
+
+
+/* Style yang sudah ada */
 ::placeholder {
   color: rgba(255, 255, 255, 0.8) !important;
 }
@@ -401,9 +468,7 @@ footer {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   }
 }
-</style>
 
-<style>
 /* Search input placeholder color to match faded icon */
 .search-input::placeholder { color: rgba(0,200,201,0.55) !important; }
 .search-input::-webkit-input-placeholder { color: rgba(0,200,201,0.55) !important; }
