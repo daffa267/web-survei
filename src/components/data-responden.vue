@@ -8,9 +8,15 @@ const siteInfo = ref({
   name: '...',
 });
 
+const opdName = ref('');
+const serviceId = ref(null); // Variabel baru untuk menampung service_id
+const showToast = ref(false);
+const toastMessage = ref('');
+const isEditing = ref(false);
+
 const nama = ref('');
 const umur = ref('');
-const emailHp = ref(''); 
+const emailHp = ref('');
 const jenisKelamin = ref('');
 const pendidikan = ref('');
 const pekerjaan = ref('');
@@ -19,7 +25,7 @@ const pendidikanOptions = ref([]);
 const pekerjaanOptions = ref([]);
 
 const router = useRouter();
-const route = useRoute(); 
+const route = useRoute();
 
 const errors = reactive({
   umur: false,
@@ -29,7 +35,6 @@ const errors = reactive({
   pekerjaan: false,
 });
 
-// Watchers untuk menghilangkan error secara real-time saat pengguna mengisi input
 watch(umur, (newValue) => { if (newValue) errors.umur = false; });
 watch(emailHp, (newValue) => { if (newValue) errors.emailHp = false; });
 watch(jenisKelamin, (newValue) => { if (newValue) errors.jenisKelamin = false; });
@@ -59,11 +64,36 @@ const getPekerjaanOptions = async () => {
 };
 
 onMounted(async () => {
+  opdName.value = route.query.name || 'Dinas Tidak Ditemukan';
+  serviceId.value = route.query.service_id; // Ambil service_id dari query
+
+  if (route.query.from === 'survey') {
+    const savedData = sessionStorage.getItem('respondentData');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        nama.value = parsedData.name === 'Anonim' ? '' : parsedData.name;
+        umur.value = parsedData.umur || '';
+        emailHp.value = parsedData.keterangan || '';
+        if (parsedData.gender) {
+          jenisKelamin.value = parsedData.gender.charAt(0).toUpperCase() + parsedData.gender.slice(1);
+        }
+        pendidikan.value = parsedData.id_pendidikan || '';
+        pekerjaan.value = parsedData.id_pekerjaan || '';
+        isEditing.value = true;
+      } catch (e) {
+        sessionStorage.removeItem('respondentData');
+      }
+    }
+  } else {
+    sessionStorage.removeItem('respondentData');
+    isEditing.value = false;
+  }
+
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
     if (!response.ok) throw new Error('Network response was not ok');
     const result = await response.json();
-
     if (result.success && result.data) {
       siteInfo.value = {
         logo: result.data.file_logo,
@@ -78,7 +108,7 @@ onMounted(async () => {
   getPekerjaanOptions();
 });
 
-const handleNext = () => { 
+const handleNext = () => {
   Object.keys(errors).forEach(key => errors[key] = false);
   let validationFailed = false;
 
@@ -87,41 +117,47 @@ const handleNext = () => {
   if (!jenisKelamin.value) { errors.jenisKelamin = true; validationFailed = true; }
   if (!pendidikan.value) { errors.pendidikan = true; validationFailed = true; }
   if (!pekerjaan.value) { errors.pekerjaan = true; validationFailed = true; }
-  
-  if (validationFailed) {  
-    console.log('Validasi gagal, ada data yang belum diisi.');
-    return; 
-  }
+
+  if (validationFailed) { return; }
 
   const respondentData = {
     id_pendidikan: parseInt(pendidikan.value),
     id_pekerjaan: parseInt(pekerjaan.value),
-    name: nama.value || 'Anonim', 
+    name: nama.value || 'Anonim',
     umur: parseInt(umur.value),
     gender: jenisKelamin.value.toLowerCase(),
     keterangan: emailHp.value,
   };
 
   sessionStorage.setItem('respondentData', JSON.stringify(respondentData));
-  console.log('Data responden disimpan sementara:', respondentData);
 
-  const idSurvey = route.params.id; 
-  console.log('Mencoba navigasi ke halaman survei dengan ID:', idSurvey);
+  toastMessage.value = isEditing.value ? 'Data responden berhasil diubah' : 'Data responden berhasil disimpan';
+  showToast.value = true;
 
-  if (!idSurvey) {
-    console.error('NAVIGASI GAGAL: ID Survei tidak ditemukan dari URL.');
-    alert('Terjadi kesalahan: ID Survei tidak ditemukan. Mohon ulangi proses dari halaman sebelumnya.');
-    return;
-  }
-  
-  router.push(`/survei/${idSurvey}`);
-  
+  setTimeout(() => {
+    showToast.value = false;
+    const idSurvey = route.params.id;
+    if (idSurvey) {
+      router.push({ path: `/survei/${idSurvey}`, query: { name: opdName.value } });
+    } else {
+        console.error('NAVIGASI GAGAL: ID Survei tidak ditemukan.');
+    }
+  }, 2000);
+};
+
+const clearRespondentData = () => {
+    sessionStorage.removeItem('respondentData');
 };
 </script>
 
-
 <template>
-  <div class="content-wrapper">
+  <div class="content-wrapper relative">
+    <Transition name="toast-fade">
+      <div v-if="showToast" class="toast-notification">
+        <p>{{ toastMessage }}</p>
+      </div>
+    </Transition>
+    
     <header class="header-solid w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
@@ -140,7 +176,7 @@ const handleNext = () => {
           Survei Kepuasan Masyarakat
         </h1>
         <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">
-          Dinas Komunikasi dan Informatika
+          {{ opdName }}
         </h2>
       </section>
 
@@ -245,7 +281,7 @@ const handleNext = () => {
           </div>
 
           <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-auto gap-4 sm:gap-0">
-            <router-link :to="`/list-survey/${route.params.id}`" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+            <router-link :to="{ path: `/list-survey/${serviceId}`, query: { name: opdName } }" @click="clearRespondentData" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
               &larr; Sebelumnya
             </router-link>
             <button type="submit" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
@@ -324,5 +360,31 @@ footer {
 }
 .form-card-gradient {
   background: linear-gradient(225deg, #49F7F7 0%, #FFFFFF 80%);
+}
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #209fa0;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -20px);
 }
 </style>
