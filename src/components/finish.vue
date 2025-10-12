@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router'; // Import useRoute
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 
@@ -8,7 +9,13 @@ const siteInfo = ref({
   name: '...',
 });
 
+const route = useRoute(); // Inisialisasi route
+const opdName = ref('Memuat...'); // State untuk nama OPD dinamis
+
 onMounted(async () => {
+  // Ambil nama OPD dari query URL
+  opdName.value = route.query.name || 'Survei Telah Selesai';
+
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
     if (!response.ok) throw new Error('Network response was not ok');
@@ -53,9 +60,9 @@ onMounted(async () => {
           Survei Kepuasan Masyarakat
         </h1>
         <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">
-          Dinas Komunikasi dan Informatika
+          {{ opdName }}
         </h2>
-      </section>
+        </section>
 
       <div class="w-full flex items-start justify-center px-2 sm:px-12 my-8">
         <div class="flex flex-col items-center text-center step-item completed">
@@ -124,7 +131,7 @@ onMounted(async () => {
 </template>
 
 <style>
-/* Style tidak ada perubahan dari sebelumnya */
+/* Style tidak diubah */
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
