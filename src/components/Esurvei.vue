@@ -1,10 +1,16 @@
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import Chart from 'chart.js/auto';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
-// --- START: Site Info Logic (BARU) ---
+// --- START: Loading Screen Logic ---
+const isLoading = ref(true);
+// --- END: Loading Screen Logic ---
+
+// --- START: Site Info Logic ---
 const siteInfo = ref({
-  logo: '/images/Logo-Pemko.png', 
+  logo: '/images/Logo-Pemko.png',
   name: '...',
   nama_aplikasi: 'Memuat...', 
   deskripsi: '',
@@ -14,11 +20,9 @@ const siteInfo = ref({
   email: '',
   copyright: ''
 });
-
 // --- END: Site Info Logic ---
 
-
-// --- START: Modal Logic (No changes) ---
+// --- START: Modal Logic ---
 const isModalVisible = ref(false);
 const modalContent = ref({
   title: '',
@@ -48,16 +52,12 @@ const closeModal = () => {
 };
 // --- END: Modal Logic ---
 
-// --- START: Chart Logic (No changes) ---
-
-// Ref to hold the Chart.js instance
+// --- START: Chart Logic ---
 let opdChartInstance = null;
 
-// Reactive state for selected filters
 const selectedYear = ref('2023');
-const activeDinas = ref(null); // null means top-level view
+const activeDinas = ref(null);
 
-// Hierarchical survey data for different years
 const surveyData = ref({
   '2023': [
     { name: 'Dinas Kesehatan', value: 2.1, opd: [{ name: 'Puskesmas Mekar Baru', value: 2.5 }, { name: 'Puskesmas Batu 10', value: 1.8 }, { name: 'Labkesda', value: 2.0 }, { name: 'Gudang Farmasi', value: 2.1 }] },
@@ -71,14 +71,14 @@ const surveyData = ref({
     { name: 'Dinas Kelautan', value: 2.1, opd: [{ name: 'Bidang Pengawasan', value: 2.3 }, { name: 'Bidang Pemberdayaan Nelayan', value: 1.9 }] },
     { name: 'Diskominfo', value: 4.1, opd: [{ name: 'Bidang TIK', value: 4.5 }, { name: 'Bidang IKP', value: 3.9 }, { name: 'UPT Radio', value: 3.9 }] },
   ],
-  '2024': [ // Sample data for 2024
+  '2024': [
     { name: 'Dinas Kesehatan', value: 2.3, opd: [{ name: 'Puskesmas Mekar Baru', value: 2.6 }, { name: 'Puskesmas Batu 10', value: 1.9 }, { name: 'Labkesda', value: 2.2 }] },
     { name: 'Dinas Kehutanan', value: 4.0, opd: [{ name: 'UPT Tahura', value: 4.1 }, { name: 'Bidang Konservasi', value: 3.9 }] },
     { name: 'Dinas Pertanian', value: 3.3, opd: [{ name: 'Bidang Tanaman Pangan', value: 3.4 }, { name: 'Bidang Peternakan', value: 3.2 }] },
     { name: 'Dinas Perhubungan', value: 3.9, opd: [{ name: 'Sektor Parkir', value: 4.0 }, { name: 'Sektor Transportasi Darat', value: 3.8 }] },
     { name: 'Diskominfo', value: 4.3, opd: [{ name: 'Bidang TIK', value: 4.6 }, { name: 'Bidang IKP', value: 4.1 }] },
   ],
-  '2025': [ // Sample data for 2025
+  '2025': [
     { name: 'Dinas Kesehatan', value: 2.5, opd: [{ name: 'Puskesmas Mekar Baru', value: 2.8 }, { name: 'Puskesmas Batu 10', value: 2.2 }] },
     { name: 'Dinas Pertanian', value: 3.5, opd: [{ name: 'Bidang Tanaman Pangan', value: 3.6 }, { name: 'Bidang Peternakan', value: 3.4 }, { name: 'Balai Penyuluhan', value: 3.5 }] },
     { name: 'Dinas Perhubungan', value: 4.1, opd: [{ name: 'Sektor Parkir', value: 4.2 }, { name: 'Sektor Transportasi Darat', value: 4.0 }] },
@@ -86,12 +86,10 @@ const surveyData = ref({
   ]
 });
 
-// Computed property to get the list of available agencies for the selected year
 const availableDinas = computed(() => 
   surveyData.value[selectedYear.value]?.map(d => d.name) || []
 );
 
-// Computed property to determine the chart's title
 const chartTitle = computed(() => {
     if (activeDinas.value) {
         return `Detail Nilai Pelayanan: ${activeDinas.value}`;
@@ -99,12 +97,10 @@ const chartTitle = computed(() => {
     return `Nilai Pelayanan OPD Tahun ${selectedYear.value}`;
 });
 
-// Function to reset view to the top-level
 const goBack = () => {
     activeDinas.value = null;
 };
 
-// Main function to update the chart based on current state
 const updateChart = () => {
     if (!opdChartInstance) return;
 
@@ -114,14 +110,12 @@ const updateChart = () => {
     let labels, data, backgroundColor, label;
 
     if (activeDinas.value) {
-        // Drill-down view
         const dinasData = dataForYear.find(d => d.name === activeDinas.value);
         labels = dinasData?.opd?.map(o => o.name) || [];
         data = dinasData?.opd?.map(o => o.value) || [];
         label = `Rincian ${activeDinas.value}`;
         backgroundColor = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF'];
     } else {
-        // Top-level view
         labels = dataForYear.map(d => d.name);
         data = dataForYear.map(d => d.value);
         label = 'Nilai Pelayanan';
@@ -136,19 +130,25 @@ const updateChart = () => {
     opdChartInstance.update();
 };
 
-// Watch for changes in filters and update the chart
 watch([selectedYear, activeDinas], () => {
-  // If year changes, reset to top-level view
   if (activeDinas.value && !availableDinas.value.includes(activeDinas.value)) {
       activeDinas.value = null;
   }
   updateChart();
 });
-
 // --- END: Chart Logic ---
 
+const startAnimations = () => {
+  const heroContent = document.getElementById('hero-content');
+  const heroImage = document.getElementById('hero-image');
+  if (heroContent) heroContent.classList.add('is-visible');
+  if (heroImage) heroImage.classList.add('is-visible');
+
+  AOS.init({ once: true });
+  AOS.refresh();
+};
+
 onMounted(async () => {
-  // --- START: Fetch Site Settings (BARU) ---
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
     if (!response.ok) throw new Error('Network response was not ok');
@@ -156,6 +156,19 @@ onMounted(async () => {
 
     if (result.success && result.data) {
       const data = result.data;
+
+      // Pra-muat gambar ikon dari data yang diambil
+      await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = () => {
+              console.error("Gagal memuat logo dari API, menggunakan logo default.");
+              resolve();
+          };
+          img.src = data.file_logo;
+      });
+
+      // Perbarui state setelah gambar selesai di-cache
       siteInfo.value = {
         logo: data.file_logo,
         name: data.name.toUpperCase(),
@@ -167,14 +180,20 @@ onMounted(async () => {
         email: data.email,
         copyright: data.copyright
       };
+      
+      // PERBAIKAN: Beri jeda buatan singkat untuk memastikan browser siap me-render ikon
+      await new Promise(res => setTimeout(res, 50));
+
     }
   } catch (error) {
     console.error("Gagal mengambil data pengaturan situs:", error);
+    siteInfo.value.nama_aplikasi = 'Gagal Memuat Data';
+  } finally {
+    // Hilangkan loading screen setelah semua data, gambar, dan jeda singkat selesai
+    isLoading.value = false;
   }
-  // --- END: Fetch Site Settings ---
 
-
-  // --- START: Existing Scroll/Nav Logic (Now for both Desktop & Mobile) ---
+  // --- START: Existing Scroll/Nav Logic ---
   const handleScroll = () => {
     const header = document.querySelector("header");
     if (window.scrollY > 10) {
@@ -189,23 +208,18 @@ onMounted(async () => {
   let scrollTimeout = null;
   const sections = document.querySelectorAll("section[id]");
 
-  // Desktop Nav Elements
   const navItems = document.querySelectorAll(".nav-item");
   const indicator = document.getElementById("nav-indicator");
   
-  // Mobile Nav Elements
   const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
   const mobileIndicator = document.getElementById("mobile-nav-indicator");
   const mobileMenu = document.getElementById("mobileMenu");
 
-  // Function to update DESKTOP nav indicator
   const updateNavIndicator = (activeItem) => {
     if (!indicator) return;
     navItems.forEach((item) => {
-      // Reset all items to inactive state
       item.classList.remove("text-[#01c4c6]");
       item.classList.add("text-white");
-      // Add shadow to all items initially with increased opacity
       const span = item.querySelector('span');
       if (span) {
         span.classList.add('drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]');
@@ -213,10 +227,8 @@ onMounted(async () => {
     });
     
     if (activeItem) {
-      // Set active item
       activeItem.classList.remove("text-white");
       activeItem.classList.add("text-[#01c4c6]");
-      // Remove shadow from active item
       const activeSpan = activeItem.querySelector('span');
       if (activeSpan) {
         activeSpan.classList.remove('drop-shadow-[0_2px_2px_rgba(0,0,0,0.37)]');
@@ -227,7 +239,6 @@ onMounted(async () => {
     }
   };
   
-  // NEW: Function to update MOBILE nav indicator
   const updateMobileNavIndicator = (activeItem) => {
     if (!activeItem || !mobileIndicator) return;
     mobileNavItems.forEach(item => item.classList.remove('active'));
@@ -235,7 +246,6 @@ onMounted(async () => {
     mobileIndicator.style.transform = `translateY(${activeItem.offsetTop}px)`;
   };
   
-  // Function for scrolling to a section
   const scrollToSection = (navName) => {
       if (navName === "beranda") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -248,7 +258,6 @@ onMounted(async () => {
       scrollTimeout = setTimeout(() => { isClickScrolling = false; }, 800);
   };
 
-  // Click listener for DESKTOP nav items
   navItems.forEach((item) => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
@@ -261,7 +270,6 @@ onMounted(async () => {
     });
   });
 
-  // NEW: Click listener for MOBILE nav items
   mobileNavItems.forEach((item) => {
     item.addEventListener("click", function (e) {
         e.preventDefault();
@@ -271,12 +279,10 @@ onMounted(async () => {
         clearTimeout(scrollTimeout);
         updateMobileNavIndicator(this);
         scrollToSection(navName);
-        // Close menu after a short delay to see the animation
         setTimeout(() => mobileMenu.classList.add("hidden"), 300);
     });
   });
 
-  // MODIFIED: This function now updates BOTH desktop and mobile navs on scroll
   const handleScrollNavUpdate = () => {
     if (isClickScrolling) return;
     const scrollY = window.pageYOffset;
@@ -298,23 +304,18 @@ onMounted(async () => {
 
   handleScroll();
 
-  // MODIFIED: This now initializes BOTH nav indicators without animation on page load
   setTimeout(() => {
     if (indicator) indicator.style.transition = 'none';
     if (mobileIndicator) mobileIndicator.style.transition = 'none';
-
-    handleScrollNavUpdate(); // Set initial position for both
-
+    handleScrollNavUpdate();
     setTimeout(() => {
       if (indicator) indicator.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
       if (mobileIndicator) mobileIndicator.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
     }, 50);
   }, 100);
-  
   // --- END: Scroll/Nav Logic ---
 
-
-  // --- START: Chart Initialization (No changes) ---
+  // --- START: Chart Initialization ---
   const ctx = document.getElementById("opdChart")?.getContext("2d");
   if (ctx && typeof Chart !== "undefined") {
     opdChartInstance = new Chart(ctx, {
@@ -385,6 +386,13 @@ const toggleMobileMenu = () => {
 </script>
 
 <template>
+  <Transition name="loader-fade" @after-leave="startAnimations">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner-container">
+      </div>
+    </div>
+  </Transition>
+
   <div class="content-wrapper mb-60">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
@@ -461,7 +469,7 @@ const toggleMobileMenu = () => {
       <main class="relative w-full lg:min-h-[800px] flex items-center z-10 pt-32 pb-16 lg:pt-0 lg:pb-0">
         <div class="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:pl-4 lg:pr-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-12 lg:gap-4">
           
-          <div class="flex flex-col w-full max-w-lg items-center text-center lg:items-start lg:text-left relative z-[100]" data-aos="slide-from-far-left" data-aos-duration="1100" data-aos-easing="ease-out-cubic" data-aos-delay="400">
+          <div id="hero-content" class="flex flex-col w-full max-w-lg items-center text-center lg:items-start lg:text-left relative z-[100]">
             <h1 class="text-[32px] sm:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6 max-w-md">
               {{ siteInfo.nama_aplikasi }}
             </h1>
@@ -474,7 +482,7 @@ const toggleMobileMenu = () => {
             </router-link>
           </div>
           
-          <div class="relative w-full max-w-[320px] sm:max-w-[420px] lg:w-[486px] h-auto lg:mr-12 mt-8 lg:mt-0" data-aos="slide-from-far-right" data-aos-duration="800" data-aos-easing="ease-out-cubic">
+          <div id="hero-image" class="relative w-full max-w-[320px] sm:max-w-[420px] lg:w-[486px] h-auto lg:mr-12 mt-8 lg:mt-0">
             <img src="/images/Line 22.svg" 
                  class="absolute top-1/2 left-1/2 -translate-x-[calc(50%-63px)] -translate-y-[calc(50%-75px)]
                  w-[271px] h-[250px] 
@@ -495,11 +503,11 @@ const toggleMobileMenu = () => {
                  sm:-translate-y-[7.3px] sm:-translate-x-[14px]" 
                  alt="Phone Mockup" />
   
-            <img src="/images/logo esurvey.png" 
+            <img :src="siteInfo.logo" 
                  class="absolute z-20 top-1/2 left-1/2 
                  h-[70px] -translate-x-[calc(50%-32.5px)] -translate-y-[calc(50%-4px)]
                  sm:h-[80px] sm:-translate-x-[calc(50%-24px)] sm:-translate-y-[calc(50%-8px)]
-                 md:h-[90px] md:-translate-x-[calc(50%-28px)] md:-translate-y-[calc(50%-5px)] 
+                 md:h-[80px] md:-translate-x-[calc(50%-22px)] md:-translate-y-[calc(50%-5px)] 
                  w-auto" 
                  alt="Logo on Phone" />
             </div>
@@ -821,6 +829,68 @@ const toggleMobileMenu = () => {
 </template>
 
 <style>
+/* --- START: Loading Screen Styles --- */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f2fffc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-container {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(0, 192, 201, 0.2);
+  border-left-color: #00c8c9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-logo-inner {
+  width: 50px;
+  height: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Transition for loader fade out */
+.loader-fade-leave-active {
+  transition: opacity 0.5s ease-out; /* Durasi 500ms */
+}
+.loader-fade-leave-to {
+  opacity: 0;
+}
+/* --- END: Loading Screen Styles --- */
+
+/* PERBAIKAN: CSS untuk kontrol animasi manual section pertama */
+#hero-content, #hero-image {
+  opacity: 0;
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+#hero-content {
+  transform: translateX(-50px);
+}
+#hero-image {
+  transform: translateX(50px);
+}
+#hero-content.is-visible, #hero-image.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* --- END PERBAIKAN CSS --- */
+
+
 ::placeholder {
   color: rgba(255, 255, 255, 0.8) !important;
 }
@@ -938,32 +1008,6 @@ footer {
     box-shadow: 0 0 0 2px rgba(0, 192, 201, 0.3);
 }
 
-[data-aos="slide-from-far-left"] {
-  transform: translateX(-128%);
-  opacity: 0;
-  transition-property: transform, opacity;
-  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
-  will-change: transform, opacity;
-}
-
-[data-aos="slide-from-far-left"].aos-animate {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-[data-aos="slide-from-far-right"] {
-  transform: translateX(128%);
-  opacity: 0;
-  transition-property: transform, opacity;
-  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
-  will-change: transform, opacity;
-}
-
-[data-aos="slide-from-far-right"].aos-animate {
-  transform: translateX(0);
-  opacity: 1;
-}
-
 @media (max-width: 1023px) {
   .content-wrapper > header {
     background: linear-gradient(
@@ -999,3 +1043,4 @@ footer {
 }
 
 </style>
+}
