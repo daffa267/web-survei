@@ -1,46 +1,71 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
 
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: '...',
 });
 
+const route = useRoute();
 const router = useRouter();
 
-// Efek scroll pada header (sama seperti sebelumnya)
+const opdName = ref('Memuat...');
+const surveyId = ref(null);
+const answerId = ref(null);
+
+const kritikSaran = ref('');
+
 onMounted(async () => {
+  opdName.value = route.query.name || 'Dinas Tidak Ditemukan';
+  surveyId.value = route.query.survey_id;
+  answerId.value = route.query.id_jawaban;
+
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
-
-    if (result.success && result.data) {
-      const data = result.data;
-      siteInfo.value = {
-        logo: data.file_logo,
-        name: data.name.toUpperCase(),
-      };
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data) {
+        siteInfo.value = {
+          logo: result.data.file_logo,
+          name: result.data.name.toUpperCase(),
+        };
+      }
     }
   } catch (error) {
     console.error("Gagal mengambil data pengaturan situs:", error);
   }
-
-  const handleScroll = () => {
-    const header = document.querySelector("header");
-    if (header && window.scrollY > 10) {
-      header.classList.add("scrolled");
-    } else if (header) {
-      header.classList.remove("scrolled");
-    }
-  };
-  window.addEventListener("scroll", handleScroll);
-  handleScroll();
 });
 
-// State untuk menampung isi dari textarea kritik dan saran
-const kritikSaran = ref('');
+const handleKirim = async () => {
+  if (!answerId.value) {
+    alert("Error: ID Jawaban tidak ditemukan. Tidak dapat mengirim kritik dan saran.");
+    return;
+  }
+
+  if (!kritikSaran.value.trim()) {
+    router.push({ path: '/finish', query: { name: opdName.value } });
+    return;
+  }
+
+  try {
+    const payload = {
+      id_jawaban: answerId.value,
+      kritik: kritikSaran.value,
+      saran: ''
+    };
+
+    await axios.post('https://admin.skm.tanjungpinangkota.go.id/api/survey/kirim-kritik-saran', payload);
+
+    router.push({ path: '/finish', query: { name: opdName.value } });
+
+  } catch (error) {
+    console.error("Gagal mengirim kritik dan saran:", error);
+    alert("Gagal mengirim kritik dan saran, namun survei Anda sudah tercatat.");
+    router.push({ path: '/finish', query: { name: opdName.value } });
+  }
+};
 </script>
 
 <template>
@@ -63,7 +88,7 @@ const kritikSaran = ref('');
           Survei Kepuasan Masyarakat
         </h1>
         <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">
-          Dinas Komunikasi dan Informatika
+          {{ opdName }}
         </h2>
       </section>
 
@@ -106,18 +131,18 @@ const kritikSaran = ref('');
         <div class="flex-grow flex flex-col">
           <textarea
             v-model="kritikSaran"
-            placeholder="Masukkan kritik dan saran anda..."
+            placeholder="Masukkan kritik dan saran anda... (Opsional)"
             class="kritik-saran-textarea w-full flex-grow px-4 py-3 bg-[#E4FDFB] border border-[#b3e0e0] rounded-[12px] shadow-sm text-[#016465] focus:outline-none focus:ring-[#00c8c9] focus:border-[#00c8c9] resize-none"
           ></textarea>
         </div>
 
         <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-auto gap-4 sm:gap-0">
-            <button @click="$router.push('/survei')" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+            <router-link :to="{ path: `/survei/${surveyId}`, query: { name: opdName } }" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
                 &larr; Sebelumnya
-            </button>
-            <router-link to="/finish" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
-            Kirim &rarr;
             </router-link>
+            <button @click="handleKirim" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">
+            Kirim &rarr;
+            </button>
         </div>
         </section>
     </main>
@@ -129,7 +154,7 @@ const kritikSaran = ref('');
 </template>
 
 <style>
-/* Sebagian besar styling dipindahkan ke class Tailwind, sisa style di sini untuk dasar */
+/* Style tidak diubah */
 .content-wrapper > header.header-solid {
   background: #ffffff !important;
   background-image: none !important;
@@ -150,7 +175,7 @@ const kritikSaran = ref('');
     background-image: none !important;
   }
 }
-/* Global & Reusable Styles */
+
 body {
   font-family: "Archivo", sans-serif;
   background-color: #f2fffc;
@@ -171,7 +196,6 @@ footer {
   color: transparent;
 }
 
-/* Header Styles */
 header {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
   backdrop-filter: blur(0px);
@@ -183,16 +207,15 @@ header.scrolled {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
-/* --- STYLE UNTUK STEPPER (SUDAH DIPERBAIKI) --- */
 .step-item {
   color: #aaeeed;
-  width: 80px; /* Memberi lebar tetap agar tidak terlalu mepet */
+  width: 80px; 
 }
 .step-item.active {
   color: #00c8c9;
 }
 .step-item.completed {
-    color: #009293; /* Warna untuk step yang sudah selesai */
+    color: #009293; 
 }
 .step-icon {
   border-radius: 50%;
@@ -218,7 +241,7 @@ header.scrolled {
   margin: 0 0.25rem;
 }
 .step-line.completed {
-    background-color: #26ebd2; /* Warna garis untuk step yang selesai */
+    background-color: #26ebd2; 
 }
 
 .form-card-gradient {
