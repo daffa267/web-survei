@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 
+const isLoading = ref(true);
+
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: '...',
@@ -48,43 +50,61 @@ const filteredOpdList = computed(() => {
 
 onMounted(async () => {
   try {
+    // Langkah 1: Ambil data pengaturan situs
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data) {
+        const data = result.data;
 
-    if (result.success && result.data) {
-      const data = result.data;
-      siteInfo.value = {
-        logo: data.file_logo,
-        name: data.name.toUpperCase(),
-        nama_aplikasi: data.nama_aplikasi,
-        telp: data.telp,
-        email: data.email,
-        copyright: data.copyright
-      };
+        // Langkah 2: Pra-muat (preload) gambar logo sebelum melanjutkan
+        await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = () => {
+                console.error("Gagal memuat logo dari API, menggunakan logo default.");
+                resolve(); // Tetap lanjutkan agar halaman tidak stuck
+            };
+            img.src = data.file_logo;
+        });
+
+        // Setelah gambar siap, baru perbarui info situs
+        siteInfo.value = {
+          logo: data.file_logo,
+          name: data.name.toUpperCase(),
+          nama_aplikasi: data.nama_aplikasi,
+          telp: data.telp,
+          email: data.email,
+          copyright: data.copyright
+        };
+      }
+    } else {
+       console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
-  } catch (error) {
-    console.error("Gagal mengambil data pengaturan situs:", error);
-  }
 
-  try {
+    // Langkah 3: Ambil data daftar OPD
     const opdResponse = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/form/opd-option');
-    if (!opdResponse.ok) throw new Error('Network response for OPD was not ok');
-    const opdResult = await opdResponse.json();
-    if (opdResult.success && opdResult.data) {
-      opdList.value = opdResult.data;
+    if (opdResponse.ok) {
+      const opdResult = await opdResponse.json();
+      if (opdResult.success && opdResult.data) {
+        opdList.value = opdResult.data;
+      }
+    } else {
+        console.error("Gagal mengambil data OPD: Network response was not ok");
     }
+
   } catch (error) {
-    console.error("Gagal mengambil data OPD:", error);
+    console.error("Terjadi kesalahan saat memuat data halaman:", error);
+  } finally {
+    // Langkah 4: Sembunyikan loading screen setelah semua data dan gambar siap
+    isLoading.value = false;
   }
 
+  // Logika untuk navigasi tetap di sini
   let isClickScrolling = false;
   let scrollTimeout = null;
 
-  // Elemen Desktop
   const navItems = document.querySelectorAll(".nav-item");
-
-  // Elemen Mobile
   const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
   const mobileMenu = document.getElementById("mobileMenu");
 
@@ -100,7 +120,6 @@ onMounted(async () => {
     }, 800);
   };
 
-  // Event listener untuk item nav desktop
   navItems.forEach((item) => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
@@ -109,7 +128,6 @@ onMounted(async () => {
     });
   });
 
-  // Event listener untuk item nav mobile
   mobileNavItems.forEach((item) => {
     item.addEventListener("click", function (e) {
         e.preventDefault();
@@ -129,6 +147,13 @@ const toggleMobileMenu = () => {
 </script>
 
 <template>
+  <Transition name="loader-fade">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner-container">
+      </div>
+    </div>
+  </Transition>
+
   <div class="content-wrapper">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
@@ -204,12 +229,17 @@ const toggleMobileMenu = () => {
             <div v-for="opd in filteredOpdList" :key="opd.id" class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]">
               <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.87%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
-              <div class="relative z-20 w-full h-full p-4 flex flex-col items-center justify-center text-center">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-2 sm:mb-3 uppercase">{{ opd.name }}</h3>
-                <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[100px] mb-3 sm:mb-4 card-image" alt="Logo" />
-                
-                <router-link :to="{ path: `/kategori-dinas/${opd.id}`, query: { name: opd.name } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">Survei</router-link>
-
+              <div class="relative z-20 w-full h-full p-4 flex flex-col">
+                <div class="min-h-[40px] flex items-center justify-center">
+                  <h3 class="text-[#209fa0] font-bold text-sm uppercase line-clamp-2 text-center">{{ opd.name }}</h3>
+                </div>
+                <div class="flex-1 flex flex-col items-center justify-center">
+                  <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[80px] my-3 sm:my-4" alt="Logo" />
+                  <router-link :to="{ path: `/kategori-dinas/${opd.id}`, query: { name: opd.name } }" 
+                    class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-max">
+                    Survei
+                  </router-link>
+                </div>
               </div>
             </div>
 
@@ -310,6 +340,48 @@ body {
   position: relative;
   overflow-x: hidden;
 }
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f2fffc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-container {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(0, 192, 201, 0.2);
+  border-left-color: #00c8c9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-logo-inner {
+  width: 50px;
+  height: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Transition for loader fade out */
+.loader-fade-leave-active {
+  transition: opacity 0.5s ease-out; /* Durasi 500ms */
+}
+.loader-fade-leave-to {
+  opacity: 0;
+}
 .custom-shadow {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -343,6 +415,15 @@ header.scrolled {
 .content-wrapper {
   flex: 1 0 auto;
 }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 footer {
   flex-shrink: 0;
 }
