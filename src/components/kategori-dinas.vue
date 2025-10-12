@@ -237,8 +237,8 @@ const toggleMobileMenu = () => {
         <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
           {{ opdNama }}
         </h1>
-        <div class="flex justify-end mt-4">
-          <div class="relative w-48 lg:w-64">
+        <div class="w-full flex sm:justify-end mt-4">
+            <div class="relative w-full sm:w-48 lg:w-64">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#00c8c9]">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
@@ -260,10 +260,10 @@ const toggleMobileMenu = () => {
             </div>
             <h3 class="text-gray-800 font-semibold text-sm sm:text-base">{{ layanan.name }}</h3>
           </div>
-          <router-link :to="'/list-survey/' + layanan.id" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] whitespace-nowrap">
+          <router-link :to="{ path: '/list-survey/' + layanan.id, query: { name: opdNama } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] whitespace-nowrap">
             Pilih Survei
           </router-link>
-        </div>
+          </div>
       </div>
       <div v-else class="text-center text-gray-500 py-10">
         <p>Tidak ada layanan yang tersedia untuk kategori ini.</p>
