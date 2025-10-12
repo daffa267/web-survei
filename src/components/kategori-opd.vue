@@ -212,16 +212,21 @@ const toggleMobileMenu = () => {
           <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight text-center mx-auto">
             OPD
           </h1>
-          <div class="flex justify-end mt-4">
-            <div class="relative w-48 lg:w-64">
+          <div class="w-full flex sm:justify-end mt-4">
+            <div class="relative w-full sm:w-48 lg:w-64">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#00c8c9]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
                 </svg>
               </span>
-              <input v-model="searchQuery" type="search" placeholder="Cari OPD..." class="search-input pl-9 pr-3 py-2 border border-[#00c8c9] rounded-lg outline-none text-sm w-full focus:ring-1 focus:ring-[#00c8c9]" />
+              <input 
+                v-model="searchQuery" 
+                type="search" 
+                placeholder="Cari OPD..." 
+                class="search-input pl-9 pr-3 py-2 border border-[#00c8c9] rounded-lg outline-none text-sm w-full focus:ring-1 focus:ring-[#00c8c9]" 
+              />
             </div>
-            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-20 mb-16 max-w-7xl mx-auto justify-items-center">
@@ -230,11 +235,11 @@ const toggleMobileMenu = () => {
               <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
               <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.87%] h-auto z-10" style="width: 102.262% !important; max-width: 102.3% !important" alt="Card Decoration" />
               <div class="relative z-20 w-full h-full p-4 flex flex-col">
-                <div class="min-h-[40px] flex items-center justify-center">
-                  <h3 class="text-[#209fa0] font-bold text-sm uppercase line-clamp-2 text-center">{{ opd.name }}</h3>
+                <div class="min-h-[40px] -mt-2 sm:mt-0 flex items-center justify-center">
+                  <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm uppercase line-clamp-2 text-center">{{ opd.name }}</h3>
                 </div>
                 <div class="flex-1 flex flex-col items-center justify-center">
-                  <img src="/images/Logo-Pemko.png" class="w-[60px] h-auto sm:w-[80px] lg:w-[80px] my-3 sm:my-4" alt="Logo" />
+                  <img src="/images/Logo-Pemko.png" class="w-[55px] h-auto sm:w-[80px] lg:w-[80px] my-3 sm:my-4" alt="Logo" />
                   <router-link :to="{ path: `/kategori-dinas/${opd.id}`, query: { name: opd.name } }" 
                     class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-max">
                     Survei
