@@ -11,7 +11,7 @@ const isLoading = ref(true);
 // --- START: Site Info Logic ---
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
-  name: '...',
+  name: 'Memuat...',
   nama_aplikasi: 'Memuat...', 
   deskripsi: '',
   tentang: '',
@@ -149,6 +149,7 @@ const startAnimations = () => {
 };
 
 onMounted(async () => {
+  window.scrollTo(0, 0);
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
     if (!response.ok) throw new Error('Network response was not ok');
@@ -171,7 +172,7 @@ onMounted(async () => {
       // Perbarui state setelah gambar selesai di-cache
       siteInfo.value = {
         logo: data.file_logo,
-        name: data.name.toUpperCase(),
+        name: data.name, 
         nama_aplikasi: data.nama_aplikasi,
         deskripsi: data.deskripsi,
         tentang: data.tentang,
@@ -399,7 +400,7 @@ const toggleMobileMenu = () => {
         <div class="flex flex-row items-center gap-3 sm:gap-4 h-20">
           <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
+            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </div>
@@ -505,9 +506,9 @@ const toggleMobileMenu = () => {
   
             <img :src="siteInfo.logo" 
                  class="absolute z-20 top-1/2 left-1/2 
-                 h-[70px] -translate-x-[calc(50%-32.5px)] -translate-y-[calc(50%-4px)]
-                 sm:h-[80px] sm:-translate-x-[calc(50%-24px)] sm:-translate-y-[calc(50%-8px)]
-                 md:h-[80px] md:-translate-x-[calc(50%-22px)] md:-translate-y-[calc(50%-5px)] 
+                 h-[55px] -translate-x-[calc(50%-25.6px)] -translate-y-[calc(50%-2px)]
+                 sm:h-[70px] sm:-translate-x-[calc(50%-24px)] sm:-translate-y-[calc(50%-8px)]
+                 md:h-[70px] md:-translate-x-[calc(50%-19px)] md:-translate-y-[calc(50%-4px)] 
                  w-auto" 
                  alt="Logo on Phone" />
             </div>
@@ -564,7 +565,7 @@ const toggleMobileMenu = () => {
         <img src="/images/cloud-7.svg" class="absolute right-[-120px] top-[200px] w-[270px] h-auto hidden md:block" alt="Cloud 7" />
       </div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-4 mb-16 max-w-7xl mx-auto justify-items-center">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-4 mb-16 max-w-7xl mx-auto justify-items-center">
         
         <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="100" data-aos-once="true">
           <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
@@ -651,6 +652,22 @@ const toggleMobileMenu = () => {
                   Kompetensi Pelaksana
                 </h3>
                 <img src="/images/img_personal_growth.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
+              </div>
+              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
+                Lihat Detail
+              </button>
+            </div>
+        </div>
+
+        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="500" data-aos-once="true">
+            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
+              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
+                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-4 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
+                  Sarana dan Prasarana
+                </h3>
+                <img src="/images/facility-management.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
               </div>
               <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
@@ -1043,4 +1060,3 @@ footer {
 }
 
 </style>
-}
