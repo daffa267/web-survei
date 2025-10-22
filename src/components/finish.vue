@@ -1,41 +1,45 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router'; // Import useRoute
+import { useRoute } from 'vue-router';
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: '...',
+  nama_aplikasi: 'Memuat...',
 });
 
-const route = useRoute(); // Inisialisasi route
-const opdName = ref('Memuat...'); // State untuk nama OPD dinamis
+const route = useRoute();
+const opdName = ref('Memuat...'); 
+const serviceName = ref(''); // State baru untuk nama layanan
 
 onMounted(async () => {
-  // Ambil nama OPD dari query URL
-  opdName.value = route.query.name || 'Survei Telah Selesai';
+  window.scrollTo(0, 0);
+  // UPDATE: Ambil opd_name dan service_name dari query
+  opdName.value = route.query.opd_name || 'Survei Telah Selesai';
+  serviceName.value = route.query.service_name || '';
 
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
-
-    if (result.success && result.data) {
-      const data = result.data;
-      siteInfo.value = {
-        logo: data.file_logo,
-        name: data.name.toUpperCase(),
-      };
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data) {
+        const data = result.data;
+        siteInfo.value = {
+          logo: data.file_logo,
+          name: data.name.toUpperCase(),
+          nama_aplikasi: data.nama_aplikasi,
+        };
+      }
     }
   } catch (error) {
     console.error("Gagal mengambil data pengaturan situs:", error);
   }
 
-  // Inisialisasi AOS dengan durasi animasi 800ms
   AOS.init({
     duration: 800,
-    once: true, // Animasi hanya berjalan sekali
+    once: true,
   });
 });
 </script>
@@ -44,10 +48,9 @@ onMounted(async () => {
   <div class="content-wrapper">
     <header class="header-solid w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
-          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20"><img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
+            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -56,116 +59,76 @@ onMounted(async () => {
 
     <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
       <section class="w-full text-center py-4">
-        <h1 class="text-lg font-semibold text-[#04b0b1] mt-1">
-          Survei Kepuasan Masyarakat
-        </h1>
-        <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">
-          {{ opdName }}
-        </h2>
-        </section>
+        <h1 class="text-lg font-semibold text-[#04b0b1] mt-1">Survei Kepuasan Masyarakat</h1>
+        <h2 class="text-[28px] sm:text-[32px] font-semibold text-[#04b0b1] leading-tight">{{ opdName }}</h2>
+        <p v-if="serviceName" class="text-lg sm:text-xl text-[#04b0b1] font-semibold -mt-1">
+          {{ serviceName }}
+        </p>
+      </section>
 
       <div class="w-full flex items-start justify-center px-2 sm:px-12 my-8">
-        <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
-            <i class="fa-solid fa-user"></i>
-          </div>
-          <p class="mt-2 text-sm sm:text-base font-semibold">Responden</p>
-        </div>
+        <div class="flex flex-col items-center text-center step-item completed"><div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl"><i class="fa-solid fa-user"></i></div><p class="mt-2 text-sm sm:text-base font-semibold">Responden</p></div>
         <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
-        <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
-            <i class="fa-solid fa-clipboard-list"></i>
-          </div>
-          <p class="mt-2 text-sm sm:text-base font-semibold">Survey</p>
-        </div>
+        <div class="flex flex-col items-center text-center step-item completed"><div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl"><i class="fa-solid fa-clipboard-list"></i></div><p class="mt-2 text-sm sm:text-base font-semibold">Survey</p></div>
         <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
-        <div class="flex flex-col items-center text-center step-item completed">
-          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
-            <i class="fa-solid fa-comment-dots"></i>
-          </div>
-          <p class="mt-2 text-sm sm:text-base font-semibold">Kritik & Saran</p>
-        </div>
+        <div class="flex flex-col items-center text-center step-item completed"><div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl"><i class="fa-solid fa-comment-dots"></i></div><p class="mt-2 text-sm sm:text-base font-semibold">Kritik & Saran</p></div>
         <div class="step-line completed relative top-[28px] sm:top-[36px]"></div>
-        <div class="flex flex-col items-center text-center step-item active">
-          <div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl">
-            <i class="fa-solid fa-check"></i>
-          </div>
-          <p class="mt-2 text-sm sm:text-base font-semibold">Selesai</p>
-        </div>
+        <div class="flex flex-col items-center text-center step-item active"><div class="step-icon w-14 h-14 text-xl sm:w-[72px] sm:h-[72px] sm:text-2xl"><i class="fa-solid fa-check"></i></div><p class="mt-2 text-sm sm:text-base font-semibold">Selesai</p></div>
       </div>
 
       <section class="w-full flex justify-center items-center mt-4 min-h-[350px]">
-        <div
-          data-aos="zoom-in"
-          data-aos-easing="ease-out-back"
-          class="relative w-full max-w-md bg-[#00c8c9] text-white p-6 sm:p-8 rounded-2xl shadow-lg text-center flex flex-col items-center"
-        >
-          <h3 class="text-xl sm:text-2xl font-bold mb-4">
-            Survei Berhasil Terkirim!
-          </h3>
-          
-          <div class="my-4">
-            <img src="/images/img_recommendation_1.png" alt="Recommendation" class="h-28 sm:h-32 w-auto">
-          </div>
-
-          <p class="mt-4 text-sm sm:text-base">
-            Terima kasih telah mengisi survei kami. Masukan Anda sangat berarti untuk kemajuan layanan kami.
-          </p>
-
+        <div data-aos="zoom-in" data-aos-easing="ease-out-back" class="relative w-full max-w-md bg-[#00c8c9] text-white p-6 sm:p-8 rounded-2xl shadow-lg text-center flex flex-col items-center">
+          <h3 class="text-xl sm:text-2xl font-bold mb-4">Survei Berhasil Terkirim!</h3>
+          <div class="my-4"><img src="/images/img_recommendation_1.png" alt="Recommendation" class="h-28 sm:h-32 w-auto"></div>
+          <p class="mt-4 text-sm sm:text-base">Terima kasih telah mengisi survei kami. Masukan Anda sangat berarti untuk kemajuan layanan kami.</p>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 w-full">
-            <router-link to="/kategori-opd" class="w-full sm:flex-1 text-center bg-white text-[#009293] font-semibold py-2.5 px-4 rounded-lg shadow-md hover:bg-gray-200 transition-colors duration-300">
-              Isi Survei Lagi
-            </router-link>
-            <router-link to="/" class="w-full sm:flex-1 text-center bg-transparent border-2 border-white text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-white hover:text-[#009293] transition-colors duration-300">
-              Kembali ke Beranda
-            </router-link>
+            <router-link to="/kategori-opd" class="w-full sm:flex-1 text-center bg-white text-[#009293] font-semibold py-2.5 px-4 rounded-lg shadow-md hover:bg-gray-200 transition-colors duration-300">Isi Survei Lagi</router-link>
+            <router-link to="/" class="w-full sm:flex-1 text-center bg-transparent border-2 border-white text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-white hover:text-[#009293] transition-colors duration-300">Kembali ke Beranda</router-link>
           </div>
         </div>
       </section>
     </main>
   </div>
-
-  <footer class="w-full relative h-48">
-    <img src="/images/footer-cut.svg" class="w-[150vw] h-[150%] sm:h-auto sm:w-auto sm:min-w-[102vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" />
-  </footer>
+  <footer class="w-full relative h-48"><img src="/images/footer-cut.svg" class="w-[150vw] h-[150%] sm:h-auto sm:w-auto sm:min-w-[102vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" /></footer>
 </template>
-
 <style>
-/* Style tidak diubah */
+/* STYLE TIDAK BERUBAH */
+
 body {
-  font-family: "Archivo", sans-serif;
+  font-family: Archivo, sans-serif;
   background-color: #f2fffc;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.content-wrapper > header.header-solid {
-  background: #ffffff !important;
+.content-wrapper > header.header-solid,
+.content-wrapper > header.header-solid.scrolled {
+  background: #fff !important;
   background-image: none !important;
+}
+
+.content-wrapper > header.header-solid {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-.content-wrapper > header.header-solid,
-.content-wrapper > header.header-solid.scrolled {
-  background: #ffffff !important;
-  background-image: none !important;
-}
-
 @media screen and (max-width: 1023px) {
   .content-wrapper > header.header-solid {
-    background: #ffffff !important;
+    background: #fff !important;
     background-image: none !important;
   }
 }
+
 .content-wrapper {
   flex: 1 0 auto;
 }
+
 footer {
   flex-shrink: 0;
 }
+
 .custom-gradient-text {
   background: linear-gradient(to right, #007c7e, #00b9b9);
   -webkit-background-clip: text;
@@ -174,10 +137,11 @@ footer {
 }
 
 header {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
-  backdrop-filter: blur(0px);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0) 100%) !important;
+  backdrop-filter: blur(0);
   transition: all 0.3s ease-in-out;
 }
+
 header.scrolled {
   background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;
   backdrop-filter: blur(10px);
@@ -187,13 +151,16 @@ header.scrolled {
 .step-item {
   color: #aaeeed;
   width: 80px;
-}
-.step-item.active {
-  color: #00c8c9;
-}
-.step-item.completed {
+
+  &.active {
+    color: #00c8c9;
+  }
+
+  &.completed {
     color: #009293;
+  }
 }
+
 .step-icon {
   border-radius: 50%;
   display: flex;
@@ -201,23 +168,26 @@ header.scrolled {
   justify-content: center;
   background-color: #aaeeed;
   color: #ececec;
+
+  &.active,
+  &.completed {
+    background: linear-gradient(135deg, #22d3ee 0, #26ebd2 50%, #06b6d4 100%);
+    color: #fff;
+
+    &.active {
+      border: none;
+    }
+  }
 }
-.step-item.active .step-icon {
-  background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
-  border: none;
-  color: white;
-}
-.step-item.completed .step-icon {
-    background: linear-gradient(135deg, #22d3ee 0%, #26ebd2 50%, #06b6d4 100%);
-    color: white;
-}
+
 .step-line {
   flex-grow: 1;
   height: 3.2px;
   background-color: #aaeeed;
   margin: 0 0.25rem;
-}
-.step-line.completed {
+
+  &.completed {
     background-color: #26ebd2;
+  }
 }
 </style>

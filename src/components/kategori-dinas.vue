@@ -53,15 +53,14 @@ const filteredLayananList = computed(() => {
 });
 
 onMounted(async () => {
+  window.scrollTo(0, 0);
+  
   try {
-    // Langkah 1: Ambil data pengaturan situs
     const siteResp = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
     if (siteResp.ok) {
       const siteResult = await siteResp.json();
       if (siteResult.success && siteResult.data) {
         const data = siteResult.data;
-
-        // Langkah 2: Pra-muat (preload) gambar ikon header
         await new Promise((resolve) => {
             const img = new Image();
             img.onload = resolve;
@@ -71,8 +70,6 @@ onMounted(async () => {
             };
             img.src = data.file_logo;
         });
-
-        // Setelah gambar siap, perbarui info situs
         siteInfo.value = {
           logo: data.file_logo,
           name: data.name.toUpperCase(),
@@ -86,7 +83,6 @@ onMounted(async () => {
         console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
 
-    // Ambil ID OPD dari parameter URL
     const id_opd = route.params.id;
     if (route.query && route.query.name) {
       opdNama.value = route.query.name;
@@ -95,16 +91,15 @@ onMounted(async () => {
       console.error("ID OPD tidak ditemukan di URL");
       opdNama.value = "Kategori Layanan";
       layananList.value = [];
-      return; // Hentikan eksekusi jika tidak ada ID
+      return;
     }
     
-    // Langkah 3: Ambil daftar layanan untuk OPD terkait
     const response = await fetch(`https://admin.skm.tanjungpinangkota.go.id/api/form/layanan-opd-option?id_opd=${id_opd}`);
     if (response.ok) {
       const result = await response.json();
       if (result.success && result.data && result.data.length > 0) {
         layananList.value = result.data;
-        if (!route.query.name) { // Jika nama tidak ada di query, coba ambil dari data
+        if (!route.query.name) {
           const possibleName = result.data[0]?.opd_name || result.data[0]?.opd || result.data[0]?.name;
           opdNama.value = possibleName || `Layanan OPD`;
         }
@@ -120,30 +115,23 @@ onMounted(async () => {
     console.error('Gagal mengambil data halaman:', err);
     opdNama.value = "Terjadi Kesalahan";
   } finally {
-    // Langkah 4: Sembunyikan loading screen setelah semua selesai
     isLoading.value = false;
   }
 
-  // Logika navigasi
   let isClickScrolling = false;
   let scrollTimeout = null;
-
   const navItems = document.querySelectorAll(".nav-item");
   const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
   const mobileMenu = document.getElementById("mobileMenu");
-
   const navigateToHomeSection = (navName) => {
     if (!navName) return;
     isClickScrolling = true;
     clearTimeout(scrollTimeout);
-    
     window.location.href = `/${navName === 'beranda' ? '' : '#' + navName}`;
-
     scrollTimeout = setTimeout(() => {
       isClickScrolling = false;
     }, 800);
   };
-
   navItems.forEach((item) => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
@@ -151,7 +139,6 @@ onMounted(async () => {
       navigateToHomeSection(navName);
     });
   });
-
   mobileNavItems.forEach((item) => {
     item.addEventListener("click", function (e) {
         e.preventDefault();
@@ -185,7 +172,7 @@ const toggleMobileMenu = () => {
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
           <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
+            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -232,7 +219,7 @@ const toggleMobileMenu = () => {
       </div>
       </header>
 
-    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-28">
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-42">
       <div class="text-center mb-12 relative">
         <h1 class="text-[28px] sm:text-[32px] lg:text-[40px] font-semibold text-[#04b0b1] leading-tight mb-6">
           {{ opdNama }}
@@ -260,8 +247,8 @@ const toggleMobileMenu = () => {
             </div>
             <h3 class="text-gray-800 font-semibold text-sm sm:text-base">{{ layanan.name }}</h3>
           </div>
-          <router-link :to="{ path: '/list-survey/' + layanan.id, query: { name: opdNama } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] whitespace-nowrap">
-            Pilih Survei
+          <router-link :to="{ path: '/list-survey/' + layanan.id, query: { opd_name: opdNama, service_name: layanan.name } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] whitespace-nowrap">
+            Pilih Layanan
           </router-link>
           </div>
       </div>
@@ -347,9 +334,7 @@ const toggleMobileMenu = () => {
     </div>
   </footer>
 </template>
-
-<style>
-/* Tambahkan style untuk loading screen di sini */
+<style scoped>
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -373,22 +358,25 @@ const toggleMobileMenu = () => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loader-fade-leave-active {
   transition: opacity 0.5s ease-out;
 }
+
 .loader-fade-leave-to {
   opacity: 0;
 }
 
-
-/* Style yang sudah ada */
 ::placeholder {
   color: rgba(255, 255, 255, 0.8) !important;
 }
-html, body {
+
+html,
+body {
   width: 100%;
   overflow-x: hidden;
   margin: 0;
@@ -396,43 +384,43 @@ html, body {
 }
 
 body {
-  font-family: "Archivo", sans-serif;
+  font-family: Archivo, sans-serif;
   background-color: #f2fffc;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
 }
+
 .custom-shadow {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
 .card-image {
   filter: drop-shadow(0 3.4px 2px rgba(0, 0, 0, 0.359));
 }
+
 header {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0) 100%
-  ) !important;
-  backdrop-filter: blur(0px);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0) 100%)
+    !important;
+  backdrop-filter: blur(0);
   transition: all 0.3s ease-in-out;
 }
+
 header.scrolled {
-  background: linear-gradient(
-    90deg,
-    #f2fffc 25%,
-    rgba(57, 211, 211, 0.748) 100%
-  ) !important;
+  background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%)
+    !important;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
+
 .custom-gradient-text {
   background: linear-gradient(to right, #007c7e, #00b9b9);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
+
 .content-wrapper {
   flex: 1 0 auto;
 }
@@ -441,42 +429,57 @@ header.scrolled {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+
 footer {
   flex-shrink: 0;
 }
+
 .button-detail {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .button-detail:hover {
   background-color: #00c8c9;
-  color: white;
+  color: #fff;
 }
+
 .mobile-nav-item {
   color: #01c4c6;
 }
+
 .mobile-nav-item.active {
-  color: white;
+  color: #fff;
 }
+
 @media (max-width: 1023px) {
   .content-wrapper > header {
-    background: linear-gradient(
-      90deg,
-      #f2fffc 25%,
-      rgba(57, 211, 211, 0.748) 100%
-    ) !important;
+    background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748)
+      100%) !important;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   }
 }
 
-/* Search input placeholder color to match faded icon */
-.search-input::placeholder { color: rgba(0,200,201,0.55) !important; }
-.search-input::-webkit-input-placeholder { color: rgba(0,200,201,0.55) !important; }
-.search-input::-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
-.search-input:-ms-input-placeholder { color: rgba(0,200,201,0.55) !important; }
-.search-input:-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
+.search-input::placeholder {
+  color: rgba(0, 200, 201, 0.55) !important;
+}
 
-/* Set the actual typed text color and caret color */
+.search-input::-webkit-input-placeholder {
+  color: rgba(0, 200, 201, 0.55) !important;
+}
+
+.search-input::-moz-placeholder {
+  color: rgba(0, 200, 201, 0.55) !important;
+}
+
+.search-input:-ms-input-placeholder {
+  color: rgba(0, 200, 201, 0.55) !important;
+}
+
+.search-input:-moz-placeholder {
+  color: rgba(0, 200, 201, 0.55) !important;
+}
+
 .search-input {
   color: #04b0b1 !important;
   caret-color: #04b0b1 !important;

@@ -16,6 +16,7 @@ const siteInfo = ref({
 const surveyList = ref([]);
 const pageTitle = ref('Memuat...'); 
 const opdName = ref(''); 
+const serviceName = ref(''); // State baru untuk nama layanan
 const idOPD = ref(null);
 const searchQuery = ref('');
 const route = useRoute(); 
@@ -28,7 +29,6 @@ const normalizeString = (s) => {
 
 const filteredSurveyList = computed(() => {
   const normalizedSearchQuery = normalizeString(searchQuery.value);
-
   if (!normalizedSearchQuery) {
     return surveyList.value;
   }
@@ -40,9 +40,10 @@ const filteredSurveyList = computed(() => {
 });
 
 onMounted(async () => {
-  opdName.value = route.query.name || '';
-  // ID OPD sekarang diambil dari data API jika tidak ada di query, untuk konsistensi
-  // idOPD.value = route.query.id_opd || null;
+  window.scrollTo(0, 0);
+  // UPDATE: Ambil opd_name dan service_name dari query
+  opdName.value = route.query.opd_name || '';
+  serviceName.value = route.query.service_name || '';
 
   try {
     const siteResp = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
@@ -68,15 +69,11 @@ onMounted(async () => {
           copyright: data.copyright
         };
       }
-    } else {
-        console.error("Gagal mengambil data pengaturan situs: Network response was not ok");
     }
 
     const id_layanan_opd = route.params.id;
     if (!id_layanan_opd) {
-      console.error("ID Layanan OPD tidak ditemukan di URL");
       pageTitle.value = "Halaman Tidak Ditemukan";
-      surveyList.value = [];
       return;
     }
   
@@ -88,16 +85,12 @@ onMounted(async () => {
           ...survey,
           nilai_ikm: (Math.random() * (4.0 - 2.5) + 2.5).toFixed(2) 
         }));
-        pageTitle.value = `Survei untuk "${result.data[0].layanan_opd}"`;
-        // Selalu ambil ID OPD dari data API sebagai sumber kebenaran
+        // UPDATE: Gunakan serviceName dari query untuk judul halaman
+        pageTitle.value = serviceName.value ? `Survei untuk "${serviceName.value}"` : "Pilih Survei";
         idOPD.value = result.data[0].id_opd;
       } else {
         pageTitle.value = "Belum Ada Survei Tersedia";
-        surveyList.value = [];
       }
-    } else {
-        console.error("Gagal mengambil data survei: Network response was not ok");
-        pageTitle.value = "Gagal Memuat Data Survei";
     }
 
   } catch (err) {
@@ -107,17 +100,6 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
-
-const handleNavClick = (e, isMobile = false) => {
-    e.preventDefault();
-    const navName = e.currentTarget.getAttribute("data-nav");
-    if (!navName) return;
-    window.location.href = `/${navName === 'beranda' ? '' : '#' + navName}`;
-    if (isMobile) {
-        const mobileMenu = document.getElementById("mobileMenu");
-        setTimeout(() => mobileMenu?.classList.add("hidden"), 300);
-    }
-};
 
 const toggleMobileMenu = () => {
   document.getElementById("mobileMenu")?.classList.toggle("hidden");
@@ -138,7 +120,7 @@ const toggleMobileMenu = () => {
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
           <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
+            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -214,7 +196,7 @@ const toggleMobileMenu = () => {
                 </svg>
             </div>
 
-            <router-link :to="{ path: '/data-responden/' + survey.id, query: { name: opdName, service_id: route.params.id } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
+            <router-link :to="{ path: '/data-responden/' + survey.id, query: { opd_name: opdName, service_name: serviceName } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
                 Isi Survei
             </router-link>
             </div>
@@ -228,48 +210,124 @@ const toggleMobileMenu = () => {
   </div>
 
   <footer class="w-full relative">
-    </footer>
+    <img src="/images/Group Footer.svg" class="w-[150vw] h-[120%] sm:h-auto sm:w-auto sm:min-w-[108vw] absolute bottom-0 -right-0 sm:-right-10 -z-10 object-cover" alt="Footer Background" />
+    <div class="relative w-full max-w-[1280px] mx-auto px-8 pt-20 pb-6 sm:pt-24 lg:pt-28">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-8">
+            <div class="lg:col-span-1 lg:ml-[-10px]">
+                <h3 class="text-white font-semibold text-2xl mb-4">Hubungi Kami</h3>
+                <div class="text-white/90 text-sm leading-relaxed">
+                    <p class="mb-2">Dinas Komunikasi dan Informatika Kota Tanjungpinang</p>
+                    <p class="mb-4">
+                        Jl. Daeng Celak, Gedung C Lantai 1 & 2, Senggarang, Kecamatan Tanjungpinang Kota, Tanjungpinang, Kepulauan Riau 29111
+                    </p>
+                    <p class="mb-2">{{ siteInfo.telp }}</p>
+                    <p>{{ siteInfo.email }}</p>
+                </div>
+            </div>
+            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="md:ml-12">
+                    <h3 class="text-white font-semibold text-2xl mb-4">SKM</h3>
+                    <div class="text-white/90 text-sm leading-relaxed space-y-2">
+                        <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
+                        <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
+                        <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-white/20">
+                        <router-link to="/login" class="group relative inline-flex items-center gap-3 px-6 py-2.5 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-sm border border-white/40 rounded-xl text-white font-bold text-sm overflow-hidden transition-all duration-500 hover:shadow-lg hover:shadow-white/10 hover:border-white/60">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                            
+                            <div class="relative p-1.5 bg-gradient-to-br from-white/30 to-white/10 rounded-lg transition-all duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            
+                            <span class="relative z-10">
+                                Portal Admin
+                            </span>
+                            
+                            <div class="relative ml-2 group-hover:translate-x-1.5 transition-transform duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
+                    <form action="#" method="POST" class="space-y-3">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" name="nama" placeholder="Nama" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                            <input type="text" name="email_hp" placeholder="Email/No. HP" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                        </div>
+                        <div>
+                            <input type="text" name="subjek" placeholder="Subjek" class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white" />
+                        </div>
+                        <div>
+                            <textarea name="pesan" rows="4" placeholder="Pesan..." class="form-input w-full bg-white/20 border border-white/30 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-white"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-white/90 text-[#007576] font-bold py-2 px-4 rounded-md hover:bg-white transition-colors">
+                                Kirim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="mt-0 pt-8 text-center">
+            <p class="text-white text-[13px] sm:text-[14px] lg:text-[15px]">
+                {{ siteInfo.copyright }}
+            </p>
+        </div>
+    </div>
+  </footer>
 </template>
-
 <style>
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #f2fffc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f2fffc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
 
-.spinner-container {
-  width: 80px;
-  height: 80px;
-  border: 8px solid rgba(0, 192, 201, 0.2);
-  border-left-color: #00c8c9;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
+  .spinner-container {
+    width: 80px;
+    height: 80px;
+    border: 8px solid rgba(0, 192, 201, 0.2);
+    border-left-color: #00c8c9;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
-.loader-fade-leave-active {
-  transition: opacity 0.5s ease-out;
-}
-.loader-fade-leave-to {
-  opacity: 0;
-}
+  .loader-fade-leave-active {
+    transition: opacity 0.5s ease-out;
+  }
 
-::placeholder {
+  .loader-fade-leave-to {
+    opacity: 0;
+  }
+
+  ::placeholder {
     color: rgba(255, 255, 255, 0.8) !important;
   }
 
-  html, body {
+  html,
+  body {
     width: 100%;
     overflow-x: hidden;
     margin: 0;
@@ -277,7 +335,7 @@ const toggleMobileMenu = () => {
   }
 
   body {
-    font-family: "Archivo", sans-serif;
+    font-family: Archivo, sans-serif;
     background-color: #f2fffc;
     display: flex;
     flex-direction: column;
@@ -294,13 +352,15 @@ const toggleMobileMenu = () => {
   }
 
   header {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%) !important;
-    backdrop-filter: blur(0px);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0) 100%)
+      !important;
+    backdrop-filter: blur(0);
     transition: all 0.3s ease-in-out;
   }
 
   header.scrolled {
-    background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;
+    background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%)
+      !important;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
   }
@@ -317,20 +377,20 @@ const toggleMobileMenu = () => {
   }
 
   .card-oceanic-texture {
-    background-color: #ffffff;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 220'%3e%3cpath fill='%23E2FEFE' d='M 400,220 H 200 V 110 C 270,90 330,170 400,130 Z'/%3e%3cpath fill='%23BFFDFD' d='M 400,220 H 200 V 120 C 280,100 320,180 400,140 Z'/%3e%3cpath fill='%23E2FEFE' d='M 200,110 C 130,130 70,70 0,90 V 220 H 200 Z'/%3e%3cpath fill='%23BFFDFD' d='M 200,120 C 120,140 80,80 0,100 V 220 H 200 Z'/%3e%3c/svg%3e");    
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 220'%3E%3Cpath fill='%23E2FEFE' d='M 400,220 H 200 V 110 C 270,90 330,170 400,130 Z'/%3E%3Cpath fill='%23BFFDFD' d='M 400,220 H 200 V 120 C 280,100 320,180 400,140 Z'/%3E%3Cpath fill='%23E2FEFE' d='M 200,110 C 130,130 70,70 0,90 V 220 H 200 Z'/%3E%3Cpath fill='%23BFFDFD' d='M 200,120 C 120,140 80,80 0,100 V 220 H 200 Z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-size: 200% auto;
     background-position: 99% 100%;
-    
     transition: background-position 0.8s cubic-bezier(0.25, 1, 0.5, 1),
-                transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   @media (max-width: 640px) {
     .card-oceanic-texture {
       background-position: 99% 101%;
     }
+
     .card-oceanic-texture:hover {
       background-position: 1% 101%;
     }
@@ -338,7 +398,7 @@ const toggleMobileMenu = () => {
 
   @media (min-width: 641px) {
     .card-oceanic-texture:hover {
-      background-position: 0% 100%;
+      background-position: 0 100%;
     }
   }
 
@@ -352,7 +412,7 @@ const toggleMobileMenu = () => {
 
   .button-detail:hover {
     background-color: #00c8c9;
-    color: white;
+    color: #fff;
   }
 
   .mobile-nav-item {
@@ -360,12 +420,13 @@ const toggleMobileMenu = () => {
   }
 
   .mobile-nav-item.active {
-    color: white;
+    color: #fff;
   }
 
   @media (max-width: 1023px) {
     .content-wrapper > header {
-      background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;
+      background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748)
+          100%) !important;
       backdrop-filter: blur(10px);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
     }
@@ -379,7 +440,7 @@ const toggleMobileMenu = () => {
     color: #04b0b1 !important;
     caret-color: #04b0b1 !important;
   }
-  
+
   @keyframes progress-animation {
     from {
       stroke-dashoffset: 283;

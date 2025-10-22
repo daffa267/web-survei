@@ -49,6 +49,8 @@ const filteredOpdList = computed(() => {
 });
 
 onMounted(async () => {
+  window.scrollTo(0, 0);
+
   try {
     // Langkah 1: Ambil data pengaturan situs
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
@@ -71,7 +73,7 @@ onMounted(async () => {
         // Setelah gambar siap, baru perbarui info situs
         siteInfo.value = {
           logo: data.file_logo,
-          name: data.name.toUpperCase(),
+          name: data.name,
           nama_aplikasi: data.nama_aplikasi,
           telp: data.telp,
           email: data.email,
@@ -160,7 +162,7 @@ const toggleMobileMenu = () => {
         <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
           <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.name }}</span>
+            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -468,7 +470,6 @@ footer {
 .search-input:-ms-input-placeholder { color: rgba(0,200,201,0.55) !important; }
 .search-input:-moz-placeholder { color: rgba(0,200,201,0.55) !important; }
 
-/* Set the actual typed text color and caret color */
 .search-input {
   color: #04b0b1 !important;
   caret-color: #04b0b1 !important;
