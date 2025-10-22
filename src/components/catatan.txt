@@ -1,6 +1,17 @@
 Revisi UI SKM:
 
-1. card-card kategori OPD dan Dinas ubah menjadi dinamis (integrasikan dengan API)
-2. Integrasikan dengan API semua halaman
+1. card-card kategori OPD dan Dinas ubah menjadi dinamis (integrasikan dengan API)✅
+2. Integrasikan dengan API semua halaman✅
 3. Deadline 20 Oktober
 4. tambahkan fitur pencarian di halaman opd dan dinas ✅
+5. icon website ✅
+6. Survei Kepuasan Masyarakat Pemko Tanjungpinang✅
+7. tombol pilih survei jadi pilih layanan✅
+8. umur di data responden pakai slider✅
+9. nama ratingnya di dinamis kan✅
+10. 2 pop up pada isi survei dan kritik saran✅
+11. tambah nama layanan di bawah nama instansi di isi survei✅
+12. data responden harus tersimpan ke database ✅
+13. ketika di halaman baru atau refresh harus dari atas halaman✅
+14. fungsi refresh halaman selain halaman beranda ⏳pending
+15. hapus konten email✅
