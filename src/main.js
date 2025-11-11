@@ -23,6 +23,14 @@ async function fetchAndSetSiteInfo() {
       // 3. Update Title (tanpa uppercase)
       document.title = siteData.name;
 
+      let logoUrl = siteData.file_logo;
+
+      // Periksa apakah URL-nya dimulai dengan 'http://'
+      if (logoUrl && logoUrl.startsWith('http://')) {
+        // Ganti 'http://' menjadi 'https://'
+        logoUrl = logoUrl.replace('http://', 'https://');
+      }
+
       // 4. Update Favicon dengan properti yang lebih lengkap
       let favicon = document.querySelector('link[rel="icon"]');
       if (!favicon) {
@@ -30,14 +38,14 @@ async function fetchAndSetSiteInfo() {
         favicon.rel = 'icon';
         document.head.appendChild(favicon);
       }
-      favicon.href = siteData.file_logo;
+      favicon.href = logoUrl;
       favicon.type = 'image/x-icon';
       favicon.sizes = 'any';
       
       // 5. Update Open Graph Image (untuk preview saat share di media sosial)
       const ogImage = document.querySelector('meta[property="og:image"]');
       if (ogImage) {
-        ogImage.content = siteData.file_logo;
+        ogImage.content = logoUrl;
       }
 
       console.log('Informasi situs berhasil diperbarui secara dinamis!');
