@@ -397,8 +397,8 @@ const toggleMobileMenu = () => {
   <div class="content-wrapper mb-60">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <div class="flex flex-row items-center gap-3 sm:gap-4 h-20">
-          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
+        <div class="flex flex-row items-center gap-3 sm:gap-1 h-20">
+          <img :src="siteInfo.logo" class="h-[85px] w-auto" alt="Logo Website" />
           <div class="flex flex-col">
             <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
@@ -508,7 +508,7 @@ const toggleMobileMenu = () => {
                  class="absolute z-20 top-1/2 left-1/2 
                  h-[55px] -translate-x-[calc(50%-25.6px)] -translate-y-[calc(50%-2px)]
                  sm:h-[70px] sm:-translate-x-[calc(50%-24px)] sm:-translate-y-[calc(50%-8px)]
-                 md:h-[70px] md:-translate-x-[calc(50%-19px)] md:-translate-y-[calc(50%-4px)] 
+                 md:h-[60px] md:-translate-x-[calc(50%-20px)] md:-translate-y-[calc(50%+2px)] 
                  w-auto" 
                  alt="Logo on Phone" />
             </div>
@@ -665,9 +665,9 @@ const toggleMobileMenu = () => {
             <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
               <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
                 <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-4 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
-                  Sarana dan Prasarana
+                  Perilaku Pelaksana
                 </h3>
-                <img src="/images/facility-management.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
+                <img src="/images/img_consumer_behavior.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-4 card-image" alt="Behavior" />
               </div>
               <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
@@ -681,9 +681,9 @@ const toggleMobileMenu = () => {
             <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
               <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
                 <h3 class="text-[#209fa0] font-bold text-sm mb-4 text-center">
-                  Perilaku Pelaksana
+                  Sarana dan Prasarana
                 </h3>
-                <img src="/images/img_consumer_behavior.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-4 card-image" alt="Behavior" />
+                <img src="/images/facility-management.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
               </div>
               <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
                 Lihat Detail
