@@ -41,7 +41,6 @@ const filteredSurveyList = computed(() => {
 
 onMounted(async () => {
   window.scrollTo(0, 0);
-  // UPDATE: Ambil opd_name dan service_name dari query
   opdName.value = route.query.opd_name || '';
   serviceName.value = route.query.service_name || '';
 
@@ -83,10 +82,10 @@ onMounted(async () => {
       if (result.success && result.data && result.data.length > 0) {
         surveyList.value = result.data.map(survey => ({
           ...survey,
-          nilai_ikm: (Math.random() * (4.0 - 2.5) + 2.5).toFixed(2) 
+          nilai_ikm: survey.nilai ? Number(survey.nilai).toFixed(2) : '0.00'
         }));
         // UPDATE: Gunakan serviceName dari query untuk judul halaman
-        pageTitle.value = serviceName.value ? `Survei untuk "${serviceName.value}"` : "Pilih Survei";
+        pageTitle.value = serviceName.value ? `Survei untuk ${serviceName.value}` : "Pilih Survei";
         idOPD.value = result.data[0].id_opd;
       } else {
         pageTitle.value = "Belum Ada Survei Tersedia";
@@ -117,8 +116,8 @@ const toggleMobileMenu = () => {
   <div class="content-wrapper">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-4 h-20">
-          <img :src="siteInfo.logo" class="h-[60px] w-auto" alt="Logo Pemko" />
+        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1 h-20">
+          <img :src="siteInfo.logo" class="h-[85px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
             <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
@@ -176,8 +175,8 @@ const toggleMobileMenu = () => {
         
         <div class="w-full h-full p-4 flex flex-col items-center justify-between text-center">
             <div>
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm leading-tight">{{ survey.name }}</h3>
-                <p class="inline-block text-[10px] sm:text-xs font-semibold text-teal-800 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 my-1 sm:my-2" style="background-color: rgba(0,200,201,0.32);">
+                <h3 class="text-[#209fa0] font-bold text-xs sm:text-[16px] leading-tight">{{ survey.name }}</h3>
+                <p class="inline-block text-[10px] sm:text-[11px] font-semibold text-teal-800 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 my-1 sm:my-2" style="background-color: rgba(0,200,201,0.32);">
                     Periode: {{ survey.periode }}
                 </p>
             </div>
@@ -188,10 +187,10 @@ const toggleMobileMenu = () => {
                     <circle cx="50" cy="50" r="40" class="progress-circle stroke-current text-[#00c8c9]" stroke-width="10" fill="transparent"
                             stroke-linecap="round"
                             transform="rotate(-90 50 50)"
-                            :style="{ 'stroke-dashoffset': `calc(283 - (283 * ${survey.nilai_ikm || 0}) / 4)` }">
+                            :style="{ 'stroke-dashoffset': `calc(283 - (283 * ${survey.nilai_ikm || 0}) / 100)` }">
                     </circle>
                     <text x="50" y="52" text-anchor="middle" dominant-baseline="middle" class="text-2xl font-bold fill-current text-[#007c7e]">
-                        {{ survey.nilai_ikm || 'N/A' }}
+                        {{ survey.nilai_ikm || '0.00' }}
                     </text>
                 </svg>
             </div>
