@@ -116,10 +116,10 @@ const toggleMobileMenu = () => {
   <div class="content-wrapper">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50 scrolled">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <router-link to="/" class="flex flex-row items-center gap-3 sm:gap-1 h-20">
+        <router-link to="/" class="flex flex-row items-center gap-0 sm:gap-1 h-20 -ml-0.5 sm:ml-0">
           <img :src="siteInfo.logo" class="h-[85px] w-auto" alt="Logo Pemko" />
           <div class="flex flex-col">
-            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
+            <span class="text-[20.5px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </router-link>
@@ -175,7 +175,7 @@ const toggleMobileMenu = () => {
         
         <div class="w-full h-full p-4 flex flex-col items-center justify-between text-center">
             <div>
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-[16px] leading-tight">{{ survey.name }}</h3>
+                <h3 class="text-[#209fa0] font-bold text-[14px] sm:text-[16px] leading-tight">{{ survey.name }}</h3>
                 <p class="inline-block text-[10px] sm:text-[11px] font-semibold text-teal-800 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 my-1 sm:my-2" style="background-color: rgba(0,200,201,0.32);">
                     Periode: {{ survey.periode }}
                 </p>
@@ -225,34 +225,34 @@ const toggleMobileMenu = () => {
             </div>
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="md:ml-12">
-                    <h3 class="text-white font-semibold text-2xl mb-4">SKM</h3>
-                    <div class="text-white/90 text-sm leading-relaxed space-y-2">
-                        <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
-                        <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
-                        <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
-                    </div>
+                  <h3 class="text-white font-semibold text-2xl mb-4">SKM</h3>
+                  <div class="text-white/90 text-sm leading-relaxed space-y-2">
+                      <p><a href="/" class="hover:text-white transition-colors">Home</a></p>
+                      <p><a href="/#tentang" class="hover:text-white transition-colors">Tentang</a></p>
+                      <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
+                  </div>
 
-                    <div class="mt-6 pt-4 border-t border-white/20">
-                        <router-link to="/login" class="group relative inline-flex items-center gap-3 px-6 py-2.5 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-sm border border-white/40 rounded-xl text-white font-bold text-sm overflow-hidden transition-all duration-500 hover:shadow-lg hover:shadow-white/10 hover:border-white/60">
-                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                            
-                            <div class="relative p-1.5 bg-gradient-to-br from-white/30 to-white/10 rounded-lg transition-all duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            
-                            <span class="relative z-10">
-                                Portal Admin
-                            </span>
-                            
-                            <div class="relative ml-2 group-hover:translate-x-1.5 transition-transform duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                            </div>
-                        </router-link>
-                    </div>
+                  <div class="mt-6 pt-4 border-t border-white/20">
+                    <a href="https://admin.skm.tanjungpinangkota.go.id/admin/login" target="_blank" rel="noopener noreferrer" class="group relative inline-flex w-full sm:w-auto items-center justify-center gap-3 px-6 py-2.5 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-sm border border-white/40 rounded-xl text-white font-bold text-sm overflow-hidden transition-all duration-500 hover:shadow-lg hover:shadow-white/10 hover:border-white/60">
+                      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                      
+                      <div class="relative p-1.5 bg-gradient-to-br from-white/30 to-white/10 rounded-lg transition-all duration-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                          </svg>
+                      </div>
+                      
+                      <span class="relative z-10">
+                          Portal Admin
+                      </span>
+                      
+                      <div class="relative ml-2 group-hover:translate-x-1.5 transition-transform duration-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                      </div>
+                    </a>
+                  </div>
                 </div>
                 <div>
                     <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
