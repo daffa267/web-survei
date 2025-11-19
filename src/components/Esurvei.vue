@@ -4,11 +4,8 @@ import Chart from 'chart.js/auto';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-// --- START: Loading Screen Logic ---
 const isLoading = ref(true);
-// --- END: Loading Screen Logic ---
 
-// --- START: Site Info Logic ---
 const siteInfo = ref({
   logo: '/images/Logo-Pemko.png',
   name: 'Memuat...',
@@ -20,9 +17,7 @@ const siteInfo = ref({
   email: '',
   copyright: ''
 });
-// --- END: Site Info Logic ---
 
-// --- START: Modal Logic ---
 const isModalVisible = ref(false);
 const modalContent = ref({
   title: '',
@@ -42,17 +37,37 @@ const biayaTarifContent = {
   description: 'Ongkos yang dikenakan kepada penerima layanan dalam mengurus dan/atau memperoleh pelayanan dari penyelenggara yang besarnya ditetapkan berdasarkan kesepakatan antara penyelenggara dan masyarakat.'
 };
 
-const openModal = (content) => {
-  modalContent.value = content;
+const unsurList = ref([]);
+
+const getUnsurImage = (id) => {
+  const imageMap = {
+    1: '/images/img_wired_flat_56_d.png',       // Persyaratan
+    2: '/images/img_operation_1.png',           // Prosedur
+    3: '/images/img_wired_flat_45_c.png',       // Waktu
+    4: '/images/img_money_bag_1.png',           // Biaya/Tarif
+    5: '/images/img_received_1.png',            // Produk Layanan
+    6: '/images/img_personal_growth.png',       // Kompetensi 
+    7: '/images/img_consumer_behavior.png',     // Perilaku 
+    8: '/images/facility-management.png',       // Sarana Prasarana
+    9: '/images/img_recommendation_1.png'       // Pengaduan
+  };
+  return imageMap[id] || '/images/card-unsur.svg';
+}
+
+const openModalDynamic = (item) => {
+  modalContent.value = {
+    title: item.name,
+    image: getUnsurImage(item.id),
+    // Gunakan keterangan dari API, jika null pakai text default
+    description: item.keterangan || 'Deskripsi lengkap mengenai unsur ini belum tersedia.' 
+  };
   isModalVisible.value = true;
 };
 
 const closeModal = () => {
   isModalVisible.value = false;
 };
-// --- END: Modal Logic ---
 
-// --- START: Chart Logic ---
 let opdChartInstance = null;
 
 const selectedYear = ref('2023');
@@ -189,12 +204,22 @@ onMounted(async () => {
   } catch (error) {
     console.error("Gagal mengambil data pengaturan situs:", error);
     siteInfo.value.nama_aplikasi = 'Gagal Memuat Data';
+  } 
+
+  try {
+    const unsurResp = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/form/indikator-option');
+    if (unsurResp.ok) {
+      const result = await unsurResp.json();
+      if (result.success && result.data) {
+        unsurList.value = result.data;
+      }
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data unsur:", error);
   } finally {
-    // Hilangkan loading screen setelah semua data, gambar, dan jeda singkat selesai
-    isLoading.value = false;
+    isLoading.value = false; 
   }
 
-  // --- START: Existing Scroll/Nav Logic ---
   const handleScroll = () => {
     const header = document.querySelector("header");
     if (window.scrollY > 10) {
@@ -397,10 +422,10 @@ const toggleMobileMenu = () => {
   <div class="content-wrapper mb-60">
     <header class="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
-        <div class="flex flex-row items-center gap-3 sm:gap-1 h-20">
+        <div class="flex flex-row items-center gap-0 sm:gap-1 h-20 -ml-0.5 sm:ml-0">
           <img :src="siteInfo.logo" class="h-[85px] w-auto" alt="Logo Website" />
           <div class="flex flex-col">
-            <span class="text-[21px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
+            <span class="text-[20.5px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
           </div>
         </div>
@@ -506,7 +531,7 @@ const toggleMobileMenu = () => {
   
             <img :src="siteInfo.logo" 
                  class="absolute z-20 top-1/2 left-1/2 
-                 h-[55px] -translate-x-[calc(50%-25.6px)] -translate-y-[calc(50%-2px)]
+                 h-[45px] -translate-x-[calc(50%-25.6px)] -translate-y-[calc(50%)]
                  sm:h-[70px] sm:-translate-x-[calc(50%-24px)] sm:-translate-y-[calc(50%-8px)]
                  md:h-[60px] md:-translate-x-[calc(50%-20px)] md:-translate-y-[calc(50%+2px)] 
                  w-auto" 
@@ -567,144 +592,31 @@ const toggleMobileMenu = () => {
 
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 lg:gap-y-10 lg:gap-x-4 mb-16 max-w-7xl mx-auto justify-items-center">
         
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="100" data-aos-once="true">
+        <div 
+          v-for="(item, index) in unsurList" 
+          :key="item.id"
+          class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" 
+          data-aos="fade-up" 
+          data-aos-duration="500" 
+          :data-aos-delay="(index + 1) * 100" 
+          data-aos-once="true"
+        >
           <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
+          
           <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
+          
           <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
             <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-              <h3 class="text-[#209fa0] font-bold text-sm mb-6 text-center">Persyaratan</h3>
-              <img src="/images/img_wired_flat_56_d.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[90px] lg:h-[90px] mb-6 card-image" alt="Requirements" />
+              <h3 class="text-[#209fa0] font-bold text-xs sm:text-[16px] mb-4 sm:mb-4 -mt-[-10px] sm:mt-[-10px] leading-tight text-center">
+                {{ item.name }}
+              </h3>
+              <img :src="getUnsurImage(item.id)" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[90px] lg:h-[90px] mb-6 card-image" :alt="item.name" />
             </div>
-            <button @click="openModal(persyaratanContent)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
+            
+            <button @click="openModalDynamic(item)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
               Lihat Detail
             </button>
           </div>
-        </div>
-
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="200" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-4 leading-tight text-center">
-                  Sistem, Mekanisme,<br />dan Prosedur
-                </h3>
-                <img src="/images/img_operation_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] mb-6 card-image" alt="System" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="300" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.97%] h-auto z-10" style="width: 102.4% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-4 text-center">
-                  Waktu Penyelesaian
-                </h3>
-                <img src="/images/img_wired_flat_45_c.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-4 card-image" alt="Time" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="400" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-6 text-center">Biaya/Tarif</h3>
-                <img src="/images/img_money_bag_1.png" class="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[90px] lg:h-[90px] mb-6 card-image" alt="Cost" />
-              </div>
-              <button @click="openModal(biayaTarifContent)" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="400" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.95%] h-auto z-10" style="width: 102.5% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-6 leading-tight text-center">
-                  Produk Spesifikasi<br />dan Jenis Pelayanan
-                </h3>
-                <img src="/images/img_received_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-6 card-image" alt="Product" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="500" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-4 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
-                  Kompetensi Pelaksana
-                </h3>
-                <img src="/images/img_personal_growth.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="500" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-4 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
-                  Perilaku Pelaksana
-                </h3>
-                <img src="/images/img_consumer_behavior.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-4 card-image" alt="Behavior" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-        
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="600" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-center pb-10 lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-sm mb-4 text-center">
-                  Sarana dan Prasarana
-                </h3>
-                <img src="/images/facility-management.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] -mb-2 sm:mb-6 card-image" alt="Competence" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
-        </div>
-        
-        <div class="relative overflow-visible rounded-xl custom-shadow h-[188px] w-[170px] sm:h-[200px] sm:w-[200px] lg:h-[259px] lg:w-[260px]" data-aos="fade-up" data-aos-duration="500" data-aos-delay="700" data-aos-once="true">
-            <div class="absolute inset-0 rounded-[8px] sm:rounded-[10px] z-0" style="background: linear-gradient(90deg, #f2fffc 25%, rgba(57, 211, 211, 0.748) 100%) !important;"></div>
-            <img src="/images/card-unsur.svg" class="absolute top-[30.4%] sm:top-[23%] left-1/2 transform -translate-x-[24.93%] h-auto z-10" style="width: 102.6% !important; max-width: 103% !important" alt="Card Unsur Decoration" />
-            <div class="relative z-20 w-full h-full p-4 flex flex-col items-center lg:justify-between">
-              <div class="w-full flex-1 flex flex-col items-center justify-start pt-0 pb-4 sm:py-0 sm:justify-center lg:pb-0">
-                <h3 class="text-[#209fa0] font-bold text-xs sm:text-sm mb-1 sm:mb-4 -mt-1 sm:mt-0 leading-tight text-center">
-                  Penanganan Pengaduan,<br />Saran, dan Masukan
-                </h3>
-                <img src="/images/img_recommendation_1.png" class="w-[70px] h-[70px] sm:w-[90px] sm:h-[90px] lg:w-[105px] lg:h-[105px] mb-0 sm:mb-6 card-image" alt="Complaint" />
-              </div>
-              <button class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA] w-full max-w-[120px] absolute bottom-4 left-[85%] -translate-x-1/2 lg:relative lg:left-[53%] lg:-translate-x-1/2 lg:mx-0">
-                Lihat Detail
-              </button>
-            </div>
         </div>
       </div>
     </section>
@@ -792,27 +704,27 @@ const toggleMobileMenu = () => {
                         <p><a href="/#unsur" class="hover:text-white transition-colors">Unsur Survei</a></p>
                     </div>
 
-                    <div class="mt-6 pt-4 border-t border-white/20">
-                        <router-link to="/login" class="group relative inline-flex items-center gap-3 px-6 py-2.5 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-sm border border-white/40 rounded-xl text-white font-bold text-sm overflow-hidden transition-all duration-500 hover:shadow-lg hover:shadow-white/10 hover:border-white/60">
-                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                            
-                            <div class="relative p-1.5 bg-gradient-to-br from-white/30 to-white/10 rounded-lg transition-all duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            
-                            <span class="relative z-10">
-                                Portal Admin
-                            </span>
-                            
-                            <div class="relative ml-2 group-hover:translate-x-1.5 transition-transform duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                            </div>
-                        </router-link>
-                    </div>
+                  <div class="mt-6 pt-4 border-t border-white/20">
+                    <a href="https://admin.skm.tanjungpinangkota.go.id/admin/login" target="_blank" rel="noopener noreferrer" class="group relative inline-flex w-full sm:w-auto items-center justify-center gap-3 px-6 py-2.5 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-sm border border-white/40 rounded-xl text-white font-bold text-sm overflow-hidden transition-all duration-500 hover:shadow-lg hover:shadow-white/10 hover:border-white/60">
+                      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                      
+                      <div class="relative p-1.5 bg-gradient-to-br from-white/30 to-white/10 rounded-lg transition-all duration-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                          </svg>
+                      </div>
+                      
+                      <span class="relative z-10">
+                          Portal Admin
+                      </span>
+                      
+                      <div class="relative ml-2 group-hover:translate-x-1.5 transition-transform duration-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                      </div>
+                    </a>
+                  </div>
                 </div>
                 <div>
                     <h3 class="text-center text-white font-semibold text-2xl mb-4">Kotak Masukan</h3>
