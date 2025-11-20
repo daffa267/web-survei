@@ -90,6 +90,7 @@ onMounted(async () => {
   opdName.value = route.query.opd_name || 'Dinas Tidak Ditemukan';
   serviceName.value = route.query.service_name || '';
 
+  serviceId.value = route.query.service_id || null;
   if (route.query.from === 'survey') {
     const savedData = sessionStorage.getItem('respondentData');
     if (savedData) {
@@ -308,7 +309,10 @@ const handleNext = () => {
             </div>
           </div>
           <div class="flex flex-col-reverse sm:flex-row sm:justify-between items-center pt-8 mt-auto gap-4 sm:gap-0">
-            <router-link :to="{ path: `/list-survey/${serviceId}`, query: { name: opdName } }" @click="clearRespondentData" class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">&larr; Sebelumnya</router-link>
+            <router-link :to="{ path: `/list-survey/${serviceId}`, query: { opd_name: opdName, service_name: serviceName } }" 
+              class="w-full sm:w-auto text-center px-8 py-2 border border-[#009293] rounded-[12px] text-[#009293] font-semibold hover:bg-cyan-50 transition-colors">
+              &larr; Sebelumnya
+            </router-link>
             <button type="submit" class="w-full sm:w-auto text-center px-8 py-2 bg-[#00c8c9] text-white font-semibold rounded-[12px] hover:bg-[#00a6a7] transition-colors">Selanjutnya &rarr;</button>
           </div>
         </form>
