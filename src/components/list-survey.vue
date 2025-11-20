@@ -39,6 +39,21 @@ const filteredSurveyList = computed(() => {
   });
 });
 
+const getTitleClass = (text) => {
+  if (!text) return 'text-[14px] sm:text-[16px]'; 
+  
+  const len = text.length;
+  
+  // Jika sangat panjang (> 70 karakter)
+  if (len > 70) return 'text-[10px] sm:text-[11px] leading-tight';
+  
+  // Jika lumayan panjang (> 40 karakter)
+  if (len > 40) return 'text-[11px] sm:text-[12px] leading-tight';
+  
+  // Jika standar
+  return 'text-[14px] sm:text-[16px] leading-tight';
+};
+
 onMounted(async () => {
   window.scrollTo(0, 0);
   opdName.value = route.query.opd_name || '';
@@ -173,33 +188,41 @@ const toggleMobileMenu = () => {
       <div v-for="survey in filteredSurveyList" :key="survey.id" 
         class="card-oceanic-texture relative overflow-hidden rounded-xl shadow-md border border-gray-200/50 transition-all duration-300 hover:shadow-cyan-500/20 hover:-translate-y-1.5 h-[230px] w-[170px] sm:h-[250px] sm:w-[200px] lg:h-[280px] lg:w-[259px]">
         
-        <div class="w-full h-full p-4 flex flex-col items-center justify-between text-center">
-            <div>
-                <h3 class="text-[#209fa0] font-bold text-[14px] sm:text-[16px] leading-tight">{{ survey.name }}</h3>
-                <p class="inline-block text-[10px] sm:text-[11px] font-semibold text-teal-800 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 my-1 sm:my-2" style="background-color: rgba(0,200,201,0.32);">
-                    Periode: {{ survey.periode }}
+        <div class="w-full h-full p-4 relative text-center">
+            
+            <div class="w-full h-[80px] sm:h-[90px] flex flex-col justify-center items-center mb-2">
+                
+                <h3 :class="getTitleClass(survey.name)" class="text-[#209fa0] font-bold w-full break-words transition-all duration-300">
+                    {{ survey.name }}
+                </h3>
+                
+                <p class="inline-block text-[9px] sm:text-[10px] font-semibold text-teal-800 rounded-full px-2 py-0.5 mt-1" style="background-color: rgba(0,200,201,0.32);">
+                    {{ survey.periode }}
                 </p>
             </div>
 
-            <div class="relative w-24 h-24 sm:w-28 sm:h-28 my-2">
-                <svg class="w-full h-full" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" class="stroke-current text-gray-200" stroke-width="10" fill="transparent"></circle>
-                    <circle cx="50" cy="50" r="40" class="progress-circle stroke-current text-[#00c8c9]" stroke-width="10" fill="transparent"
-                            stroke-linecap="round"
-                            transform="rotate(-90 50 50)"
-                            :style="{ 'stroke-dashoffset': `calc(283 - (283 * ${survey.nilai_ikm || 0}) / 100)` }">
-                    </circle>
-                    <text x="50" y="52" text-anchor="middle" dominant-baseline="middle" class="text-2xl font-bold fill-current text-[#007c7e]">
-                        {{ survey.nilai_ikm || '0.00' }}
-                    </text>
-                </svg>
-            </div>
+            <div class="absolute bottom-4 left-0 w-full flex flex-col items-center gap-1 sm:gap-2">
+                <div class="relative w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" class="stroke-current text-gray-200" stroke-width="10" fill="transparent"></circle>
+                        <circle cx="50" cy="50" r="40" class="progress-circle stroke-current text-[#00c8c9]" stroke-width="10" fill="transparent"
+                                stroke-linecap="round"
+                                transform="rotate(-90 50 50)"
+                                :style="{ 'stroke-dashoffset': `calc(283 - (283 * ${survey.nilai_ikm || 0}) / 100)` }">
+                        </circle>
+                    <text x="50" y="52" text-anchor="middle" dominant-baseline="middle" class="text-xl sm:text-2xl lg:text-xl font-bold fill-current text-[#007c7e]">
+                            {{ survey.nilai_ikm || '0.00' }}
+                        </text>
+                    </svg>
+                </div>
 
-            <router-link :to="{ path: '/data-responden/' + survey.id, query: { opd_name: opdName, service_name: serviceName } }" class="button-detail bg-white text-[#00c8c9] px-5 py-1.5 rounded-2xl text-xs sm:text-sm font-semibold border-2 border-[#00C9CA]">
-                Isi Survei
-            </router-link>
+                <router-link :to="{ path: '/data-responden/' + survey.id, query: { opd_name: opdName, service_name: serviceName, service_id: route.params.id } }" class="button-detail bg-white text-[#00c8c9] px-4 py-1.5 rounded-2xl text-[10px] sm:text-xs font-semibold border-2 border-[#00C9CA] hover:bg-[#00C9CA] hover:text-white transition-colors">
+                    Isi Survei
+                </router-link>
             </div>
-    </div>
+            
+        </div>
+      </div>
 
     </div>
     <div v-else class="text-center text-gray-500 py-10">
