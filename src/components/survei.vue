@@ -135,34 +135,22 @@ const handleNext = async () => {
     ...respondentData,
     id_survey: parseInt(route.params.id),
     jawaban: jawaban,
+    // Keterangan akan ditambahkan nanti di halaman kritik-saran
   };
 
-  try {
-    const response = await axios.post('https://admin.skm.tanjungpinangkota.go.id/api/survey/kirim-jawaban', finalPayload);
-    if (response.data.success) {
-      const idJawaban = response.data.data.id;
-      
-      // --- PERBAIKAN: Baris di bawah ini dihapus agar data tidak ter-reset ---
-      // sessionStorage.removeItem('respondentData');
-      // sessionStorage.removeItem(surveyAnswersKey.value);
-      
-      router.push({ 
-        path: '/kritik-saran', 
-        query: { 
-          id_jawaban: idJawaban, 
-          opd_name: opdName.value,
-          service_name: serviceName.value,
-          survey_id: route.params.id
-        } 
-      });
-    } else {
-      validationMessage.value = 'Gagal mengirimkan jawaban. Silakan coba lagi.';
-      showValidationModal.value = true;
-    }
-  } catch (error) {
-    validationMessage.value = 'Terjadi kesalahan saat mengirim survei. Periksa koneksi Anda.';
-    showValidationModal.value = true;
-  }
+  // 2. Simpan payload sementara ke Session Storage
+  sessionStorage.setItem('tempSurveyPayload', JSON.stringify(finalPayload));
+
+  // 3. Langsung navigasi ke halaman kritik-saran TANPA request axios
+  router.push({ 
+    path: '/kritik-saran', 
+    query: { 
+      // Kita tidak butuh id_jawaban lagi disini karena belum disubmit
+      opd_name: opdName.value,
+      service_name: serviceName.value,
+      survey_id: route.params.id
+    } 
+  });
 };
 
 const getLabelText = (question) => {

@@ -15,7 +15,6 @@ const router = useRouter();
 const opdName = ref('Memuat...');
 const serviceName = ref('');
 const surveyId = ref(null);
-const answerId = ref(null);
 
 const kritikSaran = ref('');
 
@@ -24,7 +23,6 @@ onMounted(async () => {
   opdName.value = route.query.opd_name || 'Dinas Tidak Ditemukan';
   serviceName.value = route.query.service_name || '';
   surveyId.value = route.query.survey_id;
-  answerId.value = route.query.id_jawaban;
 
   try {
     const response = await fetch('https://admin.skm.tanjungpinangkota.go.id/api/site-setting');
@@ -46,40 +44,40 @@ onMounted(async () => {
 const handleKirim = async () => {
   const finalQuery = { opd_name: opdName.value, service_name: serviceName.value };
 
-  // Fungsi untuk membersihkan session storage
-  const cleanupSession = () => {
-    sessionStorage.removeItem('respondentData');
-    const surveyAnswersKey = `surveyAnswers-${surveyId.value}`;
-    sessionStorage.removeItem(surveyAnswersKey);
-  };
+  const storedPayload = sessionStorage.getItem('tempSurveyPayload');
 
-  // Jika tidak ada kritik, langsung ke halaman finish
-  if (!kritikSaran.value.trim()) {
-    cleanupSession();
-    router.push({ path: '/finish', query: finalQuery });
+  if (!storedPayload) {
+    // Jika data hilang (misal user reload paksa), kembalikan ke survei
+    alert("Data survei tidak ditemukan, silakan isi kembali.");
+    router.push(`/survei/${surveyId.value}`);
     return;
   }
 
-  // Jika ada kritik, coba kirim
+  let payload = JSON.parse(storedPayload);
+
+  payload.keterangan = kritikSaran.value.trim() ? kritikSaran.value : '-';
+
   try {
-    if (!answerId.value) {
-      console.error("Error: ID Jawaban tidak ditemukan untuk mengirim kritik.");
+    // 3. Kirim SEMUA data (Responden + Jawaban + Kritik) di sini
+    const response = await axios.post('https://admin.skm.tanjungpinangkota.go.id/api/survey/kirim-jawaban', payload);
+    
+    if (response.data.success) {
+      // Bersihkan session setelah berhasil
+      sessionStorage.removeItem('respondentData');
+      sessionStorage.removeItem('tempSurveyPayload');
+      const surveyAnswersKey = `surveyAnswers-${surveyId.value}`;
+      sessionStorage.removeItem(surveyAnswersKey);
+
+      // Pindah ke finish
+      router.push({ path: '/finish', query: finalQuery });
     } else {
-      const payload = {
-        id_jawaban: answerId.value,
-        kritik: kritikSaran.value,
-        saran: ''
-      };
-      await axios.post('https://admin.skm.tanjungpinangkota.go.id/api/survey/kirim-kritik-saran', payload);
+      console.error("Gagal mengirim data:", response.data.message);
+      alert("Terjadi kesalahan saat mengirim data.");
     }
+    
   } catch (error) {
     console.error("Gagal mengirim kritik dan saran:", error);
-    // --- PERBAIKAN: Alert dihapus, hanya log di console ---
-    // alert("Gagal mengirim kritik dan saran, namun survei Anda sudah tercatat.");
-  } finally {
-    // Apapun hasilnya (sukses atau gagal), bersihkan data dan lanjut
-    cleanupSession();
-    router.push({ path: '/finish', query: finalQuery });
+    alert("Gagal terhubung ke server. Silakan coba lagi.");
   }
 };
 </script>
