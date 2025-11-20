@@ -13,5 +13,5 @@ Revisi UI SKM:
 11. tambah nama layanan di bawah nama instansi di isi survei✅
 12. data responden harus tersimpan ke database ✅
 13. ketika di halaman baru atau refresh harus dari atas halaman✅
-14. fungsi refresh halaman selain halaman beranda ⏳pending
+14. fungsi refresh halaman selain halaman beranda ✅
 15. hapus konten email✅
