@@ -7,7 +7,7 @@ import 'aos/dist/aos.css';
 const isLoading = ref(true);
 
 const siteInfo = ref({
-  logo: '/images/Logo-Pemko.png',
+  logo: '...',
   name: 'Memuat...',
   nama_aplikasi: 'Memuat...', 
   deskripsi: '',

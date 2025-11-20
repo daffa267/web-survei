@@ -4,7 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios'; 
 
 const siteInfo = ref({
-  logo: '/images/Logo-Pemko.png',
+  logo: '...',
   name: '...',
   nama_aplikasi: 'Memuat...',
 });
@@ -222,7 +222,7 @@ const handleNext = () => {
     <header class="header-solid w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8 py-1 sm:py-2 fixed top-0 left-0 z-50">
       <div class="flex flex-row justify-between items-center w-full max-w-[1280px] mx-auto">
         <router-link to="/" class="flex flex-row items-center gap-0 sm:gap-1 h-20 -ml-0.5 sm:ml-0">
-          <img :src="siteInfo.logo" class="h-[85px] w-auto" alt="Logo Pemko" />
+          <img :src="siteInfo.logo" class="h-[85px] w-auto" alt="Icon" />
           <div class="flex flex-col">
             <span class="text-[20.5px] sm:text-[24px] font-semibold leading-tight custom-gradient-text">{{ siteInfo.nama_aplikasi }}</span>
             <span class="text-[16px] font-semibold leading-tight custom-gradient-text">Pemko Tanjungpinang</span>
